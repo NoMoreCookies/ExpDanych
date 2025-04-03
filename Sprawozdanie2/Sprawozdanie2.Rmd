@@ -1,8 +1,23 @@
 ---
-title: "Sprawozdanie2"
-author: "Kacper Szmigielski Mateusz Wizner"
-date: "2025-04-03"
-output: pdf_document
+title: "Sprawozdanie 2"
+subtitle: "Eksploracja danych"
+author: "Kacper Szmigielski, 282255 i Mateusz Wizner"
+date: "`r Sys.Date()`"
+header-includes:
+   - \usepackage[OT4]{polski}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage{graphicx}
+   - \usepackage{float}
+   - \usepackage{xcolor}
+output: 
+  pdf_document:
+    toc: true
+    fig_caption: yes
+    fig_width: 5 
+    fig_height: 4 
+    toc_depth: 3  
+    number_sections: true
+fontsize: 12pt 
 ---
 
 ```{r setup, include=FALSE}
@@ -25,3 +40,22 @@ head(data)
 #---------------------------------------------------------
 
 ```
+# ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
+##  a) Dane: iris (R-pakiet datasets).
+##  b) Wybór cech
+##  c) Porównanie nienadzorowanych metod dyskretyzacji
+
+# ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
+##  a) Dane: City Quality of Life Dataset (plik uaScoresDataFrame.csv, źródło: Kaggle/Teleport.org)
+##  b) Przygotowanie danych
+##  c) Wyznaczenie składowych głównych
+##  d) Zmienność odpowiadająca poszczególnym składowym
+##  e) Wizualizacja danych wielowymiarowych
+##  f) Korelacja zmiennych
+##  g) Końcowe wnioski
+
+# ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))
+##  a) Dane: titanic_train (R-pakiet titanic)
+##  b) Przygotowanie danych
+##  c) Redukcja wymiaru na bazie MDS
+##  d) Wizualizacja danych
