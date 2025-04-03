@@ -40,8 +40,25 @@ head(data)
 #---------------------------------------------------------
 
 ```
+
+```{r Import_bibliotek}
+library(knitr)
+library(dplyr)
+library(kableExtra)
+
+```
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
 ##  a) Dane: iris (R-pakiet datasets).
+
+**3** Pierwsze wiersze z pakietu iris
+```{r Dane_iris_przykład}
+data <- iris
+kable(head(data,3))
+```
+Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów** (tj. setosa, versicolor i virginica) i został **udostępniony przez Ronalda Fishera w roku 1936.**
+
+– **Pomiary** dotyczą **długości oraz szerokości** dwóch różnych części kwiatu– działki **kielicha (ang. sepal) oraz płatka (ang. petal).**
+
 ##  b) Wybór cech
 ##  c) Porównanie nienadzorowanych metod dyskretyzacji
 
