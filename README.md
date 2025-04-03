@@ -1,0 +1,2 @@
+# ExpDanych
+Sprawozdania Z ExploracjiDanych
