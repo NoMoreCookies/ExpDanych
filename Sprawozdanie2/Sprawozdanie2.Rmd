@@ -44,6 +44,8 @@ head(data)
 library(knitr)
 library(dplyr)
 library(kableExtra)
+library(patchwork)
+library(ggplot2)
 ```
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
 ##  a) Dane: iris (R-pakiet datasets).
@@ -58,6 +60,62 @@ Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów
 – **Pomiary** dotyczą **długości oraz szerokości** dwóch różnych części kwiatu– działki **kielicha (ang. sepal) oraz płatka (ang. petal).**
 
 ##  b) Wybór cech
+
+Cechy, inaczej właściwie możemy to rozstrzygać jako kolumny, które charakteryzują się **największym zróżnicowaniem** w stosunku do rodzaju gatunku
+
+
+```{r zad1b}
+
+p1 <- ggplot(data,aes(x = Sepal.Length,col = Species))+
+  geom_histogram()
+p2 <- ggplot(data,aes(x = Sepal.Width,col = Species))+
+  geom_histogram()
+p3 <- ggplot(data,aes(x = Petal.Length,col = Species))+
+  geom_histogram()
+p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
+  geom_histogram()
+
+
+
+(p1 + p2) / (p3 + p4) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",)
+
+```
+
+
+
+
+
+
+Po utworzeniu wykresów zależności długości i szerokości taki zmiennych jak od gatunku, jasno widać ,że 
+
+**warto jest zwrócić uwagę na takie cechy jak: Petal.Length i Petal.Width**
+
+Z wykresów widać,że Petal.Legnth jak i Petal.Width charakteryzuje się 3 zagęszczeniami wyników z czego każde należy do innej grupy.
+
+Widać również,że Sepal nie jest tak zróżnicowany na tle gatunkowym kwiatów jak Petal.
+
+**Wariancje: **
+
+Dla Length: `r var(data$Petal.Length)`
+
+Dla Width: `r var(data$Petal.Width)`
+
+Pomimo znacznie większej wariancji dla Petal.Length , widać że o wiele lepiej można wnioskować gatunek za pomocą Petal.Width, gdzie
+
+dla 
+
+setosy jest on w przedziale (0,2)
+
+versicolor jest on w przedziale (1,1.7)
+
+a dla  virginica znaczna większość znajduje się w przedziale (1.5,2.5)
+
+Natomiast gdyby rozróżniać wedłóg Petal.Length mogły by wystąpić sprzeczność idla versicolor i setosy, które
+
+w znaczniej więszkośći wykazują skołonność do posiadania od 4 do 6 Petal.Length
+
 ##  c) Porównanie nienadzorowanych metod dyskretyzacji
 
 # ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
