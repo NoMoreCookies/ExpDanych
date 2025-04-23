@@ -26,17 +26,22 @@ fontsize: 12pt
 ### message = FALSE (Nie wyświetla jakiś powiadomień)
 ### warning = Flase (Nie wyświetla błędów jak się pojawią)
 #---------------------------------------------------------
+
 knitr::opts_chunk$set(echo = FALSE )
 knitr::opts_chunk$set(message = FALSE, waring = FALSE )
 knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.align = "center")
+
 #---------------------------------------------------------
 ```
 
 ```{r DATA_IMPORT}
 #IMPORT DANYCH
 #---------------------------------------------------------
+
 data <- read.csv("uaScoresDataFrame.csv") 
 head(data)
+
+
 #---------------------------------------------------------
 ```
 
@@ -48,6 +53,8 @@ library(dplyr)
 library(kableExtra)
 library(patchwork)
 library(ggplot2)
+library(arules)
+library(e1071)
 #---------------------------------------------------------
 ```
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
@@ -101,7 +108,7 @@ dodajemy jedną dodatkową kolumnę y, wypełnioną losowymi liczbami od 0 do 1 
 
 ```{r zad1b1}
 #DODATKOWY WIERSZ DO WIZUALIZACJI
-#---------------------------------------------------------
+#-----/----------------------------------------------------
 data$y <- runif(nrow(data))
 #---------------------------------------------------------
 
@@ -157,6 +164,248 @@ Na ich podstawaie możemy uznać, że Petal.Width może stanowić najlepszy wyzn
 Najgorszym natomiast jest Sepal.Width, tutaj duża część gatunków dzieli te same wartości tej cechy.
 
 ##  c) Porównanie nienadzorowanych metod dyskretyzacji
+
+```{r Przygotowanie_danych}
+#PRZYGOTOWANIE DANUYCH TRENINGOWYCH
+#---------------------------------------------------------
+trainingData1 <- data$Petal.Width
+trainingData2 <- data$Sepal.Length
+#---------------------------------------------------------
+```
+
+```{r drawing_hist_method}
+
+#DEFINIOWANIE METODY
+#---------------------------------------------------------
+hist_plot <- function(trainingData,method){
+  
+  results <- discretize(trainingData, breaks = 3, method = method)
+  breaks.equal.frq <- attributes(results)$"discretized:breaks"
+  
+  return (ggplot(data,aes(x = trainingData1,col = Species,main="Metoda: equal frequency discretization"))+
+  geom_histogram()+
+    geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
+}
+#---------------------------------------------------------
+
+```
+
+```{r drawing scatter_metohod}
+#DEFINIOWANIE METODY
+#---------------------------------------------------------
+scatter_plot <- function(trainingData,method){
+  
+  results <- discretize(trainingData, breaks = 3, method = method)
+  breaks.equal.frq<- attributes(results)$"discretized:breaks"
+  
+  return (ggplot(data,aes(x = trainingData,y=y ,col=Species))+
+  geom_point()+
+geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
+}
+#---------------------------------------------------------
+
+```
+
+### Równe częstości
+
+#### Dla najlepszej
+```{r frequences_najl}
+
+#FREQUENCE_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData1,"Frequency")
+scatter_plot(trainingData1,"Frequency")
+#---------------------------------------------------------
+```
+
+```{r tabela_kondygnacji_1_najl}
+results <- discretize(trainingData1, breaks = 3, method = "Frequency")
+plot(iris$Species~results, col=1:3)
+```
+
+```{r tabela_zgodności_1_najl}
+compareMatchedClasses(data$Species, results)$diag
+```
+
+#### Dla najgorszej
+
+```{r frequences_najg}
+
+#FREQUENCE_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData2,"Frequency")
+scatter_plot(trainingData2,"Frequency")
+#---------------------------------------------------------
+```
+
+```{r tabela_kondygnacji_1_najg}
+results <- discretize(trainingData2, breaks = 3, method = "Frequency")
+plot(iris$Species~results, col=1:3)
+```
+
+```{r tabela_zgodności_1_najg}
+compareMatchedClasses(data$Species, results)$diag
+```
+
+### Równe szerokości
+
+#### Dla najlepszej
+
+```{r width_najl}
+
+
+#WIDTH_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData1,"Interval")
+scatter_plot(trainingData1,"Interval")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_2_najl}
+results <- discretize(trainingData1, breaks = 3, method = "Interval")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_2_najl}
+
+compareMatchedClasses(data$Species, results)$diag
+```
+
+#### Dla najgorszej
+
+```{r width_najg}
+
+
+#WIDTH_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData2,"Interval")
+scatter_plot(trainingData2,"Interval")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_2_najg}
+results <- discretize(trainingData2, breaks = 3, method = "Interval")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_2_najg}
+
+compareMatchedClasses(data$Species, results)$diag
+```
+
+### K-means
+
+#### Dla najlepszej
+
+```{r kMeans_najl}
+#WIDTH_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData1,"Cluster")
+scatter_plot(trainingData1,"Cluster")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_3_najl}
+results <- discretize(trainingData1, breaks = 3, method = "Cluster")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_3_najl}
+
+compareMatchedClasses(data$Species, results)$diag
+```
+
+#### Dla najgorszej
+
+```{r kMeans_najg}
+#WIDTH_METHOD
+#---------------------------------------------------------
+hist_plot(trainingData2,"Cluster")
+scatter_plot(trainingData2,"Cluster")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_3_najg}
+results <- discretize(trainingData2, breaks = 3, method = "Cluster")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_3_najg}
+
+compareMatchedClasses(data$Species, results)$diag[1]
+```
+
+### Dyskretyzacja z przedziałami zadanymi przez urzytkownika
+
+#### Dla najlepszej
+
+```{r givenRanges_najl}
+#GIVEN_RANGES
+#---------------------------------------------------------
+x.disc.user <- discretize(trainingData1, method = "fixed", 
+      breaks = c(-Inf, 0.5, 1.8, Inf), labels = c("small","medium", "large"))
+
+hist(trainingData1, breaks = 10, main = "Metoda: fixed (user provided breaks)")
+breaks.user <- c(-Inf, 0.5, 1.8, Inf)
+abline(v = breaks.user, col = "red", lwd=2)
+
+
+plot(trainingData1, data$y, col=iris$Species, main = "Metoda: fixed (user provided breaks)")
+abline(v = breaks.user, col = "red", lwd=3)
+legend(x = "topright", legend=levels(iris$Species), col=1:3, pch=21, bg = "azure")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_4_najl}
+results <- discretize(trainingData1, breaks = 3, method = "Cluster")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_4_najl}
+
+compareMatchedClasses(data$Species, results)$diag
+```
+
+#### Dla najgorszej
+
+```{r givenRanges_najg}
+#GIVEN_RANGES
+#---------------------------------------------------------
+x.disc.user <- discretize(trainingData2, method = "fixed", 
+      breaks = c(-Inf, 5, 6, Inf), labels = c("small","medium", "large"))
+
+hist(trainingData2, breaks = 10, main = "Metoda: fixed (user provided breaks)")
+breaks.user <- c(-Inf, 5, 6, Inf)
+abline(v = breaks.user, col = "red", lwd=2)
+
+
+plot(trainingData2, data$y, col=iris$Species, main = "Metoda: fixed (user provided breaks)")
+abline(v = breaks.user, col = "red", lwd=3)
+legend(x = "topright", legend=levels(iris$Species), col=1:3, pch=21, bg = "azure")
+#---------------------------------------------------------
+
+```
+
+```{r tabela_kondygnacji_4_najg}
+results <- discretize(trainingData2, breaks = 3, method = "Cluster")
+plot(iris$Species~results, col=1:3)
+
+```
+
+```{r tabela_zgodności_4_najg}
+
+compareMatchedClasses(data$Species, results)$diag
+```
 
 # ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
 ##  a) Dane: City Quality of Life Dataset (plik uaScoresDataFrame.csv, źródło: Kaggle/Teleport.org)
