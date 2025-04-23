@@ -28,7 +28,7 @@ fontsize: 12pt
 #---------------------------------------------------------
 knitr::opts_chunk$set(echo = FALSE )
 knitr::opts_chunk$set(message = FALSE, waring = FALSE )
-knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.allign = " center")
+knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.align = "center")
 #---------------------------------------------------------
 ```
 
@@ -41,18 +41,24 @@ head(data)
 ```
 
 ```{r Import_bibliotek}
+#POTRZEBNE BIBLIOTEKI
+#---------------------------------------------------------
 library(knitr)
 library(dplyr)
 library(kableExtra)
 library(patchwork)
 library(ggplot2)
+#---------------------------------------------------------
 ```
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
 ##  a) Dane: iris (R-pakiet datasets).
 
 **3** Pierwsze wiersze z pakietu iris
 ```{r Dane_iris_przykład}
+#DANE
+#---------------------------------------------------------
 data <- iris
+#---------------------------------------------------------
 kable(head(data,3))
 ```
 Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów** (tj. setosa, versicolor i virginica) i został **udostępniony przez Ronalda Fishera w roku 1936.**
@@ -65,7 +71,8 @@ Cechy, inaczej właściwie możemy to rozstrzygać jako kolumny, które charakte
 
 
 ```{r zad1b}
-
+#TWORZENIE WYKRESÓW 1
+#---------------------------------------------------------
 p1 <- ggplot(data,aes(x = Sepal.Length,col = Species))+
   geom_histogram()
 p2 <- ggplot(data,aes(x = Sepal.Width,col = Species))+
@@ -74,47 +81,80 @@ p3 <- ggplot(data,aes(x = Petal.Length,col = Species))+
   geom_histogram()
 p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
   geom_histogram()
+#---------------------------------------------------------
 
-
-
+#RYSOWANIE WYKRESÓW
+#---------------------------------------------------------
 (p1 + p2) / (p3 + p4) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom",)
+#---------------------------------------------------------
 
 ```
 
+Po przeanalizowaniu histogramów, widać ,że warto zwrócić uwagę na takie cechy jak **Petal.Length i Petal.Width**, ponieważ
+
+widać dobrze zaznaczone przedziały w których występuje większość kwiatków danego gatunku.
+
+Dalej warto jest też spojrzeć na to jak nasze *obserwawcje* teoretycznie rozkładają się w przestrzeni 2D, aby to zrobić
+dodajemy jedną dodatkową kolumnę y, wypełnioną losowymi liczbami od 0 do 1 (rozkłąd jednostajny)
+
+```{r zad1b1}
+#DODATKOWY WIERSZ DO WIZUALIZACJI
+#---------------------------------------------------------
+data$y <- runif(nrow(data))
+#---------------------------------------------------------
+
+#TWORZENIE WYKRESÓW
+#---------------------------------------------------------
+p1 <- ggplot(data,aes(x = Sepal.Length,y=y,col = Species))+
+  geom_point()
+p2 <- ggplot(data,aes(x = Sepal.Width,y=y ,col = Species))+
+  geom_point()
+p3 <- ggplot(data,aes(x = Petal.Length,y=y ,col= Species))+
+  geom_point()
+p4 <- ggplot(data,aes(x = Petal.Width,y=y ,col=Species))+
+  geom_point()
+#---------------------------------------------------------
 
 
+#RYSOWANIE WYKRESÓW
+#---------------------------------------------------------
+(p1 + p2) / (p3 + p4) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",)
+#---------------------------------------------------------
 
+```
 
+Wykresy typu scatter-plot potwierdzają ,że **Petal.Length i Petal.Width** są bardzo dobry wyborem cech, które mogłyby być wyznacznikami gatunków roślin.
 
-Po utworzeniu wykresów zależności długości i szerokości taki zmiennych jak od gatunku, jasno widać ,że 
+Musimy jednak wybrać wartości najlepsze i najgorsze, aby to zrobić przeanalizujemy jeszcze boxploty.
 
-**warto jest zwrócić uwagę na takie cechy jak: Petal.Length i Petal.Width**
+```{r zad1b2}
 
-Z wykresów widać,że Petal.Legnth jak i Petal.Width charakteryzuje się 3 zagęszczeniami wyników z czego każde należy do innej grupy.
+#TWORZENIE WYKRESÓW
+#---------------------------------------------------------
+p1 <- ggplot(data,aes(x = Sepal.Length,y=Species,col = Species))+
+  geom_boxplot()
+p2 <- ggplot(data,aes(x = Sepal.Width,y=Species ,col = Species))+
+  geom_boxplot()
+p3 <- ggplot(data,aes(x = Petal.Length,y=Species ,col= Species))+
+  geom_boxplot()
+p4 <- ggplot(data,aes(x = Petal.Width,y=Species ,col=Species))+
+  geom_boxplot()
+#---------------------------------------------------------
 
-Widać również,że Sepal nie jest tak zróżnicowany na tle gatunkowym kwiatów jak Petal.
+#RYSOWANIE WYKRESÓW
+#---------------------------------------------------------
+(p1 + p2) / (p3 + p4) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",)
+#---------------------------------------------------------
 
-**Wariancje: **
-
-Dla Length: `r var(data$Petal.Length)`
-
-Dla Width: `r var(data$Petal.Width)`
-
-Pomimo znacznie większej wariancji dla Petal.Length , widać że o wiele lepiej można wnioskować gatunek za pomocą Petal.Width, gdzie
-
-dla 
-
-setosy jest on w przedziale (0,2)
-
-versicolor jest on w przedziale (1,1.7)
-
-a dla  virginica znaczna większość znajduje się w przedziale (1.5,2.5)
-
-Natomiast gdyby rozróżniać wedłóg Petal.Length mogły by wystąpić sprzeczność idla versicolor i setosy, które
-
-w znaczniej więszkośći wykazują skołonność do posiadania od 4 do 6 Petal.Length
+```
+Na ich podstawaie możemy uznać, że Petal.Width może stanowić najlepszy wyznacznik gatunku roślin
+Najgorszym natomiast jest Sepal.Width, tutaj duża część gatunków dzieli te same wartości tej cechy.
 
 ##  c) Porównanie nienadzorowanych metod dyskretyzacji
 
