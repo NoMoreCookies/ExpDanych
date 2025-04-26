@@ -1,23 +1,27 @@
 ---
 title: "Sprawozdanie 2"
-subtitle: "Eksploracja danych"
 author: "Kacper Szmigielski, 282255 i Mateusz Wizner"
 date: "`r Sys.Date()`"
-header-includes:
-   - \usepackage[OT4]{polski}
-   - \usepackage[utf8]{inputenc}
-   - \usepackage{graphicx}
-   - \usepackage{float}
-   - \usepackage{xcolor}
-output: 
+output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
   pdf_document:
     toc: true
-    fig_caption: yes
-    fig_width: 5 
-    fig_height: 4 
-    toc_depth: 3  
+    fig_caption: true
+    fig_width: 5
+    fig_height: 4
+    toc_depth: 3
     number_sections: true
-fontsize: 12pt 
+header-includes:
+- \usepackage[OT4]{polski}
+- \usepackage[utf8]{inputenc}
+- \usepackage{graphicx}
+- \usepackage{float}
+- \usepackage{xcolor}
+subtitle: Eksploracja danych
+fontsize: 12pt
 ---
 
 ```{r setup, include=FALSE}
@@ -415,6 +419,45 @@ compareMatchedClasses(data$Species, results)$diag
 ##  e) Wizualizacja danych wielowymiarowych
 ##  f) Korelacja zmiennych
 ##  g) Końcowe wnioski
+
+```{r zadanie_2_wstep}
+
+# Wczytanie danych
+data <- read.csv("uaScoresDataFrame.csv")
+
+# Podstawowy przegląd danych
+str(data)
+summary(data)
+head(data)
+
+
+
+# Usuwamy X i zostawiamy tylko liczby
+data_numeric <- data[sapply(data, is.numeric) & names(data) != "X"]
+
+
+# Opcjonalnie podejrzyj:
+colnames(data_numeric)
+
+
+
+# Wariancje zmiennych
+variances <- apply(data_numeric, 2, var)
+print(variances)
+
+#należy zrobić standaryzacje ponieważ różnice pomiędzy wariancjami są zbyt znaczące np. Var(Venture.Capital) = 6.52 a Var
+
+# Wykresy pudełkowe dla wszystkich cech
+boxplot(data_numeric, las = 2, cex.axis = 0.7, main = "Rozkład cech ilościowych")
+
+
+# Standaryzacja cech ilościowych
+data_numeric_scaled <- scale(data_numeric)
+
+# Można sprawdzić:
+summary(data_numeric_scaled)
+
+```
 
 # ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))
 ##  a) Dane: titanic_train (R-pakiet titanic)
