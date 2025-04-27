@@ -92,7 +92,7 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={Sprawozdanie 2},
-  pdfauthor={Kacper Szmigielski, 282255 i Mateusz Wizner},
+  pdfauthor={Kacper Szmigielski, 282255 i Mateusz Wizner, 277508},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
@@ -104,8 +104,8 @@
 }
 \makeatother
 \subtitle{Eksploracja danych}
-\author{Kacper Szmigielski, 282255 i Mateusz Wizner}
-\date{2025-04-26}
+\author{Kacper Szmigielski, 282255 i Mateusz Wizner, 277508}
+\date{2025-04-28}
 
 \begin{document}
 \maketitle
@@ -114,57 +114,6 @@
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
-\begin{verbatim}
-##   X     UA_Name   UA_Country  UA_Continent Housing Cost.of.Living Startups
-## 1 0      Aarhus      Denmark        Europe  6.1315          4.015   2.8270
-## 2 1    Adelaide    Australia       Oceania  6.3095          4.692   3.1365
-## 3 2 Albuquerque   New Mexico North America  7.2620          6.059   3.7720
-## 4 3      Almaty   Kazakhstan          Asia  9.2820          9.333   2.4585
-## 5 4   Amsterdam  Netherlands        Europe  3.0530          3.824   7.9715
-## 6 5   Anchorage       Alaska North America  5.4335          3.141   2.7945
-##   Venture.Capital Travel.Connectivity Commute Business.Freedom Safety
-## 1           2.512              3.5360 6.31175         9.940000 9.6165
-## 2           2.640              1.7765 5.33625         9.399667 7.9260
-## 3           1.493              1.4555 5.05575         8.671000 1.3435
-## 4           0.000              4.5920 5.87125         5.568000 7.3090
-## 5           6.107              8.3245 6.11850         8.836667 8.5035
-## 6           0.000              1.7380 4.71525         8.671000 3.4705
-##   Healthcare Education Environmental.Quality Economy Taxation Internet.Access
-## 1   8.704333    5.3665               7.63300  4.8865   5.0680          8.3730
-## 2   7.936667    5.1420               8.33075  6.0695   4.5885          4.3410
-## 3   6.430000    4.1520               7.31950  6.5145   4.3460          5.3960
-## 4   4.545667    2.2830               3.85675  5.2690   8.5220          2.8860
-## 5   7.907333    6.1800               7.59725  5.0530   4.9550          4.5230
-## 6   6.060333    3.6245               9.27200  6.5145   4.7720          4.9645
-##   Leisure...Culture Tolerance Outdoors
-## 1            3.1870    9.7385   4.1300
-## 2            4.3285    7.8220   5.5310
-## 3            4.8900    7.0285   3.5155
-## 4            2.9370    6.5395   5.5000
-## 5            8.8740    8.3680   5.3070
-## 6            3.2660    7.0930   5.3580
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: pakiet 'dplyr' został zbudowany w wersji R 4.4.2
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: pakiet 'kableExtra' został zbudowany w wersji R 4.4.3
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: pakiet 'patchwork' został zbudowany w wersji R 4.4.2
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: pakiet 'arules' został zbudowany w wersji R 4.4.3
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: pakiet 'e1071' został zbudowany w wersji R 4.4.3
-\end{verbatim}
-
 \section{ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech
 ciągłych)}\label{zadanie-1-dyskretyzacjaprzedziaux142owanie-cech-ciux105gux142ych}
 
@@ -310,7 +259,7 @@ dyskretyzacji}\label{c-poruxf3wnanie-nienadzorowanych-metod-dyskretyzacji}
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najg-1} \end{center}
 
 \begin{verbatim}
-## [1] 0.72
+## [1] 0.5801105
 \end{verbatim}
 
 \subsubsection{Dyskretyzacja z przedziałami zadanymi przez
@@ -338,32 +287,227 @@ urzytkownika}\label{dyskretyzacja-z-przedziaux142ami-zadanymi-przez-urzytkownika
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najg-1} \end{center}
 
 \begin{verbatim}
-##      [,1]
-## [1,] 0.72
+##           [,1]
+## [1,] 0.7266667
 \end{verbatim}
 
 \section{ZADANIE 2 (Analizaskładowych głównych (Principal Component
 Analysis
 (PCA)))}\label{zadanie-2-analizaskux142adowych-gux142uxf3wnych-principal-component-analysis-pca}
 
-\subsection{a) Dane: City Quality of Life Dataset (plik
-uaScoresDataFrame.csv, źródło:
-Kaggle/Teleport.org)}\label{a-dane-city-quality-of-life-dataset-plik-uascoresdataframe.csv-ux17aruxf3dux142o-kaggleteleport.org}
+\subsection{a) Przygotowanie danych}\label{a-przygotowanie-danych}
 
-\subsection{b) Przygotowanie danych}\label{b-przygotowanie-danych}
+\begin{longtable}[]{@{}ll@{}}
+\caption{Typy danych w zbiorze}\tabularnewline
+\toprule\noalign{}
+& Type \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+& Type \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+X & integer \\
+UA\_Name & character \\
+UA\_Country & character \\
+UA\_Continent & character \\
+Housing & numeric \\
+Cost.of.Living & numeric \\
+Startups & numeric \\
+Venture.Capital & numeric \\
+Travel.Connectivity & numeric \\
+Commute & numeric \\
+Business.Freedom & numeric \\
+Safety & numeric \\
+Healthcare & numeric \\
+Education & numeric \\
+Environmental.Quality & numeric \\
+Economy & numeric \\
+Taxation & numeric \\
+Internet.Access & numeric \\
+Leisure\ldots Culture & numeric \\
+Tolerance & numeric \\
+Outdoors & numeric \\
+\end{longtable}
 
-\subsection{c) Wyznaczenie składowych
-głównych}\label{c-wyznaczenie-skux142adowych-gux142uxf3wnych}
+\begin{longtable}[]{@{}rlllrr@{}}
+\toprule\noalign{}
+X & UA\_Name & UA\_Country & UA\_Continent & Housing & Cost.of.Living \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & Aarhus & Denmark & Europe & 6.132 & 4.015 \\
+1 & Adelaide & Australia & Oceania & 6.310 & 4.692 \\
+2 & Albuquerque & New Mexico & North America & 7.262 & 6.059 \\
+3 & Almaty & Kazakhstan & Asia & 9.282 & 9.333 \\
+4 & Amsterdam & Netherlands & Europe & 3.053 & 3.824 \\
+5 & Anchorage & Alaska & North America & 5.434 & 3.141 \\
+\end{longtable}
 
-\subsection{d) Zmienność odpowiadająca poszczególnym
-składowym}\label{d-zmiennoux15bux107-odpowiadajux105ca-poszczeguxf3lnym-skux142adowym}
+\begin{longtable}[]{@{}rrrrrr@{}}
+\toprule\noalign{}
+X & Startups & Venture.Capital & Travel.Connectivity & Commute &
+Business.Freedom \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 2.827 & 2.512 & 3.536 & 6.312 & 9.940 \\
+1 & 3.136 & 2.640 & 1.777 & 5.336 & 9.400 \\
+2 & 3.772 & 1.493 & 1.456 & 5.056 & 8.671 \\
+3 & 2.458 & 0.000 & 4.592 & 5.871 & 5.568 \\
+4 & 7.972 & 6.107 & 8.325 & 6.118 & 8.837 \\
+5 & 2.795 & 0.000 & 1.738 & 4.715 & 8.671 \\
+\end{longtable}
 
-\subsection{e) Wizualizacja danych
-wielowymiarowych}\label{e-wizualizacja-danych-wielowymiarowych}
+\begin{longtable}[]{@{}rrrrrr@{}}
+\toprule\noalign{}
+X & Safety & Healthcare & Education & Environmental.Quality & Economy \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 9.617 & 8.704 & 5.367 & 7.633 & 4.887 \\
+1 & 7.926 & 7.937 & 5.142 & 8.331 & 6.070 \\
+2 & 1.343 & 6.430 & 4.152 & 7.319 & 6.514 \\
+3 & 7.309 & 4.546 & 2.283 & 3.857 & 5.269 \\
+4 & 8.504 & 7.907 & 6.180 & 7.597 & 5.053 \\
+5 & 3.470 & 6.060 & 3.624 & 9.272 & 6.514 \\
+\end{longtable}
 
-\subsection{f) Korelacja zmiennych}\label{f-korelacja-zmiennych}
+\begin{longtable}[]{@{}rrrrrr@{}}
+\toprule\noalign{}
+X & Taxation & Internet.Access & Leisure\ldots Culture & Tolerance &
+Outdoors \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 5.068 & 8.373 & 3.187 & 9.739 & 4.130 \\
+1 & 4.588 & 4.341 & 4.328 & 7.822 & 5.531 \\
+2 & 4.346 & 5.396 & 4.890 & 7.028 & 3.515 \\
+3 & 8.522 & 2.886 & 2.937 & 6.540 & 5.500 \\
+4 & 4.955 & 4.523 & 8.874 & 8.368 & 5.307 \\
+5 & 4.772 & 4.964 & 3.266 & 7.093 & 5.358 \\
+\end{longtable}
 
-\subsection{g) Końcowe wnioski}\label{g-koux144cowe-wnioski}
+\begin{longtable}[]{@{}lr@{}}
+\toprule\noalign{}
+& Wariancja \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Housing & 5.265 \\
+Cost.of.Living & 5.988 \\
+Startups & 4.635 \\
+Venture.Capital & 6.520 \\
+Travel.Connectivity & 4.375 \\
+Commute & 2.320 \\
+Business.Freedom & 4.450 \\
+Safety & 3.051 \\
+Healthcare & 2.196 \\
+Education & 4.897 \\
+Environmental.Quality & 4.840 \\
+Economy & 2.302 \\
+Taxation & 2.855 \\
+Internet.Access & 3.505 \\
+Leisure\ldots Culture & 4.027 \\
+Tolerance & 2.974 \\
+Outdoors & 2.534 \\
+\end{longtable}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_rozkładów_standaryzacja_boxplot-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_rozkładów_standaryzacja_boxplot-2} \end{center}
+
+\subsection{b) Wyznaczenie składowych
+głównych}\label{b-wyznaczenie-skux142adowych-gux142uxf3wnych}
+
+\begin{longtable}[]{@{}lrrr@{}}
+\caption{Podsumowanie analizy PCA}\tabularnewline
+\toprule\noalign{}
+Składowa & Odchylenie\_standardowe & Procent\_wariancji &
+Kumulatywna\_wariancja \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Składowa & Odchylenie\_standardowe & Procent\_wariancji &
+Kumulatywna\_wariancja \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PC1 & 2.251 & 29.80 & 29.80 \\
+PC2 & 1.606 & 15.16 & 44.96 \\
+PC3 & 1.443 & 12.25 & 57.21 \\
+PC4 & 1.140 & 7.65 & 64.86 \\
+PC5 & 1.095 & 7.05 & 71.90 \\
+PC6 & 0.980 & 5.65 & 77.55 \\
+PC7 & 0.831 & 4.06 & 81.62 \\
+PC8 & 0.815 & 3.90 & 85.52 \\
+PC9 & 0.764 & 3.43 & 88.95 \\
+PC10 & 0.651 & 2.50 & 91.45 \\
+PC11 & 0.569 & 1.90 & 93.35 \\
+PC12 & 0.539 & 1.71 & 95.06 \\
+PC13 & 0.524 & 1.62 & 96.68 \\
+PC14 & 0.434 & 1.11 & 97.79 \\
+PC15 & 0.393 & 0.91 & 98.69 \\
+PC16 & 0.352 & 0.73 & 99.42 \\
+PC17 & 0.313 & 0.58 & 100.00 \\
+\end{longtable}
+
+\subsection{c) Zmienność odpowiadająca poszczególnym
+składowym}\label{c-zmiennoux15bux107-odpowiadajux105ca-poszczeguxf3lnym-skux142adowym}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/rozklad_wartosci_wykres_boxplot-1} \end{center}
+
+\begin{longtable}[t]{lrrr}
+\caption{\label{tab:ladunki}Wektory ładunków dla PC1, PC2 i PC3}\\
+\toprule
+\cellcolor[HTML]{f2f2f2}{\textbf{}} & \cellcolor[HTML]{f2f2f2}{\textbf{PC1}} & \cellcolor[HTML]{f2f2f2}{\textbf{PC2}} & \cellcolor[HTML]{f2f2f2}{\textbf{PC3}}\\
+\midrule
+Housing & 0.3078251 & 0.0533534 & -0.3135465\\
+Cost.of.Living & 0.2596091 & -0.1757815 & -0.3305352\\
+Startups & -0.1802385 & -0.4834415 & 0.0061000\\
+Venture.Capital & -0.2365974 & -0.4274509 & 0.0148768\\
+Travel.Connectivity & -0.2094543 & -0.1353067 & -0.3397760\\
+\addlinespace
+Commute & -0.1142045 & 0.0259310 & -0.5057359\\
+Business.Freedom & -0.3772809 & 0.0982196 & 0.0241046\\
+Safety & -0.0389355 & 0.2871039 & -0.3330100\\
+Healthcare & -0.2803590 & 0.2419482 & -0.2810248\\
+Education & -0.4025620 & -0.0490795 & -0.0738645\\
+\addlinespace
+Environmental.Quality & -0.3262220 & 0.2525355 & 0.0535717\\
+Economy & -0.2731752 & -0.0740033 & 0.3086705\\
+Taxation & 0.0262992 & 0.1074151 & -0.0201849\\
+Internet.Access & -0.2761922 & 0.0227056 & 0.0284416\\
+Leisure...Culture & -0.0744466 & -0.3647324 & -0.3050545\\
+\addlinespace
+Tolerance & -0.1897496 & 0.3550911 & -0.1027251\\
+Outdoors & -0.0915866 & -0.1933825 & -0.1485868\\
+\bottomrule
+\end{longtable}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/Zmiennosc_skladowych_w_PCA-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/Zmiennosc_skladowych_w_PCA-2} \end{center}
+
+Liczba składowych głównych wyjaśniających \textbf{80\%} wariancji:
+\textbf{7}\\
+Liczba składowych głównych wyjaśniających \textbf{90\%} wariancji:
+\textbf{10}
+
+\subsection{d) Wizualizacja danych
+wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych}
+
+\subsection{e) Korelacja zmiennych}\label{e-korelacja-zmiennych}
+
+\subsection{f) Końcowe wnioski}\label{f-koux144cowe-wnioski}
 
 \section{ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling
 (MDS)))}\label{zadanie-3-skalowaniewielowymiarowe-multidimensional-scaling-mds}
@@ -371,7 +515,7 @@ wielowymiarowych}\label{e-wizualizacja-danych-wielowymiarowych}
 \subsection{a) Dane: titanic\_train (R-pakiet
 titanic)}\label{a-dane-titanic_train-r-pakiet-titanic}
 
-\subsection{b) Przygotowanie danych}\label{b-przygotowanie-danych-1}
+\subsection{b) Przygotowanie danych}\label{b-przygotowanie-danych}
 
 \subsection{c) Redukcja wymiaru na bazie
 MDS}\label{c-redukcja-wymiaru-na-bazie-mds}

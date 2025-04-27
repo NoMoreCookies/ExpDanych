@@ -1,12 +1,8 @@
 ---
 title: "Sprawozdanie 2"
-author: "Kacper Szmigielski, 282255 i Mateusz Wizner"
+author: "Kacper Szmigielski, 282255 i Mateusz Wizner, 277508"
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
   pdf_document:
     toc: true
     fig_caption: true
@@ -14,6 +10,11 @@ output:
     fig_height: 4
     toc_depth: 3
     number_sections: true
+    keep_tex: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 header-includes:
 - \usepackage[OT4]{polski}
 - \usepackage[utf8]{inputenc}
@@ -32,7 +33,7 @@ fontsize: 12pt
 #---------------------------------------------------------
 
 knitr::opts_chunk$set(echo = FALSE )
-knitr::opts_chunk$set(message = FALSE, waring = FALSE )
+knitr::opts_chunk$set(message = FALSE, warning = FALSE )
 knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.align = "center")
 
 #---------------------------------------------------------
@@ -43,7 +44,7 @@ knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.align = "center")
 #---------------------------------------------------------
 
 data <- read.csv("uaScoresDataFrame.csv") 
-head(data)
+#head(data)
 
 
 #---------------------------------------------------------
@@ -59,6 +60,8 @@ library(patchwork)
 library(ggplot2)
 library(arules)
 library(e1071)
+library(tidyr)
+library(xtable)
 #---------------------------------------------------------
 ```
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
@@ -407,57 +410,233 @@ plot(iris$Species~results, col=1:3)
 ```
 
 ```{r tabela_zgodności_4_najg}
-
 compareMatchedClasses(data$Species, results)$diag
 ```
 
 # ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
-##  a) Dane: City Quality of Life Dataset (plik uaScoresDataFrame.csv, źródło: Kaggle/Teleport.org)
-##  b) Przygotowanie danych
-##  c) Wyznaczenie składowych głównych
-##  d) Zmienność odpowiadająca poszczególnym składowym
-##  e) Wizualizacja danych wielowymiarowych
-##  f) Korelacja zmiennych
-##  g) Końcowe wnioski
 
-```{r zadanie_2_wstep}
+##  a) Przygotowanie danych
 
-# Wczytanie danych
+```{r import_przygotowanie_danych}
+# =====================================================================
+# a) Import i przygotowanie danych
+# =====================================================================
+
+# --- Wczytanie danych ---
 data <- read.csv("uaScoresDataFrame.csv")
 
-# Podstawowy przegląd danych
-str(data)
-summary(data)
-head(data)
+# Typy zmiennych
+kable(data.frame(Type = sapply(data, class)), caption = "Typy danych w zbiorze")
 
-
-
-# Usuwamy X i zostawiamy tylko liczby
+# --- Wybór cech ilościowych ---
 data_numeric <- data[sapply(data, is.numeric) & names(data) != "X"]
+```
+
+```{r tabelka_pierwszych_wierszy}
+# Pierwsze wiersze danych
+index <- 0:(nrow(head(data)) - 1)
+
+kable(head(data)[, 1:6],
+      format = "pandoc",
+      booktabs = TRUE,
+      digits = 3,
+      table.attr = "style='width:100%; font-size:5px;'")
+
+kable(cbind(X = index, head(data)[, 7:11]),
+      format = "pandoc",
+      booktabs = TRUE,
+      digits = 3)
+
+kable(cbind(X = index, head(data)[, 12:16]),
+      format = "pandoc",
+      booktabs = TRUE,
+      digits = 3)
+
+kable(cbind(X = index, head(data)[, 17:ncol(data)]),
+      format = "pandoc",
+      booktabs = TRUE,
+      digits = 3)
+```
 
 
-# Opcjonalnie podejrzyj:
-colnames(data_numeric)
+```{r tabela_wariancji}
+# --- Analiza wariancji cech ---
+variances <- apply(data_numeric, 2, function(x) var(x, na.rm = TRUE))
+kable(data.frame(Wariancja = variances), 
+      digits = 3,
+      col.names = c("Wariancja"), 
+      format = "markdown")
 
+# --- Wniosek ---
+# Wariancje cech różnią się znacznie – konieczna jest standaryzacja przed analizą PCA.
+# =====================================================================
+```
 
+```{r wykresy_rozkładów_standaryzacja_boxplot}
+# =====================================================================
+# a) Wykresy rozkładów przed i po standaryzacji
+# =====================================================================
 
-# Wariancje zmiennych
-variances <- apply(data_numeric, 2, var)
-print(variances)
+# --- Funkcja pomocnicza do rysowania wykresów ---
+plot_boxplot <- function(df, title, fill_color, line_color) {
+  df_melted <- pivot_longer(as.data.frame(df), cols = everything(), names_to = "Cechy", values_to = "Wartość")
+  ggplot(df_melted, aes(x = Cechy, y = Wartość)) +
+    geom_boxplot(fill = fill_color, color = line_color, alpha = 0.7) +
+    labs(title = title, x = "Cechy", y = "Wartość") +
+    theme_minimal(base_size = 10) +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.title.x = element_text(size = 14),
+          axis.title.y = element_text(size = 14))
+}
 
-#należy zrobić standaryzacje ponieważ różnice pomiędzy wariancjami są zbyt znaczące np. Var(Venture.Capital) = 6.52 a Var
+# --- Wykres cech przed standaryzacją ---
+plot_boxplot(data_numeric, "Rozkład cech ilościowych przed standaryzacją", "skyblue", "darkblue")
 
-# Wykresy pudełkowe dla wszystkich cech
-boxplot(data_numeric, las = 2, cex.axis = 0.7, main = "Rozkład cech ilościowych")
-
-
-# Standaryzacja cech ilościowych
+# --- Standaryzacja danych ---
 data_numeric_scaled <- scale(data_numeric)
 
-# Można sprawdzić:
-summary(data_numeric_scaled)
+# --- Wykres cech po standaryzacji ---
+plot_boxplot(data_numeric_scaled, "Rozkład cech ilościowych po standaryzacji", "lightgreen", "darkgreen")
+# =====================================================================
 
 ```
+
+##  b) Wyznaczenie składowych głównych
+
+```{r PCA_składowe_wariancja_tabela}
+# =====================================================================
+# b) Wyznaczenie składowych głównych (PCA)
+# =====================================================================
+
+# --- PCA ---
+pca <- prcomp(data_numeric_scaled)
+
+# --- Tabela podsumowująca wyniki PCA ---
+tabela_pca <- data.frame(
+  Składowa = paste0("PC", 1:17),
+  Odchylenie_standardowe = c(2.251, 1.606, 1.443, 1.140, 1.095, 0.980, 0.831, 0.815, 0.764, 0.651, 
+                             0.569, 0.539, 0.524, 0.434, 0.393, 0.352, 0.313),
+  Procent_wariancji = c(29.8, 15.16, 12.25, 7.65, 7.05, 5.65, 4.06, 3.90, 3.43, 2.50,
+                        1.90, 1.71, 1.62, 1.11, 0.91, 0.73, 0.58),
+  Kumulatywna_wariancja = c(29.8, 44.96, 57.21, 64.86, 71.90, 77.55, 81.62, 85.52, 88.95, 91.45,
+                            93.35, 95.06, 96.68, 97.79, 98.69, 99.42, 100)
+)
+
+kable(tabela_pca, "pandoc", caption = "Podsumowanie analizy PCA") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE,
+                position = "center") %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2:4, width = "4cm") %>%
+  row_spec(0, bold = TRUE, background = "#f2f2f2")
+
+# --- Wniosek ---
+# Składowa PC1 wyjaśnia około 30% zmienności, PC2 około 15%. Rozkład zmienności jest stosunkowo rozproszony.
+# =====================================================================
+
+```
+
+
+##  c) Zmienność odpowiadająca poszczególnym składowym
+
+```{r rozklad_wartosci_wykres_boxplot}
+# =====================================================================
+# c) Rozkład wartości składowych głównych
+# =====================================================================
+
+# --- Przygotowanie danych ---
+pca_data <- as.data.frame(pca$x)
+
+pca_melted <- pivot_longer(pca_data, cols = everything(), names_to = "Składowa", values_to = "Wartość")
+pca_melted$Składowa <- factor(pca_melted$Składowa, levels = paste0("PC", seq_len(ncol(pca_data))))
+
+# --- Wykres ---
+ggplot(pca_melted, aes(x = Składowa, y = Wartość)) +
+  geom_boxplot(fill = "plum", color = "purple", alpha = 0.7) +
+  labs(title = "Rozkład wartości składowych głównych", x = "Składowa główna", y = "Wartość") +
+  theme_minimal(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+# =====================================================================
+
+```
+
+```{r ladunki}
+# =====================================================================
+# Wektory ładunków (Loadings)
+# =====================================================================
+
+# --- Wektory ładunków dla pierwszych trzech składowych ---
+loadings <- pca$rotation
+
+kable(as.data.frame(loadings[, 1:3]), caption = "Wektory ładunków dla PC1, PC2 i PC3") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE,
+                position = "center") %>%
+  row_spec(0, bold = TRUE, background = "#f2f2f2")
+
+# =====================================================================
+
+```
+
+```{r Zmiennosc_skladowych_w_PCA}
+# =====================================================================
+# Zmienność odpowiadająca poszczególnym składowym
+# =====================================================================
+
+# --- Obliczenie procentu wyjaśnionej wariancji ---
+variance_explained <- (pca$sdev^2) / sum(pca$sdev^2)
+cumulative_variance <- cumsum(variance_explained)
+
+# --- Przygotowanie danych do wykresu ---
+df_variance <- data.frame(PC = seq_along(variance_explained), Variance = variance_explained)
+
+# --- Wykres procentu wyjaśnionej wariancji ---
+ggplot(df_variance, aes(x = PC, y = Variance)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue", alpha = 0.7) +
+  geom_line(aes(group = 1), color = "darkblue", linetype = "dashed", size = 1) +
+  geom_point(color = "red", size = 3) +
+  labs(title = "Procent wyjaśnionej wariancji przez składowe główne",
+       x = "Numer składowej głównej", y = "Procent wariancji") +
+  theme_minimal(base_size = 10) +
+  scale_x_continuous(breaks = seq_along(df_variance$PC)) +
+  scale_y_continuous(labels = scales::percent_format())
+
+# --- Wykres skumulowanej wariancji ---
+ggplot(data.frame(PC = seq_along(cumulative_variance), CumulativeVariance = cumulative_variance)) +
+  geom_point(aes(x = PC, y = CumulativeVariance), color = "blue", size = 3) +
+  geom_line(aes(x = PC, y = CumulativeVariance), color = "blue", linetype = "dashed") +
+  geom_hline(yintercept = c(0.80, 0.90), linetype = "dashed", color = c("red", "green")) +
+  annotate("text", x = 15, y = c(0.82, 0.92), label = c("80% wariancji", "90% wariancji"),
+           color = c("red", "green")) +
+  labs(title = "Kumulatywna wariancja wyjaśniona przez składowe główne",
+       x = "Numer składowej głównej", y = "Kumulatywna proporcja wariancji") +
+  theme_minimal(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+# --- Ile składowych potrzeba do wyjaśnienia 80% i 90% wariancji? ---
+num_components_80 <- min(which(cumulative_variance >= 0.80))
+num_components_90 <- min(which(cumulative_variance >= 0.90))
+# =====================================================================
+```
+
+Liczba składowych głównych wyjaśniających **80%** wariancji: **`r num_components_80`**  
+Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_components_90`**
+
+
+##  d) Wizualizacja danych wielowymiarowych
+
+
+
+##  e) Korelacja zmiennych
+
+
+
+##  f) Końcowe wnioski
+
+
+
 
 # ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))
 ##  a) Dane: titanic_train (R-pakiet titanic)
