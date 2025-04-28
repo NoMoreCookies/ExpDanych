@@ -42,11 +42,8 @@ knitr::opts_chunk$set(gif.pos = "H", out.extra = "", fig.align = "center")
 ```{r DATA_IMPORT}
 #IMPORT DANYCH
 #---------------------------------------------------------
-
 data <- read.csv("uaScoresDataFrame.csv") 
 #head(data)
-
-
 #---------------------------------------------------------
 ```
 
@@ -62,27 +59,30 @@ library(arules)
 library(e1071)
 library(tidyr)
 library(xtable)
+library(glue)
 #---------------------------------------------------------
 ```
+
 # ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)
-##  a) Dane: iris (R-pakiet datasets).
+
+## a) Dane: iris (R-pakiet datasets).
 
 **3** Pierwsze wiersze z pakietu iris
+
 ```{r Dane_iris_przykład}
 #DANE
 #---------------------------------------------------------
 data <- iris
 #---------------------------------------------------------
-kable(head(data,3))
 ```
+
 Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów** (tj. setosa, versicolor i virginica) i został **udostępniony przez Ronalda Fishera w roku 1936.**
 
 – **Pomiary** dotyczą **długości oraz szerokości** dwóch różnych części kwiatu– działki **kielicha (ang. sepal) oraz płatka (ang. petal).**
 
-##  b) Wybór cech
+## b) Wybór cech
 
-Cechy, inaczej właściwie możemy to rozstrzygać jako kolumny, które charakteryzują się **największym zróżnicowaniem** w stosunku do rodzaju gatunku
-
+Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy gatunkami.
 
 ```{r zad1b}
 #TWORZENIE WYKRESÓW 1
@@ -97,21 +97,15 @@ p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
   geom_histogram()
 #---------------------------------------------------------
 
-#RYSOWANIE WYKRESÓW
+#RYSOWANIE WYKRESÓW (ONE TROCHĘ ZAŚMIECAJĄ I NIE SĄ POTRZEBNE)
+
 #---------------------------------------------------------
-(p1 + p2) / (p3 + p4) +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom",)
+#(p1 + p2) / (p3 + p4) +
+#  plot_layout(guides = "collect") &
+#  theme(legend.position = "bottom",)
 #---------------------------------------------------------
 
 ```
-
-Po przeanalizowaniu histogramów, widać ,że warto zwrócić uwagę na takie cechy jak **Petal.Length i Petal.Width**, ponieważ
-
-widać dobrze zaznaczone przedziały w których występuje większość kwiatków danego gatunku.
-
-Dalej warto jest też spojrzeć na to jak nasze *obserwawcje* teoretycznie rozkładają się w przestrzeni 2D, aby to zrobić
-dodajemy jedną dodatkową kolumnę y, wypełnioną losowymi liczbami od 0 do 1 (rozkłąd jednostajny)
 
 ```{r zad1b1}
 #DODATKOWY WIERSZ DO WIZUALIZACJI
@@ -141,9 +135,9 @@ p4 <- ggplot(data,aes(x = Petal.Width,y=y ,col=Species))+
 
 ```
 
-Wykresy typu scatter-plot potwierdzają ,że **Petal.Length i Petal.Width** są bardzo dobry wyborem cech, które mogłyby być wyznacznikami gatunków roślin.
+Po przeanalizowaniu scatter-plotów, widać ,że podczas szukania cechy o najlepszej zdolności dyskryminacyjnej warto zwrócić uwagę na **Petal.Length i Petal.Width**, natomiast jeżeli poszukujemy kolumny o najgorszej zdolności dyskryminacyjnej to wybór rozsztrzygamy spośród **Sepal.Length i Sepal.Width**
 
-Musimy jednak wybrać wartości najlepsze i najgorsze, aby to zrobić przeanalizujemy jeszcze boxploty.
+Musimy jednak wybrać **wartości najlepsze i najgorsze** do dyksryminacji, aby to zrobić przeanalizujemy **box-ploty**.
 
 ```{r zad1b2}
 
@@ -167,10 +161,10 @@ p4 <- ggplot(data,aes(x = Petal.Width,y=Species ,col=Species))+
 #---------------------------------------------------------
 
 ```
-Na ich podstawaie możemy uznać, że Petal.Width może stanowić najlepszy wyznacznik gatunku roślin
-Najgorszym natomiast jest Sepal.Width, tutaj duża część gatunków dzieli te same wartości tej cechy.
 
-##  c) Porównanie nienadzorowanych metod dyskretyzacji
+Na ich podstawie możemy uznać, że **Petal.Width może stanowić najlepszy wyznacznik gatunku** roślin Najgorszym natomiast jest **Sepal.Width**. Ponieważ dla **Petal.Width** gatunki w najmniejszym stopniu się pokrywają ze względu na tą cechę , a w **Sepal.Width** w największym.
+
+## c) Porównanie nienadzorowanych metod dyskretyzacji
 
 ```{r Przygotowanie_danych}
 #PRZYGOTOWANIE DANUYCH TRENINGOWYCH
@@ -189,7 +183,7 @@ hist_plot <- function(trainingData,method){
   results <- discretize(trainingData, breaks = 3, method = method)
   breaks.equal.frq <- attributes(results)$"discretized:breaks"
   
-  return (ggplot(data,aes(x = trainingData1,col = Species,main="Metoda: equal frequency discretization"))+
+  return (ggplot(data,aes(x = trainingData1,col = Species,main=glue("Metoda: {method}")))+
   geom_histogram()+
     geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
 }
@@ -213,14 +207,22 @@ geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
 
 ```
 
-### Równe częstości
+```{r przygotowanie_wyników}
 
-#### Dla najlepszej
+R1 <- c()
+R2 <- c()
+
+```
+
+### Metoda : Równe częstości(Frequency)
+
+#### Dla najlepszej cechy : Petal.Length (Frequency)
+
 ```{r frequences_najl}
 
 #FREQUENCE_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData1,"Frequency")
+#hist_plot(trainingData1,"Frequency")(Tego nie, niepotrzebnie zajmuje miejsce)
 scatter_plot(trainingData1,"Frequency")
 #---------------------------------------------------------
 ```
@@ -230,17 +232,20 @@ results <- discretize(trainingData1, breaks = 3, method = "Frequency")
 plot(iris$Species~results, col=1:3)
 ```
 
-```{r tabela_zgodności_1_najl}
-compareMatchedClasses(data$Species, results)$diag
+W przypadku tej metody **zgodność** uzyskanego grupowania z realnymi wartościami **wynosi** :
+
+```{r tab_zgodn}
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R1 <- c(R1,R)
 ```
 
-#### Dla najgorszej
+#### Dla najgorszej cechy : Sepal.Length (Frequency)
 
 ```{r frequences_najg}
 
 #FREQUENCE_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData2,"Frequency")
+#hist_plot(trainingData2,"Frequency")(Zajjmuje miejsce niepotrzebnie)
 scatter_plot(trainingData2,"Frequency")
 #---------------------------------------------------------
 ```
@@ -250,20 +255,23 @@ results <- discretize(trainingData2, breaks = 3, method = "Frequency")
 plot(iris$Species~results, col=1:3)
 ```
 
+Zgodność dla nagjroszej cechy wynosi jedynie ok **72%**, co mówi o znacznym spadku wiarygodności (**o ok 23 %**)
+
 ```{r tabela_zgodności_1_najg}
-compareMatchedClasses(data$Species, results)$diag
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R2 <- c(R2,R)
 ```
 
-### Równe szerokości
+### Metoda : Równe szerokości (Interval)
 
-#### Dla najlepszej
+#### Dla najlepszej cechy : Petal.Width (Interval)
 
 ```{r width_najl}
 
 
 #WIDTH_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData1,"Interval")
+#hist_plot(trainingData1,"Interval")
 scatter_plot(trainingData1,"Interval")
 #---------------------------------------------------------
 
@@ -275,19 +283,23 @@ plot(iris$Species~results, col=1:3)
 
 ```
 
-```{r tabela_zgodności_2_najl}
+Dla tej metody również mamy **zgodność na poziomie** :
 
-compareMatchedClasses(data$Species, results)$diag
+```{r tabela_zgodności_2_najl}
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R1 <- c(R1,R)
 ```
 
-#### Dla najgorszej
+Widać lekki wzrost zgodności w porównaniu do poprzedniej metody (**o ok 1%**)
+
+#### Dla najgorszej cechy ; Sepal.Length (Interval)
 
 ```{r width_najg}
 
 
 #WIDTH_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData2,"Interval")
+#hist_plot(trainingData2,"Interval")Niepotrzebnie zajmuje miejsce
 scatter_plot(trainingData2,"Interval")
 #---------------------------------------------------------
 
@@ -299,19 +311,24 @@ plot(iris$Species~results, col=1:3)
 
 ```
 
+Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
+
 ```{r tabela_zgodności_2_najg}
 
-compareMatchedClasses(data$Species, results)$diag
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R2 <- c(R2,R)
 ```
 
-### K-means
+Czyli w porównaniu do metody Frequency mamy **spadek** aż **o ok 16%**
 
-#### Dla najlepszej
+### Metoda : k najbliższych sąsiadów (K-means)
+
+#### Dla najlepszej cechy : Petal.Width (K-means)
 
 ```{r kMeans_najl}
 #WIDTH_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData1,"Cluster")
+#hist_plot(trainingData1,"Cluster")
 scatter_plot(trainingData1,"Cluster")
 #---------------------------------------------------------
 
@@ -323,17 +340,22 @@ plot(iris$Species~results, col=1:3)
 
 ```
 
-```{r tabela_zgodności_3_najl}
+Zgodność na poziomie :
 
-compareMatchedClasses(data$Species, results)$diag
+```{r tabela_zgodności_3_najl}
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R1 <- c(R1,R)
+
 ```
 
-#### Dla najgorszej
+Lepsza **o ok 3%** od ubiegłej metody
+
+#### Dla najgorszej cechy : Sepal.Length (K-means)
 
 ```{r kMeans_najg}
 #WIDTH_METHOD
 #---------------------------------------------------------
-hist_plot(trainingData2,"Cluster")
+#hist_plot(trainingData2,"Cluster")
 scatter_plot(trainingData2,"Cluster")
 #---------------------------------------------------------
 
@@ -345,14 +367,20 @@ plot(iris$Species~results, col=1:3)
 
 ```
 
+Dla najgorszej cechy mamy zgodność :
+
 ```{r tabela_zgodności_3_najg}
 
-compareMatchedClasses(data$Species, results)$diag[1]
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R2 <- c(R2,R)
+
 ```
 
-### Dyskretyzacja z przedziałami zadanymi przez urzytkownika
+W tym przypadku jest ona **na poziome metody Frequency (gorsza o 1)**
 
-#### Dla najlepszej
+### Dyskretyzacja z przedziałami zadanymi przez urzytkownika (fixed)
+
+#### Dla najlepszej cechy : Petal.Width (fixed)
 
 ```{r givenRanges_najl}
 #GIVEN_RANGES
@@ -360,30 +388,32 @@ compareMatchedClasses(data$Species, results)$diag[1]
 x.disc.user <- discretize(trainingData1, method = "fixed", 
       breaks = c(-Inf, 0.5, 1.8, Inf), labels = c("small","medium", "large"))
 
-hist(trainingData1, breaks = 10, main = "Metoda: fixed (user provided breaks)")
-breaks.user <- c(-Inf, 0.5, 1.8, Inf)
-abline(v = breaks.user, col = "red", lwd=2)
+breaks.user <- c(0,0.9,1.8,2.6)
 
-
-plot(trainingData1, data$y, col=iris$Species, main = "Metoda: fixed (user provided breaks)")
-abline(v = breaks.user, col = "red", lwd=3)
-legend(x = "topright", legend=levels(iris$Species), col=1:3, pch=21, bg = "azure")
+ggplot(data,aes(x = trainingData1,y=data$y ,col=Species))+
+  geom_point()+
+geom_vline(xintercept = breaks.user, col = "red", lwd=0.5)
 #---------------------------------------------------------
 
 ```
 
+Na wykresie mamy zaznaczone też końce przedziałów, to jest potrzebne, co jest potrzebne podczas rysowania kolejnego wykresu
+
 ```{r tabela_kondygnacji_4_najl}
-results <- discretize(trainingData1, breaks = 3, method = "Cluster")
+results <- cut(trainingData1, breaks = breaks.user, include.lowest = TRUE, right = FALSE)
 plot(iris$Species~results, col=1:3)
 
 ```
 
+Zgodność na poziome poprzednich dwóch metod, wynosi :
+
 ```{r tabela_zgodności_4_najl}
 
-compareMatchedClasses(data$Species, results)$diag
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R1 <- c(R1,R)
 ```
 
-#### Dla najgorszej
+#### Dla najgorszej cechy : Sepal.Length (fixed)
 
 ```{r givenRanges_najg}
 #GIVEN_RANGES
@@ -391,14 +421,14 @@ compareMatchedClasses(data$Species, results)$diag
 x.disc.user <- discretize(trainingData2, method = "fixed", 
       breaks = c(-Inf, 5, 6, Inf), labels = c("small","medium", "large"))
 
-hist(trainingData2, breaks = 10, main = "Metoda: fixed (user provided breaks)")
-breaks.user <- c(-Inf, 5, 6, Inf)
-abline(v = breaks.user, col = "red", lwd=2)
+#hist(trainingData2, breaks = 10, main = "Metoda: fixed (user provided breaks)")
+#breaks.user <- c(-Inf, 5, 6, Inf)
+#abline(v = breaks.user, col = "red", lwd=2)
+breaks.user <- c(4.2,5,6,8)
 
-
-plot(trainingData2, data$y, col=iris$Species, main = "Metoda: fixed (user provided breaks)")
-abline(v = breaks.user, col = "red", lwd=3)
-legend(x = "topright", legend=levels(iris$Species), col=1:3, pch=21, bg = "azure")
+ggplot(data,aes(x = trainingData2 ,y=data$y ,col=Species))+
+  geom_point()+
+geom_vline(xintercept = breaks.user, col = "red", lwd=0.5)
 #---------------------------------------------------------
 
 ```
@@ -409,13 +439,32 @@ plot(iris$Species~results, col=1:3)
 
 ```
 
+Dla cechy o najgorszej zdolności dyskryminacyjnej :
+
 ```{r tabela_zgodności_4_najg}
-compareMatchedClasses(data$Species, results)$diag
+R <- compareMatchedClasses(data$Species, results)$diag[1][1]
+R2 <- c(R2,R)
 ```
+
+## Wnioski :
+
+**Porównamy teraz** zgodności procentowe **wyników**, dla **poszczególnych algorytmów**
+
+```{r RESULTS}
+
+RESULTS <- data.frame(R1,R2)
+RESULTS <- t(RESULTS)
+
+colnames(RESULTS) <- c("frequency","interval","cluster","fixed")
+rownames(RESULTS)<- c("Petal.Width","Sepal.Length")
+kable(RESULTS)
+```
+
+Na podstawie tabeli, dokłądniej **Porównania przyporządkować dla cech najgorszych i najlepszych pod względem dyskryminacji**. Możemy wnioskować, że dla obecnych danych **najlepszym algorytmem** **jest frequency(częstość)** odznacza się najlepszym przyporządkowaniem zarówno dla Sepal.Length jak i Petal.Width
 
 # ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
 
-##  a) Przygotowanie danych
+## a) Przygotowanie danych
 
 ```{r import_przygotowanie_danych}
 # =====================================================================
@@ -457,7 +506,6 @@ kable(cbind(X = index, head(data)[, 17:ncol(data)]),
       booktabs = TRUE,
       digits = 3)
 ```
-
 
 ```{r tabela_wariancji}
 # --- Analiza wariancji cech ---
@@ -501,7 +549,7 @@ plot_boxplot(data_numeric_scaled, "Rozkład cech ilościowych po standaryzacji",
 
 ```
 
-##  b) Wyznaczenie składowych głównych
+## b) Wyznaczenie składowych głównych
 
 ```{r PCA_składowe_wariancja_tabela}
 # =====================================================================
@@ -536,8 +584,7 @@ kable(tabela_pca, "pandoc", caption = "Podsumowanie analizy PCA") %>%
 
 ```
 
-
-##  c) Zmienność odpowiadająca poszczególnym składowym
+## c) Zmienność odpowiadająca poszczególnym składowym
 
 ```{r rozklad_wartosci_wykres_boxplot}
 # =====================================================================
@@ -621,25 +668,21 @@ num_components_90 <- min(which(cumulative_variance >= 0.90))
 # =====================================================================
 ```
 
-Liczba składowych głównych wyjaśniających **80%** wariancji: **`r num_components_80`**  
+Liczba składowych głównych wyjaśniających **80%** wariancji: **`r num_components_80`**\
 Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_components_90`**
 
+## d) Wizualizacja danych wielowymiarowych
 
-##  d) Wizualizacja danych wielowymiarowych
+## e) Korelacja zmiennych
 
-
-
-##  e) Korelacja zmiennych
-
-
-
-##  f) Końcowe wnioski
-
-
-
+## f) Końcowe wnioski
 
 # ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))
-##  a) Dane: titanic_train (R-pakiet titanic)
-##  b) Przygotowanie danych
-##  c) Redukcja wymiaru na bazie MDS
-##  d) Wizualizacja danych
+
+## a) Dane: titanic_train (R-pakiet titanic)
+
+## b) Przygotowanie danych
+
+## c) Redukcja wymiaru na bazie MDS
+
+## d) Wizualizacja danych

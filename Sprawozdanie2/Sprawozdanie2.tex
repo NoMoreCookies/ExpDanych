@@ -122,18 +122,6 @@ datasets).}\label{a-dane-iris-r-pakiet-datasets.}
 
 \textbf{3} Pierwsze wiersze z pakietu iris
 
-\begin{longtable}[]{@{}rrrrl@{}}
-\toprule\noalign{}
-Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-5.1 & 3.5 & 1.4 & 0.2 & setosa \\
-4.9 & 3.0 & 1.4 & 0.2 & setosa \\
-4.7 & 3.2 & 1.3 & 0.2 & setosa \\
-\end{longtable}
-
 Zbiór danych zawiera wyniki pomiarów uzyskanych dla \textbf{trzech
 gatunków irysów} (tj. setosa, versicolor i virginica) i został
 \textbf{udostępniony przez Ronalda Fishera w roku 1936.}
@@ -144,152 +132,152 @@ płatka (ang. petal).}
 
 \subsection{b) Wybór cech}\label{b-wybuxf3r-cech}
 
-Cechy, inaczej właściwie możemy to rozstrzygać jako kolumny, które
-charakteryzują się \textbf{największym zróżnicowaniem} w stosunku do
-rodzaju gatunku
-
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b-1} \end{center}
-
-Po przeanalizowaniu histogramów, widać ,że warto zwrócić uwagę na takie
-cechy jak \textbf{Petal.Length i Petal.Width}, ponieważ
-
-widać dobrze zaznaczone przedziały w których występuje większość
-kwiatków danego gatunku.
-
-Dalej warto jest też spojrzeć na to jak nasze \emph{obserwawcje}
-teoretycznie rozkładają się w przestrzeni 2D, aby to zrobić dodajemy
-jedną dodatkową kolumnę y, wypełnioną losowymi liczbami od 0 do 1
-(rozkłąd jednostajny)
+Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy
+gatunkami.
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b1-1} \end{center}
 
-Wykresy typu scatter-plot potwierdzają ,że \textbf{Petal.Length i
-Petal.Width} są bardzo dobry wyborem cech, które mogłyby być
-wyznacznikami gatunków roślin.
+Po przeanalizowaniu scatter-plotów, widać ,że podczas szukania cechy o
+najlepszej zdolności dyskryminacyjnej warto zwrócić uwagę na
+\textbf{Petal.Length i Petal.Width}, natomiast jeżeli poszukujemy
+kolumny o najgorszej zdolności dyskryminacyjnej to wybór rozsztrzygamy
+spośród \textbf{Sepal.Length i Sepal.Width}
 
-Musimy jednak wybrać wartości najlepsze i najgorsze, aby to zrobić
-przeanalizujemy jeszcze boxploty.
+Musimy jednak wybrać \textbf{wartości najlepsze i najgorsze} do
+dyksryminacji, aby to zrobić przeanalizujemy \textbf{box-ploty}.
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b2-1} \end{center}
 
-Na ich podstawaie możemy uznać, że Petal.Width może stanowić najlepszy
-wyznacznik gatunku roślin Najgorszym natomiast jest Sepal.Width, tutaj
-duża część gatunków dzieli te same wartości tej cechy.
+Na ich podstawie możemy uznać, że \textbf{Petal.Width może stanowić
+najlepszy wyznacznik gatunku} roślin Najgorszym natomiast jest
+\textbf{Sepal.Width}. Ponieważ dla \textbf{Petal.Width} gatunki w
+najmniejszym stopniu się pokrywają ze względu na tą cechę , a w
+\textbf{Sepal.Width} w największym.
 
 \subsection{c) Porównanie nienadzorowanych metod
 dyskretyzacji}\label{c-poruxf3wnanie-nienadzorowanych-metod-dyskretyzacji}
 
-\subsubsection{Równe częstości}\label{ruxf3wne-czux119stoux15bci}
+\subsubsection{Metoda : Równe
+częstości(Frequency)}\label{metoda-ruxf3wne-czux119stoux15bcifrequency}
 
-\paragraph{Dla najlepszej}\label{dla-najlepszej}
+\paragraph{Dla najlepszej cechy : Petal.Length
+(Frequency)}\label{dla-najlepszej-cechy-petal.length-frequency}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najl-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najl-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_1_najl-1} \end{center}
 
-\begin{verbatim}
-##           [,1]
-## [1,] 0.9466667
-\end{verbatim}
+W przypadku tej metody \textbf{zgodność} uzyskanego grupowania z
+realnymi wartościami \textbf{wynosi} :
 
-\paragraph{Dla najgorszej}\label{dla-najgorszej}
+\paragraph{Dla najgorszej cechy : Sepal.Length
+(Frequency)}\label{dla-najgorszej-cechy-sepal.length-frequency}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najg-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najg-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_1_najg-1} \end{center}
 
-\begin{verbatim}
-##      [,1]
-## [1,] 0.72
-\end{verbatim}
+Zgodność dla nagjroszej cechy wynosi jedynie ok \textbf{72\%}, co mówi o
+znacznym spadku wiarygodności (\textbf{o ok 23 \%})
 
-\subsubsection{Równe szerokości}\label{ruxf3wne-szerokoux15bci}
+\subsubsection{Metoda : Równe szerokości
+(Interval)}\label{metoda-ruxf3wne-szerokoux15bci-interval}
 
-\paragraph{Dla najlepszej}\label{dla-najlepszej-1}
+\paragraph{Dla najlepszej cechy : Petal.Width
+(Interval)}\label{dla-najlepszej-cechy-petal.width-interval}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najl-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najl-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najl-1} \end{center}
 
-\begin{verbatim}
-##      [,1]
-## [1,] 0.96
-\end{verbatim}
+Dla tej metody również mamy \textbf{zgodność na poziomie} :
 
-\paragraph{Dla najgorszej}\label{dla-najgorszej-1}
+Widać lekki wzrost zgodności w porównaniu do poprzedniej metody
+(\textbf{o ok 1\%})
+
+\paragraph{Dla najgorszej cechy ; Sepal.Length
+(Interval)}\label{dla-najgorszej-cechy-sepal.length-interval}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najg-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najg-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najg-1} \end{center}
 
-\begin{verbatim}
-##           [,1]
-## [1,] 0.5729167
-\end{verbatim}
+Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
 
-\subsubsection{K-means}\label{k-means}
+Czyli w porównaniu do metody Frequency mamy \textbf{spadek} aż \textbf{o
+ok 16\%}
 
-\paragraph{Dla najlepszej}\label{dla-najlepszej-2}
+\subsubsection{Metoda : k najbliższych sąsiadów
+(K-means)}\label{metoda-k-najbliux17cszych-sux105siaduxf3w-k-means}
+
+\paragraph{Dla najlepszej cechy : Petal.Width
+(K-means)}\label{dla-najlepszej-cechy-petal.width-k-means}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najl-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najl-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najl-1} \end{center}
 
-\begin{verbatim}
-##      [,1]
-## [1,] 0.96
-\end{verbatim}
+Zgodność na poziomie :
 
-\paragraph{Dla najgorszej}\label{dla-najgorszej-2}
+Lepsza \textbf{o ok 3\%} od ubiegłej metody
+
+\paragraph{Dla najgorszej cechy : Sepal.Length
+(K-means)}\label{dla-najgorszej-cechy-sepal.length-k-means}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najg-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najg-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najg-1} \end{center}
 
-\begin{verbatim}
-## [1] 0.5801105
-\end{verbatim}
+Dla najgorszej cechy mamy zgodność :
 
-\subsubsection{Dyskretyzacja z przedziałami zadanymi przez
-urzytkownika}\label{dyskretyzacja-z-przedziaux142ami-zadanymi-przez-urzytkownika}
+W tym przypadku jest ona \textbf{na poziome metody Frequency (gorsza o
+1)}
 
-\paragraph{Dla najlepszej}\label{dla-najlepszej-3}
+\subsubsection{Dyskretyzacja z przedziałami zadanymi przez urzytkownika
+(fixed)}\label{dyskretyzacja-z-przedziaux142ami-zadanymi-przez-urzytkownika-fixed}
+
+\paragraph{Dla najlepszej cechy : Petal.Width
+(fixed)}\label{dla-najlepszej-cechy-petal.width-fixed}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/givenRanges_najl-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/givenRanges_najl-2} \end{center}
+Na wykresie mamy zaznaczone też końce przedziałów, to jest potrzebne, co
+jest potrzebne podczas rysowania kolejnego wykresu
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najl-1} \end{center}
 
-\begin{verbatim}
-##      [,1]
-## [1,] 0.96
-\end{verbatim}
+Zgodność na poziome poprzednich dwóch metod, wynosi :
 
-\paragraph{Dla najgorszej}\label{dla-najgorszej-3}
+\paragraph{Dla najgorszej cechy : Sepal.Length
+(fixed)}\label{dla-najgorszej-cechy-sepal.length-fixed}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/givenRanges_najg-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/givenRanges_najg-2} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najg-1} \end{center}
 
-\begin{verbatim}
-##           [,1]
-## [1,] 0.7266667
-\end{verbatim}
+Dla cechy o najgorszej zdolności dyskryminacyjnej :
+
+\subsection{Wnioski :}\label{wnioski}
+
+\textbf{Porównamy teraz} zgodności procentowe \textbf{wyników}, dla
+\textbf{poszczególnych algorytmów}
+
+\begin{longtable}[]{@{}lrrrr@{}}
+\toprule\noalign{}
+& frequency & interval & cluster & fixed \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.9600000 \\
+Sepal.Length & 0.7200000 & 0.5729167 & 0.5801105 & 0.7066667 \\
+\end{longtable}
+
+Na podstawie tabeli, dokłądniej \textbf{Porównania przyporządkować dla
+cech najgorszych i najlepszych pod względem dyskryminacji}. Możemy
+wnioskować, że dla obecnych danych \textbf{najlepszym algorytmem}
+\textbf{jest cluster(k-sąsiadów)} odznacza się najlepszym
+przyporządkowaniem zarówno dla Sepal.Length jak i Petal.Width
 
 \section{ZADANIE 2 (Analizaskładowych głównych (Principal Component
 Analysis
