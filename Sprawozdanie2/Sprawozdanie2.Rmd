@@ -3,6 +3,10 @@ title: "Sprawozdanie 2"
 author: "Kacper Szmigielski, 282255 i Mateusz Wizner, 277508"
 date: "`r Sys.Date()`"
 output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
   pdf_document:
     toc: true
     fig_caption: true
@@ -11,10 +15,6 @@ output:
     toc_depth: 3
     number_sections: true
     keep_tex: true
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
 header-includes:
 - \usepackage[OT4]{polski}
 - \usepackage[utf8]{inputenc}
@@ -58,8 +58,11 @@ library(ggplot2)
 library(arules)
 library(e1071)
 library(tidyr)
+library(visdat)
 library(xtable)
 library(glue)
+library(DataExplorer)
+library(moments)
 #---------------------------------------------------------
 ```
 
@@ -473,13 +476,207 @@ Na podstawie tabeli, dokłądniej **Porównania przyporządkować dla cech najgo
 
 # --- Wczytanie danych ---
 data <- read.csv("uaScoresDataFrame.csv")
+```
 
+
+```{r podstawowe_info}
+kable(t(introduce(data)), 
+      row.names = TRUE, col.names = "",
+      caption = "Podstawowe informacje nt. danych `uaScoresDataFrame`")
+
+```
+
+Typy danych w zbiorze
+
+```{r typy_danych, fig.width=14, fig.height=2}
 # Typy zmiennych
-kable(data.frame(Type = sapply(data, class)), caption = "Typy danych w zbiorze")
+#kable(data.frame(Type = sapply(data, class)), caption = "Typy danych w zbiorze")
+vis_dat(data) +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank())
 
 # --- Wybór cech ilościowych ---
 data_numeric <- data[sapply(data, is.numeric) & names(data) != "X"]
 ```
+
+```{r wykresy_jakosciowe, fig.width=14, fig.height=4}
+ggplot(data, aes(x = UA_Continent, fill = UA_Continent)) + 
+  geom_bar() +
+  ggtitle("Wykres słupkowy dla UA_Continent") +
+  scale_fill_brewer(palette = "Set3") +
+  scale_y_continuous(breaks = seq(0, max(table(data$UA_Continent)), by = 10))
+
+ggplot(data, aes(x = UA_Country, fill = ..count..)) +
+  geom_bar() +
+  ggtitle("Wykres słupkowy dla UA_Country alfabetycznie") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  scale_y_continuous(breaks = seq(0, max(table(data$UA_Country)), by = 1)) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(x = "Kraj", y = "Liczba", fill = "Liczba")
+
+data_sorted <- data %>%
+  count(UA_Country) %>%
+  arrange(n)
+
+ggplot(data_sorted, aes(x = reorder(UA_Country, n), y = n, fill = n)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Wykres słupkowy dla UA_Country rosnąco") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  scale_y_continuous(breaks = seq(0, max(data_sorted$n), by = 1)) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(x = "Kraj", y = "Liczba", fill = "Liczba")
+```
+
+```{r histogramy_ilosciowe1, fig.height=10, fig.width=10}
+plot_histogram_with_density <- function(data_numeric, nrow = 4, ncol = 5, 
+                                       title = "Histogramy z estymatorami gęstości", 
+                                       adjust = 0.5) {
+  data_long <- data_numeric %>%
+    gather(key = "Variable", value = "Value")
+  
+  ggplot(data_long, aes(x = Value)) +
+    geom_histogram(aes(y = after_stat(density)), 
+                  bins = 30, 
+                  fill = "lightblue", 
+                  color = "darkblue", 
+                  alpha = 0.7) +
+    geom_density(adjust = adjust, 
+                color = "red", 
+                linewidth = 1) +
+    geom_boxplot(aes(y = -0.02), 
+                width = 0.1, 
+                fill = "orange", 
+                alpha = 0.7,
+                outlier.color = "red",
+                outlier.size = 1.5) +
+    facet_wrap(~ Variable, scales = "free", nrow = nrow, ncol = ncol) +
+    labs(title = title) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 16),
+      strip.text = element_text(size = 10, face = "bold"),
+      axis.title.x = element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
+    )
+}
+
+plot_histogram_with_density(
+  data_numeric,
+  nrow = 4,
+  ncol = 5,
+  title = "Histogramy z estymatorami gęstości i boxplotami dla zmiennych ilościowych",
+  adjust = 0.3
+)
+
+```
+
+```{r qq_z_kurtoza, fig.height=10, fig.width=10}
+plot_qq_kurtosis <- function(data_numeric, nrow = 4, ncol = 5) {
+  data_long <- data_numeric %>%
+    gather(key = "Variable", value = "Value")
+  
+  get_kurtosis <- function(x) {
+    kurtosis_val <- round(kurtosis(x, na.rm = TRUE), 2)
+    return(kurtosis_val)
+  }
+  
+  kurtosis_stats <- data_long %>%
+    group_by(Variable) %>%
+    summarise(
+      kurtosis = get_kurtosis(Value),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      kurtosis_type = case_when(
+        kurtosis < 3 ~ "platykurtyczny",
+        kurtosis > 3 ~ "leptokurtyczny",
+        TRUE ~ "mezokurtyczny"
+      ),
+      label = paste0("Kurtoza: ", kurtosis, " (", kurtosis_type, ")")
+    )
+  data_with_kurtosis <- left_join(data_long, kurtosis_stats, by = "Variable")
+  
+  ggplot(data_with_kurtosis, aes(sample = Value)) +
+    stat_qq(color = "steelblue", size = 1, alpha = 0.7) +
+    stat_qq_line(color = "darkblue", linewidth = 0.8) +
+    geom_text(
+      aes(x = -2, y = Inf, label = label),
+      hjust = 0, vjust = 1,
+      size = 2.5, color = "black",
+      check_overlap = TRUE
+    ) +
+    labs(
+      title = "Wykresy Q-Q dla zmiennych ilościowych",
+    ) +
+    facet_wrap(~ Variable, scales = "free", nrow = nrow, ncol = ncol) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, size = 10),
+      strip.text = element_text(size = 10, face = "bold"),
+      strip.background = element_rect(fill = "lightyellow", color = "grey"),
+      panel.background = element_rect(fill = "white", color = NA),
+      panel.grid.major = element_line(color = "gray90"),
+      panel.grid.minor = element_line(color = "gray95"),
+      axis.text = element_text(size = 5)
+    )
+}
+
+plot_qq_kurtosis(data_numeric, nrow = 4, ncol = 5)
+```
+
+```{r wykresy_korelacji, fig.height=10, fig.width=10}
+plot_correlation(na.omit(data), type="continuous",
+                 title="Macierz korelacji dla zmiennych ciągłych")
+```
+
+
+```{r znaczace_korelacje}
+find_significant_correlations <- function(data, alpha = 0.05) {
+  numeric_data <- data %>% select_if(is.numeric)
+  var_names <- names(numeric_data)
+  results <- data.frame(Variable1 = character(), Variable2 = character(), Correlation = numeric(), P_Value = numeric(), stringsAsFactors = FALSE)
+
+  for (i in 1:(length(var_names) - 1)) {
+    for (j in (i + 1):length(var_names)) {
+      var1 <- var_names[i]
+      var2 <- var_names[j]
+      complete_data <- numeric_data[complete.cases(numeric_data[, c(var1, var2)]), c(var1, var2)]
+      
+      if (nrow(complete_data) > 2) {
+        cor_test <- cor.test(complete_data[[var1]], complete_data[[var2]])
+        
+        if (cor_test$p.value < alpha) {
+          results <- rbind(results, data.frame(Variable1 = var1, Variable2 = var2, Correlation = cor_test$estimate, P_Value = cor_test$p.value))
+        }
+      }
+    }
+  }
+  
+  results <- results %>% mutate(Abs_Correlation = abs(Correlation)) %>% arrange(desc(Abs_Correlation)) %>% select(-Abs_Correlation)
+  return(results)
+}
+
+visualize_top_correlations <- function(data, top_n = 10) {
+  significant_correlations <- find_significant_correlations(data)
+
+  top_correlations <- significant_correlations %>% head(min(top_n, nrow(significant_correlations)))
+
+  plot_data <- top_correlations %>%
+    mutate(Pair = paste(Variable1, "&", Variable2), Pair = factor(Pair, levels = rev(Pair)), P_Value = format.pval(P_Value, digits = 3))
+
+  ggplot(plot_data, aes(x = Correlation, y = Pair, fill = Correlation)) +
+    geom_col() +
+    scale_fill_gradient2(low = "firebrick", mid = "white", high = "steelblue", midpoint = 0, limits = c(-1, 1)) +
+    labs(title = paste("Najsilniejsze istotne korelacje (top", min(top_n, nrow(significant_correlations)), ")"), x = "Współczynnik korelacji", y = NULL) +
+    theme_minimal() +
+    theme(legend.position = "none", plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), axis.text.y = element_text(size = 10), panel.grid.major.y = element_line(color = "gray90"), panel.grid.minor = element_blank()) +
+    geom_text(aes(label = sprintf("r = %.3f (p = %s)", Correlation, P_Value)), hjust = ifelse(plot_data$Correlation > 0, -0.1, 1.1), size = 3.5) +
+    scale_x_continuous(limits = c(-1, 1))
+}
+
+visualize_top_correlations(na.omit(data), top_n = 10)
+```
+
 
 ```{r tabelka_pierwszych_wierszy}
 # Pierwsze wiersze danych
@@ -673,7 +870,25 @@ Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_compo
 
 ## d) Wizualizacja danych wielowymiarowych
 
+<<<<<<< HEAD
 ## e) Korelacja zmiennych
+=======
+##  d) Wizualizacja danych wielowymiarowych
+
+```{r}
+
+#_________________________________________________________________________________________________
+
+```
+
+##  e) Korelacja zmiennych
+
+
+
+##  f) Końcowe wnioski
+
+
+>>>>>>> e3fbf7149a37f819f1a0d27a14a532dee9eefa0b
 
 ## f) Końcowe wnioski
 
