@@ -1044,14 +1044,17 @@ Kolejno tworzymy diagram Shepherda
 library(cluster)   # dla daisy()
 library(stats)     # dla cmdscale()
 
+new_data <- data[,-1]
+
+
 # 1. Oblicz macierz odmienności (np. Gowera)
-diss <- daisy(data, metric = "gower")
+diss <- daisy(new_data, metric = "euclidean")
 
 # 2. MDS klasyczny (klasyczne skalowanie wielowymiarowe)
-mds_result <- cmdscale(diss, k = 3, eig = TRUE)
+mds.results <- cmdscale(diss, k = 2)
 
 # 3. Oblicz odległości euklidesowe w odwzorowaniu MDS
-mds_distances <- dist(mds_result$points)
+mds_distances <- dist(mds.results)
 
 # 4. Shepard diagram: odległości oryginalne vs. odwzorowane
 # (warto posortować po oryginalnych dla przejrzystości)
@@ -1072,3 +1075,51 @@ Widać, że odległości w nowej przestrzeni danych zmieniły się, nadal mają 
 Pomimo, że duża liczba punktów odbiega od lini x = y , to jednak różnica między ich nową odległością a starą nie są duże (nie mamy znaczących rozrzutów na osi OY), więc możemy uznać skalowanie za dość dobre, chyba ,że chcemy przeprowadzać bardzo dokładną analizę
 
 ## d) Wizualizacja danych
+
+```{r rozrzut 2D}
+library(ggplot2)
+
+# 1. Przekształć wyniki MDS do ramki danych
+mds_df <- as.data.frame(mds.results)
+colnames(mds_df) <- c("Dim1", "Dim2")
+
+# 2. Dodaj zmienne kategoryczne z danych oryginalnych
+mds_df$Survived <- as.factor(data$Survived)
+mds_df$Sex <- as.factor(data$Sex)
+mds_df$Pclass <- as.factor(data$Pclass)
+
+p1 <- ggplot(mds_df, aes(x = Dim1, y = Dim2, color = Sex)) +
+  geom_point(size = 2, alpha = 0.8) +
+  labs(title = "MDS wg płci", x = "Wymiar 1", y = "Wymiar 2") +
+  theme_minimal() +
+  scale_color_manual(values = c("pink", "blue"))
+
+p2 <- ggplot(mds_df, aes(x = Dim1, y = Dim2, color = Pclass)) +
+  geom_point(size = 2, alpha = 0.8) +
+  labs(title = "MDS wg klasy", x = "Wymiar 1", y = "Wymiar 2") +
+  theme_minimal() +
+  scale_color_manual(values = c("gold", "orange", "brown"),
+                     labels = c("1 klasa", "2 klasa", "3 klasa"))
+
+p3 <- ggplot(mds_df, aes(x = Dim1, y = Dim2, color = Survived)) +
+  geom_point(size = 2, alpha = 0.8) +
+  labs(title = "MDS wg przeżycia", x = "Wymiar 1", y = "Wymiar 2") +
+  theme_minimal() +
+  scale_color_manual(values = c("red", "green"),
+                     labels = c("Nie przeżył", "Przeżył"))
+p3
+```
+Widoczny podział obiektów na grupym pierwsze zagęszczenie charakteryzuje się dużą przeżywalnością a drugie o wiele mniejszą.
+
+Na wykresach nie ma obserwacji odstajacych, bądź nietypowych.
+
+```{r wyk2}
+p2
+```
+**Równomierny rozkład**, grupy nie są zależne od tego w jaką klasą ktoś płyną 
+
+```{r wyk3}
+p1
+```
+
+Widać bardzo jasny podział na kobiety i mężczyzn, porównując do porzedniego wykresu widać, że większ przeżywalnością charakteryzuje się grupa kobiet co jest zgodne z intuicją i rzeczywistymi danymi.
