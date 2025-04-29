@@ -105,7 +105,7 @@
 \makeatother
 \subtitle{Eksploracja danych}
 \author{Kacper Szmigielski, 282255 i Mateusz Wizner, 277508}
-\date{2025-04-28}
+\date{2025-04-29}
 
 \begin{document}
 \maketitle
@@ -180,6 +180,10 @@ realnymi wartościami \textbf{wynosi} :
 Zgodność dla nagjroszej cechy wynosi jedynie ok \textbf{72\%}, co mówi o
 znacznym spadku wiarygodności (\textbf{o ok 23 \%})
 
+\begin{verbatim}
+## [1] 0.72
+\end{verbatim}
+
 \subsubsection{Metoda : Równe szerokości
 (Interval)}\label{metoda-ruxf3wne-szerokoux15bci-interval}
 
@@ -192,6 +196,10 @@ znacznym spadku wiarygodności (\textbf{o ok 23 \%})
 
 Dla tej metody również mamy \textbf{zgodność na poziomie} :
 
+\begin{verbatim}
+## [1] 0.96
+\end{verbatim}
+
 Widać lekki wzrost zgodności w porównaniu do poprzedniej metody
 (\textbf{o ok 1\%})
 
@@ -203,6 +211,10 @@ Widać lekki wzrost zgodności w porównaniu do poprzedniej metody
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najg-1} \end{center}
 
 Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
+
+\begin{verbatim}
+## [1] 0.5729167
+\end{verbatim}
 
 Czyli w porównaniu do metody Frequency mamy \textbf{spadek} aż \textbf{o
 ok 16\%}
@@ -219,6 +231,10 @@ ok 16\%}
 
 Zgodność na poziomie :
 
+\begin{verbatim}
+## [1] 0.96
+\end{verbatim}
+
 Lepsza \textbf{o ok 3\%} od ubiegłej metody
 
 \paragraph{Dla najgorszej cechy : Sepal.Length
@@ -229,6 +245,10 @@ Lepsza \textbf{o ok 3\%} od ubiegłej metody
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najg-1} \end{center}
 
 Dla najgorszej cechy mamy zgodność :
+
+\begin{verbatim}
+## [1] 0.5589744
+\end{verbatim}
 
 W tym przypadku jest ona \textbf{na poziome metody Frequency (gorsza o
 1)}
@@ -248,6 +268,10 @@ jest potrzebne podczas rysowania kolejnego wykresu
 
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
+\begin{verbatim}
+## [1] 0.96
+\end{verbatim}
+
 \paragraph{Dla najgorszej cechy : Sepal.Length
 (fixed)}\label{dla-najgorszej-cechy-sepal.length-fixed}
 
@@ -256,6 +280,10 @@ Zgodność na poziome poprzednich dwóch metod, wynosi :
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najg-1} \end{center}
 
 Dla cechy o najgorszej zdolności dyskryminacyjnej :
+
+\begin{verbatim}
+## [1] 0.72
+\end{verbatim}
 
 \subsection{Wnioski :}\label{wnioski}
 
@@ -269,14 +297,14 @@ Dla cechy o najgorszej zdolności dyskryminacyjnej :
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.9600000 \\
-Sepal.Length & 0.7200000 & 0.5729167 & 0.5801105 & 0.7066667 \\
+Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.96 \\
+Sepal.Length & 0.7200000 & 0.5729167 & 0.5589744 & 0.72 \\
 \end{longtable}
 
 Na podstawie tabeli, dokłądniej \textbf{Porównania przyporządkować dla
 cech najgorszych i najlepszych pod względem dyskryminacji}. Możemy
 wnioskować, że dla obecnych danych \textbf{najlepszym algorytmem}
-\textbf{jest cluster(k-sąsiadów)} odznacza się najlepszym
+\textbf{jest frequency(częstość)} odznacza się najlepszym
 przyporządkowaniem zarówno dla Sepal.Length jak i Petal.Width
 
 \section{ZADANIE 2 (Analizaskładowych głównych (Principal Component
@@ -285,40 +313,42 @@ Analysis
 
 \subsection{a) Przygotowanie danych}\label{a-przygotowanie-danych}
 
-\begin{longtable}[]{@{}ll@{}}
-\caption{Typy danych w zbiorze}\tabularnewline
+\begin{longtable}[]{@{}lr@{}}
+\caption{Podstawowe informacje nt. danych
+\texttt{uaScoresDataFrame}}\tabularnewline
 \toprule\noalign{}
-& Type \\
-\midrule\noalign{}
 \endfirsthead
-\toprule\noalign{}
-& Type \\
-\midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-X & integer \\
-UA\_Name & character \\
-UA\_Country & character \\
-UA\_Continent & character \\
-Housing & numeric \\
-Cost.of.Living & numeric \\
-Startups & numeric \\
-Venture.Capital & numeric \\
-Travel.Connectivity & numeric \\
-Commute & numeric \\
-Business.Freedom & numeric \\
-Safety & numeric \\
-Healthcare & numeric \\
-Education & numeric \\
-Environmental.Quality & numeric \\
-Economy & numeric \\
-Taxation & numeric \\
-Internet.Access & numeric \\
-Leisure\ldots Culture & numeric \\
-Tolerance & numeric \\
-Outdoors & numeric \\
+rows & 266 \\
+columns & 21 \\
+discrete\_columns & 3 \\
+continuous\_columns & 18 \\
+all\_missing\_columns & 0 \\
+total\_missing\_values & 0 \\
+complete\_rows & 266 \\
+total\_observations & 5586 \\
+memory\_usage & 73496 \\
 \end{longtable}
+
+Typy danych w zbiorze
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/typy_danych-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-2} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-3} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/histogramy_ilosciowe1-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/qq_z_kurtoza-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_korelacji-1} \end{center}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/znaczace_korelacje-1} \end{center}
 
 \begin{longtable}[]{@{}rlllrr@{}}
 \toprule\noalign{}
@@ -495,7 +525,14 @@ wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych}
 
 \subsection{e) Korelacja zmiennych}\label{e-korelacja-zmiennych}
 
+\subsection{d) Wizualizacja danych
+wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych-1}
+
+\subsection{e) Korelacja zmiennych}\label{e-korelacja-zmiennych-1}
+
 \subsection{f) Końcowe wnioski}\label{f-koux144cowe-wnioski}
+
+\subsection{f) Końcowe wnioski}\label{f-koux144cowe-wnioski-1}
 
 \section{ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling
 (MDS)))}\label{zadanie-3-skalowaniewielowymiarowe-multidimensional-scaling-mds}
@@ -503,10 +540,36 @@ wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych}
 \subsection{a) Dane: titanic\_train (R-pakiet
 titanic)}\label{a-dane-titanic_train-r-pakiet-titanic}
 
+Zbiór danych zawiera wybrane charakterystyki opisujące pasażerów
+Titanica (w tym m.in. takie zmienne jak: wiek, płeć, miejsce rozpoczęcia
+podróży czy klasa pasażerska) wraz z informacją czy dana osoba przeżyła
+katastrofę (zmienna Survived).
+
 \subsection{b) Przygotowanie danych}\label{b-przygotowanie-danych}
+
+Wczytane dane, niepotrzebne kolumny zostały usunięte, oraz typy
+poszczególnych cech zostały zaaktualizowane na odpowiednie czyt.
+ordered,numeric
 
 \subsection{c) Redukcja wymiaru na bazie
 MDS}\label{c-redukcja-wymiaru-na-bazie-mds}
+
+Redukuję wymiar danych korzystając z \textbf{metody metrycznej (Funkcja
+cmdscale)}
+
+Kolejno tworzymy diagram Shepherda
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/diagram shepherda-1} \end{center}
+
+Widać, że odległości w nowej przestrzeni danych zmieniły się, nadal mają
+podobny charakter, największe skupisko danych znajduje się przy lini x =
+y (w gdyby odległości zostały zachwoane, czyli w idealnym scenariuszu,
+to nasze nowe odległości przechodziły by właśnie przez tą linię).
+
+Pomimo, że duża liczba punktów odbiega od lini x = y , to jednak różnica
+między ich nową odległością a starą nie są duże (nie mamy znaczących
+rozrzutów na osi OY), więc możemy uznać skalowanie za dość dobre, chyba
+,że chcemy przeprowadzać bardzo dokładną analizę
 
 \subsection{d) Wizualizacja danych}\label{d-wizualizacja-danych}
 

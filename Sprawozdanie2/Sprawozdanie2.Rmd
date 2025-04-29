@@ -3,10 +3,6 @@ title: "Sprawozdanie 2"
 author: "Kacper Szmigielski, 282255 i Mateusz Wizner, 277508"
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
   pdf_document:
     toc: true
     fig_caption: true
@@ -15,6 +11,10 @@ output:
     toc_depth: 3
     number_sections: true
     keep_tex: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 header-includes:
 - \usepackage[OT4]{polski}
 - \usepackage[utf8]{inputenc}
@@ -63,6 +63,23 @@ library(xtable)
 library(glue)
 library(DataExplorer)
 library(moments)
+library(cluster)
+library(reshape2)
+library(pheatmap)
+#---------------------------------------------------------
+```
+
+```{r kolory}
+#DEFINIOWANIE KOLORÓW
+#---------------------------------------------------------
+color1 <- "purple"
+color2 <- "tan1"
+color3 <- "turquoise2"
+#---------------------------------------------------------
+
+#KOLORY URZYTE W ZADANIU 1
+#---------------------------------------------------------
+colors <- c(color1,color2,color3)
 #---------------------------------------------------------
 ```
 
@@ -77,6 +94,7 @@ library(moments)
 #---------------------------------------------------------
 data <- iris
 #---------------------------------------------------------
+
 ```
 
 Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów** (tj. setosa, versicolor i virginica) i został **udostępniony przez Ronalda Fishera w roku 1936.**
@@ -91,13 +109,17 @@ Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy 
 #TWORZENIE WYKRESÓW 1
 #---------------------------------------------------------
 p1 <- ggplot(data,aes(x = Sepal.Length,col = Species))+
-  geom_histogram()
+  geom_histogram()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p2 <- ggplot(data,aes(x = Sepal.Width,col = Species))+
-  geom_histogram()
+  geom_histogram()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p3 <- ggplot(data,aes(x = Petal.Length,col = Species))+
-  geom_histogram()
+  geom_histogram()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
-  geom_histogram()
+  geom_histogram()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 #RYSOWANIE WYKRESÓW (ONE TROCHĘ ZAŚMIECAJĄ I NIE SĄ POTRZEBNE)
@@ -119,13 +141,17 @@ data$y <- runif(nrow(data))
 #TWORZENIE WYKRESÓW
 #---------------------------------------------------------
 p1 <- ggplot(data,aes(x = Sepal.Length,y=y,col = Species))+
-  geom_point()
+  geom_point()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p2 <- ggplot(data,aes(x = Sepal.Width,y=y ,col = Species))+
-  geom_point()
+  geom_point()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p3 <- ggplot(data,aes(x = Petal.Length,y=y ,col= Species))+
-  geom_point()
+  geom_point()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p4 <- ggplot(data,aes(x = Petal.Width,y=y ,col=Species))+
-  geom_point()
+  geom_point()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 
@@ -147,13 +173,17 @@ Musimy jednak wybrać **wartości najlepsze i najgorsze** do dyksryminacji, aby 
 #TWORZENIE WYKRESÓW
 #---------------------------------------------------------
 p1 <- ggplot(data,aes(x = Sepal.Length,y=Species,col = Species))+
-  geom_boxplot()
+  geom_boxplot()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p2 <- ggplot(data,aes(x = Sepal.Width,y=Species ,col = Species))+
-  geom_boxplot()
+  geom_boxplot()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p3 <- ggplot(data,aes(x = Petal.Length,y=Species ,col= Species))+
-  geom_boxplot()
+  geom_boxplot()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 p4 <- ggplot(data,aes(x = Petal.Width,y=Species ,col=Species))+
-  geom_boxplot()
+  geom_boxplot()+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 #RYSOWANIE WYKRESÓW
@@ -188,7 +218,8 @@ hist_plot <- function(trainingData,method){
   
   return (ggplot(data,aes(x = trainingData1,col = Species,main=glue("Metoda: {method}")))+
   geom_histogram()+
-    geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))+
+    geom_vline(xintercept = breaks.equal.frq, col = "darkgrey", lwd=0.5))
 }
 #---------------------------------------------------------
 
@@ -204,14 +235,48 @@ scatter_plot <- function(trainingData,method){
   
   return (ggplot(data,aes(x = trainingData,y=y ,col=Species))+
   geom_point()+
-geom_vline(xintercept = breaks.equal.frq, col = "red", lwd=0.5))
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))+
+geom_vline(xintercept = breaks.equal.frq, col = "darkgrey", lwd=0.5))
 }
 #---------------------------------------------------------
 
 ```
 
-```{r przygotowanie_wyników}
+```{r tabela_kondygnacji_drawing}
+tabela <- function(trainingData,method,results = c()){
+  # Załadowanie wymaganych bibliotek
 
+
+  data1 <- data
+  # Dyskretizacja wyników na 3 przedziały (Frequency)
+  if(length(results)==0){
+    results <- discretize(trainingData, breaks = 3, method = method)
+  }
+  else{
+    results <- results
+  }
+  
+  # Dodajemy wyniki dyskretne jako zmienną do danych
+  data1$results <- results
+  
+  # Zliczamy liczbę obserwacji dla każdego gatunku i przedziału
+  df_count <- data1 %>%
+    group_by(results, Species) %>%
+    summarise(count = n()) %>%
+    ungroup()
+  
+  # Tworzymy wykres w ggplot2
+  return   (ggplot(df_count, aes(x = results, y = count, fill = Species)) +
+    geom_bar(stat = "identity", position = "stack", width = 0.7) +  # Słupki na podstawie zliczeń
+    geom_text(aes(label = count), position = position_stack(vjust = 0.5), size = 5) +  # Liczba w słupkach
+    labs(x = "Przedziały wyników", y = "Liczba obserwacji", title = "Liczba obserwacji gatunków w przedziałach") +
+    scale_fill_manual(values = colors) +  # Kolory dla gatunków
+    theme_minimal())  # Estetyczny motyw
+    
+  }
+```
+
+```{r przygotowanie_wyników}
 R1 <- c()
 R2 <- c()
 
@@ -220,6 +285,10 @@ R2 <- c()
 ### Metoda : Równe częstości(Frequency)
 
 #### Dla najlepszej cechy : Petal.Length (Frequency)
+
+```{r frequency}
+method = "Frequency"
+```
 
 ```{r frequences_najl}
 
@@ -231,13 +300,15 @@ scatter_plot(trainingData1,"Frequency")
 ```
 
 ```{r tabela_kondygnacji_1_najl}
-results <- discretize(trainingData1, breaks = 3, method = "Frequency")
-plot(iris$Species~results, col=1:3)
+
+tabela(trainingData1,"Frequency")
+
 ```
 
 W przypadku tej metody **zgodność** uzyskanego grupowania z realnymi wartościami **wynosi** :
 
 ```{r tab_zgodn}
+results <- discretize(trainingData1, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R1 <- c(R1,R)
 ```
@@ -254,20 +325,27 @@ scatter_plot(trainingData2,"Frequency")
 ```
 
 ```{r tabela_kondygnacji_1_najg}
-results <- discretize(trainingData2, breaks = 3, method = "Frequency")
-plot(iris$Species~results, col=1:3)
+tabela(trainingData2,"Frequency")
 ```
 
 Zgodność dla nagjroszej cechy wynosi jedynie ok **72%**, co mówi o znacznym spadku wiarygodności (**o ok 23 %**)
 
 ```{r tabela_zgodności_1_najg}
+results <- discretize(trainingData2, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R2 <- c(R2,R)
+R
 ```
 
 ### Metoda : Równe szerokości (Interval)
 
 #### Dla najlepszej cechy : Petal.Width (Interval)
+
+```{r Interval}
+
+method = "Interval"
+
+```
 
 ```{r width_najl}
 
@@ -281,16 +359,17 @@ scatter_plot(trainingData1,"Interval")
 ```
 
 ```{r tabela_kondygnacji_2_najl}
-results <- discretize(trainingData1, breaks = 3, method = "Interval")
-plot(iris$Species~results, col=1:3)
+tabela(trainingData1,"Interval")
 
 ```
 
 Dla tej metody również mamy **zgodność na poziomie** :
 
 ```{r tabela_zgodności_2_najl}
+results <- discretize(trainingData1, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R1 <- c(R1,R)
+R
 ```
 
 Widać lekki wzrost zgodności w porównaniu do poprzedniej metody (**o ok 1%**)
@@ -309,17 +388,17 @@ scatter_plot(trainingData2,"Interval")
 ```
 
 ```{r tabela_kondygnacji_2_najg}
-results <- discretize(trainingData2, breaks = 3, method = "Interval")
-plot(iris$Species~results, col=1:3)
+tabela(trainingData2,"Interval")
 
 ```
 
 Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
 
 ```{r tabela_zgodności_2_najg}
-
+results <- discretize(trainingData2, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R2 <- c(R2,R)
+R
 ```
 
 Czyli w porównaniu do metody Frequency mamy **spadek** aż **o ok 16%**
@@ -327,6 +406,10 @@ Czyli w porównaniu do metody Frequency mamy **spadek** aż **o ok 16%**
 ### Metoda : k najbliższych sąsiadów (K-means)
 
 #### Dla najlepszej cechy : Petal.Width (K-means)
+
+```{r cluster}
+method <- "Cluster"
+```
 
 ```{r kMeans_najl}
 #WIDTH_METHOD
@@ -338,17 +421,17 @@ scatter_plot(trainingData1,"Cluster")
 ```
 
 ```{r tabela_kondygnacji_3_najl}
-results <- discretize(trainingData1, breaks = 3, method = "Cluster")
-plot(iris$Species~results, col=1:3)
+tabela(trainingData1,"Cluster")
 
 ```
 
 Zgodność na poziomie :
 
 ```{r tabela_zgodności_3_najl}
+results <- discretize(trainingData1, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R1 <- c(R1,R)
-
+R
 ```
 
 Lepsza **o ok 3%** od ubiegłej metody
@@ -365,17 +448,17 @@ scatter_plot(trainingData2,"Cluster")
 ```
 
 ```{r tabela_kondygnacji_3_najg}
-results <- discretize(trainingData2, breaks = 3, method = "Cluster")
-plot(iris$Species~results, col=1:3)
+tabela(trainingData2,"Cluster")
 
 ```
 
 Dla najgorszej cechy mamy zgodność :
 
 ```{r tabela_zgodności_3_najg}
-
+results <- discretize(trainingData2, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R2 <- c(R2,R)
+R
 
 ```
 
@@ -404,16 +487,16 @@ Na wykresie mamy zaznaczone też końce przedziałów, to jest potrzebne, co jes
 
 ```{r tabela_kondygnacji_4_najl}
 results <- cut(trainingData1, breaks = breaks.user, include.lowest = TRUE, right = FALSE)
-plot(iris$Species~results, col=1:3)
+tabela(trainingData1,"fixed",results)
 
 ```
 
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
 ```{r tabela_zgodności_4_najl}
-
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R1 <- c(R1,R)
+R
 ```
 
 #### Dla najgorszej cechy : Sepal.Length (fixed)
@@ -431,14 +514,15 @@ breaks.user <- c(4.2,5,6,8)
 
 ggplot(data,aes(x = trainingData2 ,y=data$y ,col=Species))+
   geom_point()+
-geom_vline(xintercept = breaks.user, col = "red", lwd=0.5)
+geom_vline(xintercept = breaks.user, col = "darkgrey", lwd=0.5)
 #---------------------------------------------------------
 
 ```
 
 ```{r tabela_kondygnacji_4_najg}
 results <- discretize(trainingData2, breaks = 3, method = "Cluster")
-plot(iris$Species~results, col=1:3)
+
+tabela(trainingData2,"fixed",results)
 
 ```
 
@@ -447,6 +531,7 @@ Dla cechy o najgorszej zdolności dyskryminacyjnej :
 ```{r tabela_zgodności_4_najg}
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R2 <- c(R2,R)
+R
 ```
 
 ## Wnioski :
@@ -477,7 +562,6 @@ Na podstawie tabeli, dokłądniej **Porównania przyporządkować dla cech najgo
 # --- Wczytanie danych ---
 data <- read.csv("uaScoresDataFrame.csv")
 ```
-
 
 ```{r podstawowe_info}
 kable(t(introduce(data)), 
@@ -629,7 +713,6 @@ plot_correlation(na.omit(data), type="continuous",
                  title="Macierz korelacji dla zmiennych ciągłych")
 ```
 
-
 ```{r znaczace_korelacje}
 find_significant_correlations <- function(data, alpha = 0.05) {
   numeric_data <- data %>% select_if(is.numeric)
@@ -676,7 +759,6 @@ visualize_top_correlations <- function(data, top_n = 10) {
 
 visualize_top_correlations(na.omit(data), top_n = 10)
 ```
-
 
 ```{r tabelka_pierwszych_wierszy}
 # Pierwsze wiersze danych
@@ -870,10 +952,9 @@ Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_compo
 
 ## d) Wizualizacja danych wielowymiarowych
 
-<<<<<<< HEAD
 ## e) Korelacja zmiennych
-=======
-##  d) Wizualizacja danych wielowymiarowych
+
+## d) Wizualizacja danych wielowymiarowych
 
 ```{r}
 
@@ -881,14 +962,9 @@ Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_compo
 
 ```
 
-##  e) Korelacja zmiennych
+## e) Korelacja zmiennych
 
-
-
-##  f) Końcowe wnioski
-
-
->>>>>>> e3fbf7149a37f819f1a0d27a14a532dee9eefa0b
+## f) Końcowe wnioski
 
 ## f) Końcowe wnioski
 
@@ -896,8 +972,78 @@ Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_compo
 
 ## a) Dane: titanic_train (R-pakiet titanic)
 
+Zbiór danych zawiera wybrane charakterystyki opisujące pasażerów Titanica (w tym m.in. takie zmienne jak: wiek, płeć, miejsce rozpoczęcia podróży czy klasa pasażerska) wraz z informacją czy dana osoba przeżyła katastrofę (zmienna Survived).
+
 ## b) Przygotowanie danych
 
+Wczytane dane, niepotrzebne kolumny zostały usunięte, oraz typy poszczególnych cech zostały zaaktualizowane na odpowiednie czyt. ordered,numeric
+
+```{r Wczytanie_danych}
+
+#data1 <- read.csv("titanic/gender_submission.csv") 
+#data2 <- read.csv("titanic/test.csv") 
+
+data <- read.csv("titanic/train.csv") 
+
+#head(data1,3) to nie jest potrzebne, trochę nic tu nie ma
+#head(data2,3) tutaj te same dane co w train tylko troche okrojone bardziej
+
+to_remove <- c("PassengerId","Name","Ticket","Cabin")
+data <- data[, !(names(data) %in% to_remove)]
+
+data$Survived <- as.ordered(data$Survived)
+data$Pclass <- as.ordered(data$Pclass)
+data$Age <- as.numeric(data$Age)
+data$SibSp <- as.ordered(data$SibSp)
+data$Parch <- as.ordered(data$Parch)
+data$Fare <- as.numeric(data$Fare)
+data$Embarked <- as.ordered(data$Embarked)
+data$Sex <- as.factor(data$Sex)
+
+# Dla ułatwienia usuwamy wiersze zawierające brakujące wartości
+data <- na.omit(data)
+data[] <- lapply(data, function(col) {
+  if (is.character(col)) factor(col) else col
+})
+
+```
+
 ## c) Redukcja wymiaru na bazie MDS
+
+Redukuję wymiar danych korzystając z **metody metrycznej (Funkcja cmdscale)**
+
+Kolejno tworzymy diagram Shepherda
+
+```{r diagram shepherda}
+# Załaduj wymagane pakiety
+library(cluster)   # dla daisy()
+library(stats)     # dla cmdscale()
+
+# 1. Oblicz macierz odmienności (np. Gowera)
+diss <- daisy(data, metric = "gower")
+
+# 2. MDS klasyczny (klasyczne skalowanie wielowymiarowe)
+mds_result <- cmdscale(diss, k = 3, eig = TRUE)
+
+# 3. Oblicz odległości euklidesowe w odwzorowaniu MDS
+mds_distances <- dist(mds_result$points)
+
+# 4. Shepard diagram: odległości oryginalne vs. odwzorowane
+# (warto posortować po oryginalnych dla przejrzystości)
+plot(as.vector(diss), as.vector(mds_distances),
+     main = "Diagram Shepherda",
+     xlab = "Oryginalne odległości (Gower)",
+     ylab = "Odległości po MDS",
+     pch = 20, 
+     col = "steelblue",
+     cex = 0.1
+     )
+
+abline(0, 1, col = "red", lwd = 2, lty = 2)
+```
+
+Widać, że odległości w nowej przestrzeni danych zmieniły się, nadal mają podobny charakter, największe skupisko danych znajduje się przy lini x = y (w gdyby odległości zostały zachwoane, czyli w idealnym scenariuszu, to nasze nowe odległości przechodziły by właśnie przez tą linię).
+
+Pomimo, że duża liczba punktów odbiega od lini x = y , to jednak różnica między ich nową odległością a starą nie są duże (nie mamy znaczących rozrzutów na osi OY), więc możemy uznać skalowanie za dość dobre, chyba ,że chcemy przeprowadzać bardzo dokładną analizę
 
 ## d) Wizualizacja danych
