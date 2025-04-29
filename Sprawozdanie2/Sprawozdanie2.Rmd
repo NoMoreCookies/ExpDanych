@@ -103,7 +103,7 @@ Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów
 
 ## b) Wybór cech
 
-Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy gatunkami.
+**Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy gatunkami.**
 
 ```{r zad1b}
 #TWORZENIE WYKRESÓW 1
@@ -195,7 +195,7 @@ p4 <- ggplot(data,aes(x = Petal.Width,y=Species ,col=Species))+
 
 ```
 
-Na ich podstawie możemy uznać, że **Petal.Width może stanowić najlepszy wyznacznik gatunku** roślin Najgorszym natomiast jest **Sepal.Width**. Ponieważ dla **Petal.Width** gatunki w najmniejszym stopniu się pokrywają ze względu na tą cechę , a w **Sepal.Width** w największym.
+Na ich podstawie możemy uznać, że **Petal.Width może stanowić najlepszy wyznacznik gatunku** roślin **Najgorszym natomiast jest** **Sepal.Width**. Ponieważ dla **Petal.Width** gatunki w najmniejszym stopniu się pokrywają ze względu na tą cechę , a w **Sepal.Width** w największym.
 
 ## c) Porównanie nienadzorowanych metod dyskretyzacji
 
@@ -299,11 +299,17 @@ scatter_plot(trainingData1,"Frequency")
 #---------------------------------------------------------
 ```
 
+Widać, że linie uzyskane za pomocną **Frequency** dość do dobrze rozdzielają nasze dane .
+
+Jeżeli chcemy dokłądniej przeanalizować zależność podziału od gatunków, narysujemy specjalne bar-ploty
+
 ```{r tabela_kondygnacji_1_najl}
 
 tabela(trainingData1,"Frequency")
 
 ```
+
+Świadczą one o tym ,że metoda Frequency dla zmiennej Petal.Width bezproblemowo oddziela gatunek setosa, lecz wśród pozostałych występuje zjawisko mieszania się (3 virginica przyporządkowano do versicolor, a 5 versicolor do virginica)
 
 W przypadku tej metody **zgodność** uzyskanego grupowania z realnymi wartościami **wynosi** :
 
@@ -311,6 +317,7 @@ W przypadku tej metody **zgodność** uzyskanego grupowania z realnymi wartości
 results <- discretize(trainingData1, breaks = 3, method = method)
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R1 <- c(R1,R)
+R
 ```
 
 #### Dla najgorszej cechy : Sepal.Length (Frequency)
@@ -324,11 +331,13 @@ scatter_plot(trainingData2,"Frequency")
 #---------------------------------------------------------
 ```
 
+Scatter-plot wskazuje, że dla Sepal.Length grupowanie może być dość problematyczne, widać, że obserwacje są dość wymieszane, i trudno będzie w prosty sposób oddzielić je tak, aby gatunki były prawidłowo rozłożożone, te sam problem pojawia się w pozostałych metodach grupowań, dlatego scatter-plot Sepal.Length analizujemy tylko tutaj.
+
 ```{r tabela_kondygnacji_1_najg}
 tabela(trainingData2,"Frequency")
 ```
 
-Zgodność dla nagjroszej cechy wynosi jedynie ok **72%**, co mówi o znacznym spadku wiarygodności (**o ok 23 %**)
+Na tabeli przyporządkowań widać, problemy metody Frequency, przy grupowaniu dla zmiennej Sepal.Length, gatunki są dość mocno przemieszane, brakuje jednolitego podziału.
 
 ```{r tabela_zgodności_1_najg}
 results <- discretize(trainingData2, breaks = 3, method = method)
@@ -336,6 +345,8 @@ R <- compareMatchedClasses(data$Species, results)$diag[1][1]
 R2 <- c(R2,R)
 R
 ```
+
+Zgodność dla nagjroszej cechy wynosi jedynie ok **72%**, co mówi o znacznym spadku wiarygodności (**o ok 23 %**) w porównaniu do Petal.Width
 
 ### Metoda : Równe szerokości (Interval)
 
@@ -353,7 +364,7 @@ method = "Interval"
 #WIDTH_METHOD
 #---------------------------------------------------------
 #hist_plot(trainingData1,"Interval")
-scatter_plot(trainingData1,"Interval")
+#scatter_plot(trainingData1,"Interval")
 #---------------------------------------------------------
 
 ```
@@ -362,6 +373,8 @@ scatter_plot(trainingData1,"Interval")
 tabela(trainingData1,"Interval")
 
 ```
+
+Po tabeli przyporządkowań widać, że mamy trocjhę lepsze odróżnienienie versicolor od virginica
 
 Dla tej metody również mamy **zgodność na poziomie** :
 
@@ -382,7 +395,7 @@ Widać lekki wzrost zgodności w porównaniu do poprzedniej metody (**o ok 1%**)
 #WIDTH_METHOD
 #---------------------------------------------------------
 #hist_plot(trainingData2,"Interval")Niepotrzebnie zajmuje miejsce
-scatter_plot(trainingData2,"Interval")
+#scatter_plot(trainingData2,"Interval")
 #---------------------------------------------------------
 
 ```
@@ -391,6 +404,8 @@ scatter_plot(trainingData2,"Interval")
 tabela(trainingData2,"Interval")
 
 ```
+
+Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki, bardzo duża ich ilość znajduje się w środkowym przedziale, nie jest to dobry podział gatunkowy
 
 Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
 
@@ -415,7 +430,7 @@ method <- "Cluster"
 #WIDTH_METHOD
 #---------------------------------------------------------
 #hist_plot(trainingData1,"Cluster")
-scatter_plot(trainingData1,"Cluster")
+#scatter_plot(trainingData1,"Cluster")
 #---------------------------------------------------------
 
 ```
@@ -424,6 +439,8 @@ scatter_plot(trainingData1,"Cluster")
 tabela(trainingData1,"Cluster")
 
 ```
+
+Analogiczny podział jak w poprzedniej metodzie
 
 Zgodność na poziomie :
 
@@ -442,7 +459,7 @@ Lepsza **o ok 3%** od ubiegłej metody
 #WIDTH_METHOD
 #---------------------------------------------------------
 #hist_plot(trainingData2,"Cluster")
-scatter_plot(trainingData2,"Cluster")
+#scatter_plot(trainingData2,"Cluster")
 #---------------------------------------------------------
 
 ```
@@ -451,6 +468,8 @@ scatter_plot(trainingData2,"Cluster")
 tabela(trainingData2,"Cluster")
 
 ```
+
+Bardziej równomierne rozłożenie jak w metodzie ubiegłej, lecz nie jest wciąż nie jest dobre pod względem gatunkowym
 
 Dla najgorszej cechy mamy zgodność :
 
@@ -478,7 +497,8 @@ breaks.user <- c(0,0.9,1.8,2.6)
 
 ggplot(data,aes(x = trainingData1,y=data$y ,col=Species))+
   geom_point()+
-geom_vline(xintercept = breaks.user, col = "red", lwd=0.5)
+geom_vline(xintercept = breaks.user, col = "darkgrey", lwd=0.5)+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 ```
@@ -490,6 +510,8 @@ results <- cut(trainingData1, breaks = breaks.user, include.lowest = TRUE, right
 tabela(trainingData1,"fixed",results)
 
 ```
+
+Mamy najmniejsze rozmieszanie virignica i versicolor,tylko jedna versicolor została, źle przyporządkowana, ale aż 5 virginic zostało źle rozgrupowanych
 
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
@@ -514,7 +536,8 @@ breaks.user <- c(4.2,5,6,8)
 
 ggplot(data,aes(x = trainingData2 ,y=data$y ,col=Species))+
   geom_point()+
-geom_vline(xintercept = breaks.user, col = "darkgrey", lwd=0.5)
+geom_vline(xintercept = breaks.user, col = "darkgrey", lwd=0.5)+
+  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 ```
@@ -525,6 +548,8 @@ results <- discretize(trainingData2, breaks = 3, method = "Cluster")
 tabela(trainingData2,"fixed",results)
 
 ```
+
+Znaczącą przewaga obserwacji w środkowym przedziale
 
 Dla cechy o najgorszej zdolności dyskryminacyjnej :
 

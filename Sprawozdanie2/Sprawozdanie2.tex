@@ -132,8 +132,8 @@ płatka (ang. petal).}
 
 \subsection{b) Wybór cech}\label{b-wybuxf3r-cech}
 
-Szukamy cech, których róznice są najbardziej spójne z różnicami pomiędzy
-gatunkami.
+\textbf{Szukamy cech, których róznice są najbardziej spójne z różnicami
+pomiędzy gatunkami.}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b1-1} \end{center}
 
@@ -149,7 +149,7 @@ dyksryminacji, aby to zrobić przeanalizujemy \textbf{box-ploty}.
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b2-1} \end{center}
 
 Na ich podstawie możemy uznać, że \textbf{Petal.Width może stanowić
-najlepszy wyznacznik gatunku} roślin Najgorszym natomiast jest
+najlepszy wyznacznik gatunku} roślin \textbf{Najgorszym natomiast jest}
 \textbf{Sepal.Width}. Ponieważ dla \textbf{Petal.Width} gatunki w
 najmniejszym stopniu się pokrywają ze względu na tą cechę , a w
 \textbf{Sepal.Width} w największym.
@@ -165,24 +165,50 @@ częstości(Frequency)}\label{metoda-ruxf3wne-czux119stoux15bcifrequency}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najl-1} \end{center}
 
+Widać, że linie uzyskane za pomocną \textbf{Frequency} dość do dobrze
+rozdzielają nasze dane .
+
+Jeżeli chcemy dokłądniej przeanalizować zależność podziału od gatunków,
+narysujemy specjalne bar-ploty
+
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_1_najl-1} \end{center}
+
+Świadczą one o tym ,że metoda Frequency dla zmiennej Petal.Width
+bezproblemowo oddziela gatunek setosa, lecz wśród pozostałych występuje
+zjawisko mieszania się (3 virginica przyporządkowano do versicolor, a 5
+versicolor do virginica)
 
 W przypadku tej metody \textbf{zgodność} uzyskanego grupowania z
 realnymi wartościami \textbf{wynosi} :
+
+\begin{verbatim}
+## [1] 0.9466667
+\end{verbatim}
 
 \paragraph{Dla najgorszej cechy : Sepal.Length
 (Frequency)}\label{dla-najgorszej-cechy-sepal.length-frequency}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najg-1} \end{center}
 
+Scatter-plot wskazuje, że dla Sepal.Length grupowanie może być dość
+problematyczne, widać, że obserwacje są dość wymieszane, i trudno będzie
+w prosty sposób oddzielić je tak, aby gatunki były prawidłowo
+rozłożożone, te sam problem pojawia się w pozostałych metodach grupowań,
+dlatego scatter-plot Sepal.Length analizujemy tylko tutaj.
+
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_1_najg-1} \end{center}
 
-Zgodność dla nagjroszej cechy wynosi jedynie ok \textbf{72\%}, co mówi o
-znacznym spadku wiarygodności (\textbf{o ok 23 \%})
+Na tabeli przyporządkowań widać, problemy metody Frequency, przy
+grupowaniu dla zmiennej Sepal.Length, gatunki są dość mocno
+przemieszane, brakuje jednolitego podziału.
 
 \begin{verbatim}
 ## [1] 0.72
 \end{verbatim}
+
+Zgodność dla nagjroszej cechy wynosi jedynie ok \textbf{72\%}, co mówi o
+znacznym spadku wiarygodności (\textbf{o ok 23 \%}) w porównaniu do
+Petal.Width
 
 \subsubsection{Metoda : Równe szerokości
 (Interval)}\label{metoda-ruxf3wne-szerokoux15bci-interval}
@@ -190,9 +216,10 @@ znacznym spadku wiarygodności (\textbf{o ok 23 \%})
 \paragraph{Dla najlepszej cechy : Petal.Width
 (Interval)}\label{dla-najlepszej-cechy-petal.width-interval}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najl-1} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najl-1} \end{center}
+
+Po tabeli przyporządkowań widać, że mamy trocjhę lepsze odróżnienienie
+versicolor od virginica
 
 Dla tej metody również mamy \textbf{zgodność na poziomie} :
 
@@ -206,9 +233,11 @@ Widać lekki wzrost zgodności w porównaniu do poprzedniej metody
 \paragraph{Dla najgorszej cechy ; Sepal.Length
 (Interval)}\label{dla-najgorszej-cechy-sepal.length-interval}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/width_najg-1} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najg-1} \end{center}
+
+Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki,
+bardzo duża ich ilość znajduje się w środkowym przedziale, nie jest to
+dobry podział gatunkowy
 
 Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
 
@@ -225,9 +254,9 @@ ok 16\%}
 \paragraph{Dla najlepszej cechy : Petal.Width
 (K-means)}\label{dla-najlepszej-cechy-petal.width-k-means}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najl-1} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najl-1} \end{center}
+
+Analogiczny podział jak w poprzedniej metodzie
 
 Zgodność na poziomie :
 
@@ -240,9 +269,10 @@ Lepsza \textbf{o ok 3\%} od ubiegłej metody
 \paragraph{Dla najgorszej cechy : Sepal.Length
 (K-means)}\label{dla-najgorszej-cechy-sepal.length-k-means}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/kMeans_najg-1} \end{center}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najg-1} \end{center}
+
+Bardziej równomierne rozłożenie jak w metodzie ubiegłej, lecz nie jest
+wciąż nie jest dobre pod względem gatunkowym
 
 Dla najgorszej cechy mamy zgodność :
 
@@ -266,6 +296,10 @@ jest potrzebne podczas rysowania kolejnego wykresu
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najl-1} \end{center}
 
+Mamy najmniejsze rozmieszanie virignica i versicolor,tylko jedna
+versicolor została, źle przyporządkowana, ale aż 5 virginic zostało źle
+rozgrupowanych
+
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
 \begin{verbatim}
@@ -279,10 +313,12 @@ Zgodność na poziome poprzednich dwóch metod, wynosi :
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najg-1} \end{center}
 
+Znaczącą przewaga obserwacji w środkowym przedziale
+
 Dla cechy o najgorszej zdolności dyskryminacyjnej :
 
 \begin{verbatim}
-## [1] 0.72
+## [1] 0.5589744
 \end{verbatim}
 
 \subsection{Wnioski :}\label{wnioski}
@@ -297,8 +333,8 @@ Dla cechy o najgorszej zdolności dyskryminacyjnej :
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.96 \\
-Sepal.Length & 0.7200000 & 0.5729167 & 0.5589744 & 0.72 \\
+Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.9600000 \\
+Sepal.Length & 0.7200000 & 0.5729167 & 0.5589744 & 0.5589744 \\
 \end{longtable}
 
 Na podstawie tabeli, dokłądniej \textbf{Porównania przyporządkować dla
