@@ -751,80 +751,71 @@ plot_correlation(na.omit(data), type="continuous",
 ```
 
 ```{r znaczace_korelacje}
-find_significant_correlations <- function(data, alpha = 0.05) {
-  data_numeric <- data %>% select_if(is.numeric)
+pairs <- combn(names(data_numeric), 2, simplify = FALSE)
   
-  pairs <- combn(names(data_numeric), 2, simplify = FALSE)
+results <- data.frame(Variable1 = character(), 
+                      Variable2 = character(), 
+                      Correlation = numeric(), 
+                      P_Value = numeric())
+
+for (pair in pairs) {
+  var1 <- pair[1]
+  var2 <- pair[2]
   
-  results <- map_dfr(pairs, function(pair) {
-    var1 <- pair[1]
-    var2 <- pair[2]
+  complete_data <- data_numeric[complete.cases(data_numeric[, c(var1, var2)]), ]
   
-    complete_data <- data_numeric[complete.cases(data_numeric[, c(var1, var2)]), c(var1, var2)]
+  if (nrow(complete_data) > 2) {
+    cor_test <- cor.test(complete_data[[var1]], complete_data[[var2]])
     
-    if (nrow(complete_data) > 2) {
-      cor_test <- cor.test(complete_data[[var1]], complete_data[[var2]])
-      
-      if (cor_test$p.value < alpha) {
-        return(data.frame(
-          Variable1 = var1,
-          Variable2 = var2,
-          Correlation = cor_test$estimate,
-          P_Value = cor_test$p.value
-        ))
-      }
+    if (cor_test$p.value < 0.05) {
+      results <- rbind(results, data.frame(
+        Variable1 = var1,
+        Variable2 = var2,
+        Correlation = cor_test$estimate,
+        P_Value = cor_test$p.value
+      ))
     }
-    return(NULL)
-  })
-  results %>% 
-    arrange(desc(abs(Correlation)))
+  }
 }
 
-visualize_top_correlations <- function(data, top_n = 10) {
-  significant_correlations <- find_significant_correlations(data)
+results <- results[order(abs(results$Correlation), decreasing = TRUE), ]
+top_correlations <- head(results, 10)
 
-  top_correlations <- significant_correlations %>% 
-    head(min(top_n, nrow(significant_correlations)))
-  
-  plot_data <- top_correlations %>%
-    mutate(
-      Pair = paste(Variable1, "&", Variable2),
-      Pair = factor(Pair, levels = rev(Pair)),
-      P_Value = format.pval(P_Value, digits = 3)
-    )
-  
-  ggplot(plot_data, aes(x = Correlation, y = Pair, fill = Correlation)) +
-    geom_col() +
-    scale_fill_gradient2(
-      low = color3, 
-      mid = "white", 
-      high = color1, 
-      midpoint = 0, 
-      limits = c(-1, 1)
-    ) +
-    labs(
-      title = paste(min(top_n, nrow(significant_correlations)), "najsilniejszych istotnych korelacji"), 
-      x = "Współczynnik korelacji", 
-      y = NULL
-    ) +
-    theme_minimal() +
-    theme(
-      legend.position = "none", 
-      plot.title = element_text(hjust = 0.5, size = 10, face = "bold"), 
-      axis.text.y = element_text(size = 5), 
-      panel.grid.major.y = element_line(color = "gray90"), 
-      panel.grid.minor = element_blank()
-    ) +
-    geom_text(
-      aes(label = sprintf("r = %.3f (p = %s)", Correlation, P_Value)), 
-      hjust = ifelse(plot_data$Correlation > 0, -0.1, 1.1), 
-      size = 2
-    ) +
-    scale_x_continuous(limits = c(-1, 1))
-}
+plot_data <- top_correlations
+plot_data$Pair <- paste(plot_data$Variable1, "&", plot_data$Variable2)
+plot_data$Pair <- factor(plot_data$Pair, levels = rev(plot_data$Pair))
+plot_data$P_Value_Format <- format.pval(plot_data$P_Value, digits = 3)
 
-visualize_top_correlations(na.omit(data), top_n = 10)
+ggplot(plot_data, aes(x = Correlation, y = Pair, fill = Correlation)) +
+  geom_col() +
+  scale_fill_gradient2(
+    low = color3, 
+    mid = "white", 
+    high = color1, 
+    midpoint = 0, 
+    limits = c(-1, 1)
+  ) +
+  labs(
+    title = paste(nrow(plot_data), "najsilniejszych istotnych korelacji"), 
+    x = "Współczynnik korelacji", 
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none", 
+    plot.title = element_text(hjust = 0.5, size = 10, face = "bold"), 
+    axis.text.y = element_text(size = 5), 
+    panel.grid.major.y = element_line(color = "gray90"), 
+    panel.grid.minor = element_blank()
+  ) +
+  geom_text(
+    aes(label = sprintf("r = %.3f (p = %s)", Correlation, P_Value_Format)), 
+    hjust = ifelse(plot_data$Correlation > 0, -0.1, 1.1), 
+    size = 2
+  ) +
+  scale_x_continuous(limits = c(-1, 1))
 ```
+
 
 Z wykresu wynika, że **najsilniejsza korelacja** występuje między **Startups** i **Venture Capital**, co sugeruje, że dostęp do kapitału inwestycyjnego silnie wspiera rozwój środowiska startupowego.  
 
