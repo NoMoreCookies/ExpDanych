@@ -1134,7 +1134,6 @@ Te wyniki pokazują, że największe odległości od środka PCA mają zarówno 
 ## e) Korelacja zmiennych
 
 ```{r biplot_koniec, fig.width=6, fig.height=6}
-
 fviz_pca_biplot(pca,
                 repel = TRUE,
                 label = "var",
@@ -1279,9 +1278,14 @@ plot(as.vector(diss), as.vector(mds_distances),
 abline(0, 1, col = "red", lwd = 2, lty = 2)
 ```
 
-Widać, że odległości w nowej przestrzeni danych **zmieniły się**. Nadal mają podobny charakter ponieważ największe skupisko danych znajduje się przy prostej **x = y** (gdyby odległości zostały zachowane, czyli w idealnym scenariuszu, to nasze nowe odległości przechodziły by właśnie przez tę linię).
+**Ocena jakości odwzorowania – Diagram Shepherda**
 
-Pomimo, że duża liczba punktów **odbiega** od prostej **x = y**, to jednak różnica między ich nową odległością a starą w większości nie jest duża (nie mamy znaczących rozrzutów na osi OY), więc możemy uznać skalowanie za dopuszalnie dobrą metodę.
+Na powyższym wykresie porównano oryginalne odległości (metoda Gowera) z odległościami otrzymanymi po zastosowaniu MDS.  
+
+**Większość punktów układa się wzdłuż linii x = y**, co wskazuje na dobre odwzorowanie struktury danych. Choć niektóre punkty od niej odbiegają, to **różnice są stosunkowo niewielkie** – zwłaszcza w zakresie mniejszych odległości, które są najbardziej istotne dla zachowania lokalnej struktury danych.  
+
+**Wniosek:** Transformacja MDS zachowała strukturę danych na akceptowalnym poziomie. Diagram Shepherda potwierdza, że skalowanie wielowymiarowe wiernie odtworzyło relacje między punktami, szczególnie w przypadku najbliższych sąsiadów.  
+
 
 ## d) Wizualizacja danych
 
@@ -1317,22 +1321,33 @@ p3 <- ggplot(mds_df, aes(x = Dim1, y = Dim2, color = Survived)) +
 p3
 ```
 
-```{r}
+Na powyższym wykresie przedstawiono wynik analizy MDS, w której obiekty zostały rozróżnione ze względu na zmienną `Survived`.  
 
-```
+Na wykresie wyraźnie widoczny jest **podział obiektów na dwa skupiska**. Pierwsze z nich (po lewej stronie wykresu) charakteryzuje się **dużym odsetkiem osób, które przeżyły**, natomiast drugie (po prawej) skupia głównie osoby, które **nie przeżyły**.  
 
-Widoczny podział obiektów na grupy: pierwsze zagęszczenie charakteryzuje się dużą przeżywalnością a drugie o wiele mniejszą.
+Nie zaobserwowano **obserwacji odstających** ani punktów jednoznacznie nietypowych — wszystkie dane mieszczą się w obrębie naturalnych skupisk.  
 
-Na wykresach nie ma obserwacji odstajacych, bądź nietypowych.
+Na podstawie wykresu można wnioskować, że **analiza MDS skutecznie wydobyła ukrytą strukturę danych**, związaną ze zmienną `Survived`.  
 
 ```{r wyk2}
 p2
 ```
 
-**Równomierny rozkład**, grupy nie są zależne od tego w jakiej klasie ktoś płyną
+Na powyższym wykresie przedstawiono wynik analizy MDS z uwzględnieniem klasy, w której podróżowali pasażerowie (`Pclass`).  
+
+Rozkład punktów w przestrzeni odwzorowanej za pomocą MDS jest stosunkowo **równomierny**, a poszczególne klasy są **rozproszone w obrębie różnych skupisk**. Nie obserwuje się jednoznacznej separacji przestrzennej ze względu na klasę podróży. Wskazuje to na **brak silnej zależności między zmienną `Pclass` a układem punktów w przestrzeni MDS**.  
+
+W odróżnieniu od zmiennej `Survived`, która wykazywała wyraźną strukturę klasową, tutaj nie ma widocznych skupisk odpowiadających konkretnym klasom. W każdej z trzech głównych grup przestrzennych występują pasażerowie różnych klas, co sugeruje, że klasa podróży **nie była głównym czynnikiem różnicującym obserwacje** w tej analizie wielowymiarowej.  
+
+Nie zaobserwowano również punktów odstających ani obserwacji nietypowych — dane układają się w sposób naturalny i uporządkowany.  
+
 
 ```{r wyk3}
 p1
 ```
 
-Widać bardzo jasny podział na kobiety i mężczyzn. Porównując do porzedniego wykresu widać, że większą przeżywalnością charakteryzuje się grupa kobiet, co jest zgodne z intuicją i rzeczywistymi danymi.
+Na powyższym wykresie przedstawiono wynik analizy MDS z podziałem na płeć pasażerów (`Sex`). Widoczny jest **wyraźny podział** na dwie grupy, odpowiadające kobietom i mężczyznom.  
+
+Porównując ten wykres z wcześniejszą analizą przeżywalności (`Survived`), można zauważyć, że grupa odpowiadająca kobietom **częściej pokrywa się** z obszarami o wyższej przeżywalności. Jest to zgodne zarówno z intuicją, jak i historycznymi danymi dotyczącymi katastrofy Titanica, gdzie kobiety miały znacznie większe szanse przeżycia niż mężczyźni.  
+
+Podobnie jak wcześniej, **nie zaobserwowano istotnych obserwacji odstających**, co świadczy o dobrej jakości danych i prawidłowym odwzorowaniu relacji między obserwacjami.  

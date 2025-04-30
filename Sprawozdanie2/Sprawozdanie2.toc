@@ -1,0 +1,33 @@
+\contentsline {section}{\numberline {1}ZADANIE 1 (Dyskretyzacja(przedziałowanie) cech ciągłych)}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}a) Dane: iris (R-pakiet datasets).}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}b) Wybór cech}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}c) Porównanie nienadzorowanych metod dyskretyzacji}{4}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Metoda : Równe częstości(Frequency)}{4}{subsubsection.1.3.1}%
+\contentsline {paragraph}{\numberline {1.3.1.1}Dla najlepszej cechy : Petal.Length (Frequency)}{4}{paragraph.1.3.1.1}%
+\contentsline {paragraph}{\numberline {1.3.1.2}Dla najgorszej cechy : Sepal.Length (Frequency)}{6}{paragraph.1.3.1.2}%
+\contentsline {subsubsection}{\numberline {1.3.2}Metoda : Równe szerokości (Interval)}{7}{subsubsection.1.3.2}%
+\contentsline {paragraph}{\numberline {1.3.2.1}Dla najlepszej cechy : Petal.Width (Interval)}{7}{paragraph.1.3.2.1}%
+\contentsline {paragraph}{\numberline {1.3.2.2}Dla najgorszej cechy ; Sepal.Length (Interval)}{8}{paragraph.1.3.2.2}%
+\contentsline {subsubsection}{\numberline {1.3.3}Metoda : k najbliższych sąsiadów (K-means)}{9}{subsubsection.1.3.3}%
+\contentsline {paragraph}{\numberline {1.3.3.1}Dla najlepszej cechy : Petal.Width (K-means)}{9}{paragraph.1.3.3.1}%
+\contentsline {paragraph}{\numberline {1.3.3.2}Dla najgorszej cechy : Sepal.Length (K-means)}{10}{paragraph.1.3.3.2}%
+\contentsline {subsubsection}{\numberline {1.3.4}Dyskretyzacja z przedziałami zadanymi przez urzytkownika (fixed)}{11}{subsubsection.1.3.4}%
+\contentsline {paragraph}{\numberline {1.3.4.1}Dla najlepszej cechy : Petal.Width (fixed)}{11}{paragraph.1.3.4.1}%
+\contentsline {paragraph}{\numberline {1.3.4.2}Dla najgorszej cechy : Sepal.Length (fixed)}{13}{paragraph.1.3.4.2}%
+\contentsline {subsection}{\numberline {1.4}Wnioski :}{14}{subsection.1.4}%
+\contentsline {section}{\numberline {2}ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))}{15}{section.2}%
+\contentsline {subsection}{\numberline {2.1}a) Przygotowanie i opis danych}{15}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}b) Wyznaczenie składowych głównych}{22}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}c) Zmienność odpowiadająca poszczególnym składowym}{26}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}d) Wizualizacja danych wielowymiarowych}{28}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}e) Korelacja zmiennych}{32}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Wnioski z biplotu:}{32}{subsubsection.2.5.1}%
+\contentsline {paragraph}{\numberline {2.5.1.1}\textbf {Silne zależności:}}{33}{paragraph.2.5.1.1}%
+\contentsline {paragraph}{\numberline {2.5.1.2}Porównanie z macierzą korelacji:}{33}{paragraph.2.5.1.2}%
+\contentsline {subsection}{\numberline {2.6}f) Końcowe wnioski}{33}{subsection.2.6}%
+\contentsline {subsubsection}{\numberline {2.6.1}Wnioski ogólne:}{34}{subsubsection.2.6.1}%
+\contentsline {section}{\numberline {3}ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))}{34}{section.3}%
+\contentsline {subsection}{\numberline {3.1}a) Dane: titanic\_train (R-pakiet titanic)}{34}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}b) Przygotowanie danych}{34}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}c) Redukcja wymiaru na bazie MDS}{34}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}d) Wizualizacja danych}{36}{subsection.3.4}%

@@ -105,7 +105,7 @@
 \makeatother
 \subtitle{Eksploracja danych}
 \author{Kacper Szmigielski, 282255 i Mateusz Wizner, 277508}
-\date{2025-04-29}
+\date{2025-04-30}
 
 \begin{document}
 \maketitle
@@ -138,19 +138,19 @@ pomiędzy gatunkami.}
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b1-1} \end{center}
 
 Po przeanalizowaniu scatter-plotów, widać ,że podczas szukania cechy o
-najlepszej zdolności dyskryminacyjnej warto zwrócić uwagę na
+najlepszej zdolności dyskretyzacyjnej warto zwrócić uwagę na
 \textbf{Petal.Length i Petal.Width}, natomiast jeżeli poszukujemy
-kolumny o najgorszej zdolności dyskryminacyjnej to wybór rozsztrzygamy
+kolumny o najgorszej zdolności dyskretyzacyjnej to wybór rozsztrzygamy
 spośród \textbf{Sepal.Length i Sepal.Width}
 
 Musimy jednak wybrać \textbf{wartości najlepsze i najgorsze} do
-dyksryminacji, aby to zrobić przeanalizujemy \textbf{box-ploty}.
+dysktetyzacji, aby to zrobić przeanalizujemy \textbf{box-ploty}.
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/zad1b2-1} \end{center}
 
 Na ich podstawie możemy uznać, że \textbf{Petal.Width może stanowić
-najlepszy wyznacznik gatunku} roślin \textbf{Najgorszym natomiast jest}
-\textbf{Sepal.Width}. Ponieważ dla \textbf{Petal.Width} gatunki w
+najlepszy wyznacznik gatunku} roślin. \textbf{Najgorszym natomiast jest}
+\textbf{Sepal.Width} ponieważ dla \textbf{Petal.Width} gatunki w
 najmniejszym stopniu się pokrywają ze względu na tą cechę , a w
 \textbf{Sepal.Width} w największym.
 
@@ -165,18 +165,18 @@ częstości(Frequency)}\label{metoda-ruxf3wne-czux119stoux15bcifrequency}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/frequences_najl-1} \end{center}
 
-Widać, że linie uzyskane za pomocną \textbf{Frequency} dość do dobrze
+Widać, że linie uzyskane za pomocną \textbf{Frequency} dość dobrze
 rozdzielają nasze dane .
 
-Jeżeli chcemy dokłądniej przeanalizować zależność podziału od gatunków,
+Jeżeli chcemy dokładniej przeanalizować zależność podziału od gatunków,
 narysujemy specjalne bar-ploty
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_1_najl-1} \end{center}
 
-Świadczą one o tym ,że metoda Frequency dla zmiennej Petal.Width
-bezproblemowo oddziela gatunek setosa, lecz wśród pozostałych występuje
-zjawisko mieszania się (3 virginica przyporządkowano do versicolor, a 5
-versicolor do virginica)
+Świadczą one o tym, że metoda Frequency dla zmiennej
+\textbf{Petal.Width} bezproblemowo oddziela gatunek setosa, lecz wśród
+pozostałych występuje zjawisko mieszania się (3 virginica
+przyporządkowano do versicolor, a 5 versicolor do virginica)
 
 W przypadku tej metody \textbf{zgodność} uzyskanego grupowania z
 realnymi wartościami \textbf{wynosi} :
@@ -218,7 +218,7 @@ Petal.Width
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najl-1} \end{center}
 
-Po tabeli przyporządkowań widać, że mamy trocjhę lepsze odróżnienienie
+Po tabeli przyporządkowań widać, że mamy trochę lepsze odróżnienienie
 versicolor od virginica
 
 Dla tej metody również mamy \textbf{zgodność na poziomie} :
@@ -235,11 +235,11 @@ Widać lekki wzrost zgodności w porównaniu do poprzedniej metody
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_2_najg-1} \end{center}
 
-Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki,
-bardzo duża ich ilość znajduje się w środkowym przedziale, nie jest to
-dobry podział gatunkowy
+Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki.
+Bardzo duża ich ilość znajduje się w środkowym przedziale, więc nie jest
+to dobry podział gatunkowy
 
-Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
+Metoda ta, dla najgorszej cechy dyskretyzuje ze zgodnością :
 
 \begin{verbatim}
 ## [1] 0.5729167
@@ -271,13 +271,13 @@ Lepsza \textbf{o ok 3\%} od ubiegłej metody
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_3_najg-1} \end{center}
 
-Bardziej równomierne rozłożenie jak w metodzie ubiegłej, lecz nie jest
-wciąż nie jest dobre pod względem gatunkowym
+Bardziej równomierne rozłożenie niż w metodzie poprzedniej, lecz nie
+jest wciąż dobre pod względem gatunkowym.
 
 Dla najgorszej cechy mamy zgodność :
 
 \begin{verbatim}
-## [1] 0.7266667
+## [1] 0.7066667
 \end{verbatim}
 
 W tym przypadku jest ona \textbf{na poziome metody Frequency (gorsza o
@@ -291,14 +291,13 @@ W tym przypadku jest ona \textbf{na poziome metody Frequency (gorsza o
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/givenRanges_najl-1} \end{center}
 
-Na wykresie mamy zaznaczone też końce przedziałów, to jest potrzebne, co
-jest potrzebne podczas rysowania kolejnego wykresu
+Na wykresie mamy zaznaczone też końce przedziałów, co jest potrzebne
+podczas wizualizacji przedziałów zadanych przez użytkownika.
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najl-1} \end{center}
 
-Mamy najmniejsze rozmieszanie virignica i versicolor,tylko jedna
-versicolor została, źle przyporządkowana, ale aż 5 virginic zostało źle
-rozgrupowanych
+Mamy najmniejsze rozmieszanie virignica i versicolor. Tylko 1 versicolor
+została źle przyporządkowana w porównaniu do aż 5 virginic.
 
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
@@ -313,9 +312,11 @@ Zgodność na poziome poprzednich dwóch metod, wynosi :
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/tabela_kondygnacji_4_najg-1} \end{center}
 
-Znaczącą przewaga obserwacji w środkowym przedziale
+Równomierny rozkład między pierwszymi dwoma przedziałami ale dalej
+nierozróżnialne na postawie tej metody, więc nie powinniśmy używać jej
+do dyskretyzacji.
 
-Dla cechy o najgorszej zdolności dyskryminacyjnej :
+Dla cechy o najgorszej zdolności dyskretyzacynej:
 
 \begin{verbatim}
 ## [1] 0.72
@@ -334,26 +335,26 @@ Dla cechy o najgorszej zdolności dyskryminacyjnej :
 \bottomrule\noalign{}
 \endlastfoot
 Petal.Width & 0.9466667 & 0.9600000 & 0.9600000 & 0.96 \\
-Sepal.Length & 0.7200000 & 0.5729167 & 0.7266667 & 0.72 \\
+Sepal.Length & 0.7200000 & 0.5729167 & 0.7066667 & 0.72 \\
 \end{longtable}
 
-Na podstawie tabeli, dokłądniej \textbf{Porównania przyporządkować dla
-cech najgorszych i najlepszych pod względem dyskryminacji}. Możemy
-wnioskować, że dla obecnych danych \textbf{najlepszym algorytmem}
-\textbf{jest frequency(częstość)} odznacza się najlepszym
-przyporządkowaniem zarówno dla Sepal.Length jak i Petal.Width
+Na podstawie tabeli \textbf{przyporządkowań} dla cech najgorszych i
+najlepszych pod względem dyskretyzacji możemy wnioskować, że dla
+obecnych danych \textbf{najlepszym} algorytmem jest
+\textbf{frequency(częstość)}. Odznacza się dobrym przyporządkowaniem dla
+\textbf{Petal.Width} i najlepszym dla \textbf{Sepal.Length}
 
 \section{ZADANIE 2 (Analizaskładowych głównych (Principal Component
 Analysis
 (PCA)))}\label{zadanie-2-analizaskux142adowych-gux142uxf3wnych-principal-component-analysis-pca}
 
-\subsection{a) Przygotowanie danych}\label{a-przygotowanie-danych}
+\subsection{a) Przygotowanie i opis
+danych}\label{a-przygotowanie-i-opis-danych}
+
+\textbf{Podstawowe} informacje nt. danych \textbf{uaScoresDataFrame}
 
 \begin{longtable}[]{@{}lr@{}}
-\caption{Podstawowe informacje nt. danych
-\texttt{uaScoresDataFrame}}\tabularnewline
 \toprule\noalign{}
-\endfirsthead
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
@@ -368,85 +369,149 @@ total\_observations & 5586 \\
 memory\_usage & 73496 \\
 \end{longtable}
 
-Typy danych w zbiorze
+Dane zawierają informacje o \textbf{266} miastach, obejmujące
+\textbf{21} cech, z których \textbf{18} to zmienne ciągłe, a \textbf{3}
+dyskretne. Zbiór jest \textbf{kompletny}, bez brakujących wartości, co
+oznacza pełne \textbf{5586} obserwacji.
+
+\textbf{Typy danych} w zbiorze
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/typy_danych-1} \end{center}
 
+\textbf{Tabela poniżej} przedstawia \textbf{pięć} przykładowych wierszy
+danych.
+
+\begin{table}[!h]
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{rlllrrrrrr}
+\toprule
+X & UA\_Name & UA\_Country & UA\_Continent & Housing & Cost.of.Living & Startups & Venture.Capital & Travel.Connectivity & Commute\\
+\midrule
+\cellcolor{gray!10}{0} & \cellcolor{gray!10}{Aarhus} & \cellcolor{gray!10}{Denmark} & \cellcolor{gray!10}{Europe} & \cellcolor{gray!10}{6.132} & \cellcolor{gray!10}{4.015} & \cellcolor{gray!10}{2.827} & \cellcolor{gray!10}{2.512} & \cellcolor{gray!10}{3.536} & \cellcolor{gray!10}{6.312}\\
+1 & Adelaide & Australia & Oceania & 6.310 & 4.692 & 3.136 & 2.640 & 1.777 & 5.336\\
+\cellcolor{gray!10}{2} & \cellcolor{gray!10}{Albuquerque} & \cellcolor{gray!10}{New Mexico} & \cellcolor{gray!10}{North America} & \cellcolor{gray!10}{7.262} & \cellcolor{gray!10}{6.059} & \cellcolor{gray!10}{3.772} & \cellcolor{gray!10}{1.493} & \cellcolor{gray!10}{1.456} & \cellcolor{gray!10}{5.056}\\
+3 & Almaty & Kazakhstan & Asia & 9.282 & 9.333 & 2.458 & 0.000 & 4.592 & 5.871\\
+\cellcolor{gray!10}{4} & \cellcolor{gray!10}{Amsterdam} & \cellcolor{gray!10}{Netherlands} & \cellcolor{gray!10}{Europe} & \cellcolor{gray!10}{3.053} & \cellcolor{gray!10}{3.824} & \cellcolor{gray!10}{7.972} & \cellcolor{gray!10}{6.107} & \cellcolor{gray!10}{8.325} & \cellcolor{gray!10}{6.118}\\
+\addlinespace
+5 & Anchorage & Alaska & North America & 5.434 & 3.141 & 2.795 & 0.000 & 1.738 & 4.715\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{rrrrrrrrrrrr}
+\toprule
+X & Business.Freedom & Safety & Healthcare & Education & Environmental.Quality & Economy & Taxation & Internet.Access & Leisure...Culture & Tolerance & Outdoors\\
+\midrule
+\cellcolor{gray!10}{0} & \cellcolor{gray!10}{9.940} & \cellcolor{gray!10}{9.617} & \cellcolor{gray!10}{8.704} & \cellcolor{gray!10}{5.367} & \cellcolor{gray!10}{7.633} & \cellcolor{gray!10}{4.887} & \cellcolor{gray!10}{5.068} & \cellcolor{gray!10}{8.373} & \cellcolor{gray!10}{3.187} & \cellcolor{gray!10}{9.739} & \cellcolor{gray!10}{4.130}\\
+1 & 9.400 & 7.926 & 7.937 & 5.142 & 8.331 & 6.070 & 4.588 & 4.341 & 4.328 & 7.822 & 5.531\\
+\cellcolor{gray!10}{2} & \cellcolor{gray!10}{8.671} & \cellcolor{gray!10}{1.343} & \cellcolor{gray!10}{6.430} & \cellcolor{gray!10}{4.152} & \cellcolor{gray!10}{7.319} & \cellcolor{gray!10}{6.514} & \cellcolor{gray!10}{4.346} & \cellcolor{gray!10}{5.396} & \cellcolor{gray!10}{4.890} & \cellcolor{gray!10}{7.028} & \cellcolor{gray!10}{3.515}\\
+3 & 5.568 & 7.309 & 4.546 & 2.283 & 3.857 & 5.269 & 8.522 & 2.886 & 2.937 & 6.540 & 5.500\\
+\cellcolor{gray!10}{4} & \cellcolor{gray!10}{8.837} & \cellcolor{gray!10}{8.504} & \cellcolor{gray!10}{7.907} & \cellcolor{gray!10}{6.180} & \cellcolor{gray!10}{7.597} & \cellcolor{gray!10}{5.053} & \cellcolor{gray!10}{4.955} & \cellcolor{gray!10}{4.523} & \cellcolor{gray!10}{8.874} & \cellcolor{gray!10}{8.368} & \cellcolor{gray!10}{5.307}\\
+\addlinespace
+5 & 8.671 & 3.470 & 6.060 & 3.624 & 9.272 & 6.514 & 4.772 & 4.964 & 3.266 & 7.093 & 5.358\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-2} \end{center}
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_country_ilosc_rekordow-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_jakosciowe-3} \end{center}
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_country_ilosc_rekordow-2} \end{center}
+
+\textbf{Analiza wykresów} wskazuje, że \textbf{większość rekordów}
+pochodzi z \textbf{krajów rozwiniętych}, głównie z \textbf{Europy} i
+\textbf{Ameryki Północnej}.
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/histogramy_ilosciowe1-1} \end{center}
 
-\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/qq_z_kurtoza-1} \end{center}
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\textbf{Wolność biznesowa (Business.Freedom):}\\
+Większość miast zapewnia dobre warunki dla biznesu (szczyt ok. 8.5),
+niewiele wypada słabo (\textless5).
+
+\textbf{Dojazdy (Commute):}\\
+Większość miast cechuje się przeciętnym/słabym poziomem skomunikowania
+(4--6).
+
+\textbf{Koszty życia (Cost.of.Living):}\\
+Podział na miasta średnio drogie (szczyt 5--6) i drogie (7--8).
+
+\textbf{Gospodarka (Economy):}\\
+Większość miast ma silną gospodarkę (szczyt 8--9), niewiele słabych
+(\textless5).
+
+\textbf{Edukacja (Education):}\\
+Wyraźny podział -- bardzo niski (0--2) i przeciętny (4--6) poziom
+edukacji.
+
+\textbf{Jakość środowiska (Environmental.Quality):}\\
+Większość miast z dobrą jakością środowiska (6--8).
+
+\textbf{Opieka zdrowotna (Healthcare):}\\
+Podział na miasta z dobrą (8-9) i przeciętną (5--6) opieką, mało słabych
+
+\textbf{Mieszkalnictwo (Housing):}\\
+Dominują przeciętne warunki (5--6), część z bardzo dobrymi (8--9).
+
+\textbf{Dostęp do internetu (Internet.Access):}\\
+Powszechnie przeciętny dostęp (5--7)
+
+\textbf{Kultura i rozrywka (Leisure.\&.Culture):}\\
+Przyzwoity poziom w większości miast (5--7).
+
+\textbf{Aktywności na świeżym powietrzu (Outdoors):}\\
+Głównie średni poziom (4 - 6)
+
+\textbf{Bezpieczeństwo (Safety):}\\
+Większość miast jest bezpieczna (6-9)
+
+\textbf{Startupy (Startups):}\\
+Większość miast przeciętna (4--5), mniejsza grupa z bardzo dobrymi
+warunkami (9--10).
+
+\textbf{Podatki (Taxation):}\\
+Większość miast z umiarkowanymi lub wysokimi podatkami (4--5).
+
+\textbf{Tolerancja (Tolerance):}\\
+Dominują wysokie oceny (7--8), bardzo mało niskich (\textless4).
+
+\textbf{Połączenia komunikacyjne (Travel.Connectivity):}\\
+Większość miast ze słabymi połączeniami (2--3), tylko nieliczne dobre
+(6--7).
+
+\textbf{Kapitał venture (Venture.Capital):}\\
+Dostęp bardzo ograniczony -- większość miast w przedziale 1--2,
+nieliczne wyjątki.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_korelacji-1} \end{center}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/znaczace_korelacje-1} \end{center}
 
-\begin{longtable}[]{@{}rlllrr@{}}
-\toprule\noalign{}
-X & UA\_Name & UA\_Country & UA\_Continent & Housing & Cost.of.Living \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0 & Aarhus & Denmark & Europe & 6.132 & 4.015 \\
-1 & Adelaide & Australia & Oceania & 6.310 & 4.692 \\
-2 & Albuquerque & New Mexico & North America & 7.262 & 6.059 \\
-3 & Almaty & Kazakhstan & Asia & 9.282 & 9.333 \\
-4 & Amsterdam & Netherlands & Europe & 3.053 & 3.824 \\
-5 & Anchorage & Alaska & North America & 5.434 & 3.141 \\
-\end{longtable}
+Z wykresu wynika, że \textbf{najsilniejsza korelacja} występuje między
+\textbf{Startups} i \textbf{Venture Capital}, co sugeruje, że dostęp do
+kapitału inwestycyjnego silnie wspiera rozwój środowiska startupowego.
 
-\begin{longtable}[]{@{}rrrrrr@{}}
-\toprule\noalign{}
-X & Startups & Venture.Capital & Travel.Connectivity & Commute &
-Business.Freedom \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0 & 2.827 & 2.512 & 3.536 & 6.312 & 9.940 \\
-1 & 3.136 & 2.640 & 1.777 & 5.336 & 9.400 \\
-2 & 3.772 & 1.493 & 1.456 & 5.056 & 8.671 \\
-3 & 2.458 & 0.000 & 4.592 & 5.871 & 5.568 \\
-4 & 7.972 & 6.107 & 8.325 & 6.118 & 8.837 \\
-5 & 2.795 & 0.000 & 1.738 & 4.715 & 8.671 \\
-\end{longtable}
+Silna zależność widoczna jest również pomiędzy \textbf{Housing} i
+\textbf{Cost of Living}, co oznacza, że lepsze warunki mieszkaniowe
+często wiążą się z wyższymi kosztami życia.
 
-\begin{longtable}[]{@{}rrrrrr@{}}
-\toprule\noalign{}
-X & Safety & Healthcare & Education & Environmental.Quality & Economy \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0 & 9.617 & 8.704 & 5.367 & 7.633 & 4.887 \\
-1 & 7.926 & 7.937 & 5.142 & 8.331 & 6.070 \\
-2 & 1.343 & 6.430 & 4.152 & 7.319 & 6.514 \\
-3 & 7.309 & 4.546 & 2.283 & 3.857 & 5.269 \\
-4 & 8.504 & 7.907 & 6.180 & 7.597 & 5.053 \\
-5 & 3.470 & 6.060 & 3.624 & 9.272 & 6.514 \\
-\end{longtable}
+Silne korelacje dotyczą także:\\
+- \textbf{Business Freedom \& Education},\\
+- \textbf{Business Freedom \& Environmental Quality},\\
+- \textbf{Business Freedom \& Healthcare},\\
+- \textbf{Business Freedom \& Economy}
 
-\begin{longtable}[]{@{}rrrrrr@{}}
-\toprule\noalign{}
-X & Taxation & Internet.Access & Leisure\ldots Culture & Tolerance &
-Outdoors \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0 & 5.068 & 8.373 & 3.187 & 9.739 & 4.130 \\
-1 & 4.588 & 4.341 & 4.328 & 7.822 & 5.531 \\
-2 & 4.346 & 5.396 & 4.890 & 7.028 & 3.515 \\
-3 & 8.522 & 2.886 & 2.937 & 6.540 & 5.500 \\
-4 & 4.955 & 4.523 & 8.874 & 8.368 & 5.307 \\
-5 & 4.772 & 4.964 & 3.266 & 7.093 & 5.358 \\
-\end{longtable}
+co sugeruje, że \textbf{większa swoboda gospodarcza} często idzie w
+parze z \textbf{lepszą edukacją}, \textbf{czystszym środowiskiem},
+\textbf{lepszą opieką zdrowotną} i ogólnie \textbf{lepszą gospodarką}.
 
 \begin{longtable}[]{@{}lr@{}}
 \toprule\noalign{}
@@ -474,6 +539,19 @@ Tolerance & 2.974 \\
 Outdoors & 2.534 \\
 \end{longtable}
 
+\textbf{Dlaczego standaryzacja jest konieczna?}
+
+\begin{itemize}
+\tightlist
+\item
+  Bez standaryzacji \textbf{PCA faworyzuje zmienne} o większym
+  zróżnicowaniu, co może prowadzić do \textbf{błędnych wniosków}.
+\item
+  \textbf{Standaryzacja} (średnia = 0, odchylenie = 1) zapewnia
+  \textbf{równomierne traktowanie} wszystkich zmiennych, eliminując
+  wpływ \textbf{skali}.
+\end{itemize}
+
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_rozkładów_standaryzacja_boxplot-1} \end{center}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykresy_rozkładów_standaryzacja_boxplot-2} \end{center}
@@ -481,13 +559,9 @@ Outdoors & 2.534 \\
 \subsection{b) Wyznaczenie składowych
 głównych}\label{b-wyznaczenie-skux142adowych-gux142uxf3wnych}
 
+\textbf{Analiza PCA}
+
 \begin{longtable}[]{@{}lrrr@{}}
-\caption{Podsumowanie analizy PCA}\tabularnewline
-\toprule\noalign{}
-Składowa & Odchylenie\_standardowe & Procent\_wariancji &
-Kumulatywna\_wariancja \\
-\midrule\noalign{}
-\endfirsthead
 \toprule\noalign{}
 Składowa & Odchylenie\_standardowe & Procent\_wariancji &
 Kumulatywna\_wariancja \\
@@ -514,10 +588,17 @@ PC16 & 0.352 & 0.73 & 99.42 \\
 PC17 & 0.313 & 0.58 & 100.00 \\
 \end{longtable}
 
-\subsection{c) Zmienność odpowiadająca poszczególnym
-składowym}\label{c-zmiennoux15bux107-odpowiadajux105ca-poszczeguxf3lnym-skux142adowym}
-
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/rozklad_wartosci_wykres_boxplot-1} \end{center}
+
+\textbf{PC1} wykazuje \textbf{największą zmienność}, tłumacząc
+największą część wariancji. Kolejne składowe mają coraz mniejszy wpływ
+na strukturę danych. Od \textbf{PC7--PC8} zmienność jest
+\textbf{niewielka}, co sugeruje ograniczone znaczenie analityczne
+dalszych komponentów.
+
+\textbf{Macierz korelacji zmiennych głównych}
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykres_istotnosci_zmiennych_w_danych_ladunkach-1} \end{center}
 
 \begin{longtable}[t]{lrrr}
 \caption{\label{tab:ladunki}Wektory ładunków dla PC1, PC2 i PC3}\\
@@ -547,28 +628,372 @@ Outdoors & -0.0915866 & -0.1933825 & -0.1485868\\
 \bottomrule
 \end{longtable}
 
+\textbf{Składowa główna 1 (PC1): Jakość życia vs.~dostępność
+ekonomiczna}\\
+PC1 kontrastuje miasta o wysokiej jakości usług z miastami ekonomicznie
+dostępnymi. Najsilniejsze ładunki:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Edukacja} (-0.40),\\
+\item
+  \textbf{Wolność biznesowa} (-0.38),\\
+\item
+  \textbf{Jakość środowiska} (-0.33) - wszystkie \textbf{ujemne}\\
+\item
+  \textbf{Mieszkalnictwo} (0.31),\\
+\item
+  \textbf{Koszty życia} (0.26) - \textbf{dodatnie}
+\end{itemize}
+
+Wysokie wartości PC1 wskazują na miasta o niższych kosztach życia, ale
+słabszej infrastrukturze społecznej. Niskie wartości PC1 charakteryzują
+rozwiniętą infrastrukturę społeczną przy wyższych kosztach.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\textbf{Składowa główna 2 (PC2): Środowisko startupowe vs.~jakość
+społeczna}\\
+PC2 przeciwstawia ośrodki technologiczne miastom o wysokich wskaźnikach
+społecznych:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Startupy} (-0.48),\\
+\item
+  \textbf{Kapitał venture} (-0.43),\\
+\item
+  \textbf{Kultura i rozrywka} (-0.36) - \textbf{ujemne}\\
+\item
+  \textbf{Tolerancja} (0.36),\\
+\item
+  \textbf{Jakość środowiska} (0.25),\\
+\item
+  \textbf{Bezpieczeństwo} (0.29) - \textbf{dodatnie}
+\end{itemize}
+
+Wysokie wartości PC2 oznaczają miasta bardziej przyjazne społecznie,
+niskie wartości wskazują na dynamiczne centra technologiczne.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\textbf{Składowa główna 3 (PC3): Komfort codziennego życia
+vs.~gospodarka}\\
+PC3 zestawia komfort życia codziennego z rozwojem ekonomicznym:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Dojazdy} (-0.51),\\
+\item
+  \textbf{Połączenia komunikacyjne} (-0.34),\\
+\item
+  \textbf{Bezpieczeństwo} (-0.33) - \textbf{ujemne}\\
+\item
+  \textbf{Gospodarka} (0.31) - \textbf{dodatnie}
+\end{itemize}
+
+Miasta o wysokich wartościach PC3 mają silną gospodarkę kosztem wygody
+życia codziennego, podczas gdy niskie wartości PC3 wskazują na większy
+komfort przy mniej dynamicznej ekonomii.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\textbf{Podsumowanie}\\
+Te trzy wymiary tworzą kompleksowe ramy do klasyfikacji miast:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{PC1}: Balans między rozwojem społecznym a dostępnością
+  ekonomiczną\\
+\item
+  \textbf{PC2}: Równowaga między ekosystemem startupowym a jakością
+  życia społecznego\\
+\item
+  \textbf{PC3}: Kompromis między codziennym komfortem a silną gospodarką
+\end{itemize}
+
+\subsection{c) Zmienność odpowiadająca poszczególnym
+składowym}\label{c-zmiennoux15bux107-odpowiadajux105ca-poszczeguxf3lnym-skux142adowym}
+
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/Zmiennosc_skladowych_w_PCA-1} \end{center}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/Zmiennosc_skladowych_w_PCA-2} \end{center}
 
-Liczba składowych głównych wyjaśniających \textbf{80\%} wariancji:
-\textbf{7}\\
-Liczba składowych głównych wyjaśniających \textbf{90\%} wariancji:
-\textbf{10}
+Na podstawie przedstawionych wykresów można zauważyć, że
+\textbf{pierwsze składowe główne} mają największy wpływ na wyjaśnienie
+wariancji danych. W szczególności \textbf{pierwsza składowa (PC1)}.
+Kolejne składowe, takie jak \textbf{PC2} i \textbf{PC3}, również wnoszą
+istotne informacje, ale ich udział w wyjaśnieniu wariancji jest
+stopniowo coraz mniejszy.
+
+Z wykresu skumulowanej wariancji można wywnioskować, że pierwsze
+\textbf{7} składowych wyjaśnia około \textbf{80\%} całkowitej
+zmienności, a pierwsze \textbf{10} składowych odpowiada za \textbf{90\%}
+wariancji, co sugeruje, że można ograniczyć liczbę analizowanych cech
+bez znaczącej utraty informacji.
 
 \subsection{d) Wizualizacja danych
 wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych}
 
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wykres_2D-1} \end{center}
+
+\textbf{Europa} \emph{(zielone kwadraty)}\\
+- Po \textbf{lewej stronie PC1} → \textbf{wysoka jakość życia}, silna
+infrastruktura społeczna (edukacja, bezpieczeństwo, środowisko).\\
+- \textbf{Wyższe koszty życia}, \textbf{mniejsza dostępność
+ekonomiczna}.\\
+- Oś PC2 lekko dodatnia → \textbf{zrównoważony rozwój
+społeczno-startupowy}.
+
+\textbf{Ameryka Północna} \emph{(turkusowe plusy)}\\
+- Również \textbf{lewa strona PC1} → wysoka jakość życia.\\
+- \textbf{Niższe wartości PC2} → \textbf{dynamiczne środowisko
+technologiczne}, kosztem aspektów społecznych.\\
+- Duże \textbf{zróżnicowanie} -- od wybitnie startupowych miast (np.
+USA) po umiarkowane.
+
+\textbf{Azja} \emph{(żółte trójkąty)}\\
+- \textbf{Niskie koszty życia}, ale \textbf{słabsza jakość usług
+społecznych}.\\
+- \textbf{Silna obecność centrów startupowych} (np. Singapur, Chiny).
+
+\textbf{Afryka} \emph{(czerwone koła)}\\
+- \textbf{Wysokie PC1} → \textbf{niska jakość usług społecznych}, ale
+\textbf{dobra dostępność ekonomiczna}.\\
+- \textbf{PC2 bliskie zeru} → przeciętna jakość społeczna, \textbf{słabe
+środowisko innowacyjne}.
+
+\textbf{Oceania} \emph{(niebieskie romby)}\\
+- \textbf{Lewa górna ćwiartka} (PC1 ujemny, PC2 dodatni):\\
+- \textbf{Bardzo wysoka jakość życia}, dobre wskaźniki społeczne
+(tolerancja, środowisko).\\
+- Mało miast, ale \textbf{wyraźnie pozytywne wyniki}.
+
+\textbf{Ameryka Południowa} \emph{(fioletowe gwiazdki)}\\
+- \textbf{Blisko środka} (lekko dodatni PC1):\\
+- \textbf{Umiarkowana jakość życia}, rozsądne koszty.\\
+- \textbf{Niska aktywność startupowa}.
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/mapa_wyróżniających_się_miast-1} \end{center}
+
+\begin{longtable}[]{@{}lrrlr@{}}
+\caption{Miasta najbardziej oddalone od środka układu współrzędnych
+(PCA)}\tabularnewline
+\toprule\noalign{}
+& PC1 & PC2 & Miasto & Odległość od środka \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+& PC1 & PC2 & Miasto & Odległość od środka \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+172 & -4.15 & -3.81 & New York & 5.63 \\
+139 & -4.41 & -3.42 & London & 5.58 \\
+213 & -4.04 & -3.43 & San Francisco Bay Area & 5.30 \\
+127 & 4.79 & -2.09 & Lagos & 5.23 \\
+53 & 5.14 & -0.87 & Caracas & 5.21 \\
+\end{longtable}
+
+\textbf{Miasta najbardziej oddalone od środka układu PCA} charakteryzują
+się \textbf{skrajnymi wartościami} dla głównych składowych, co oznacza,
+że \textbf{wyróżniają się na tle reszty pod względem profilu jakości
+życia, kosztów, rozwoju technologicznego i społecznego}.
+
+\begin{itemize}
+\item
+  \textbf{Nowy Jork} (\textbf{PC1 = -4.15}, \textbf{PC2 = -3.81}) --
+  silnie ujemne wartości obu składowych wskazują na \textbf{wysoką
+  jakość infrastruktury społecznej} (PC1) oraz \textbf{intensywnie
+  rozwinięte środowisko startupowe} (PC2). To miasto dynamiczne, ale
+  jednocześnie \textbf{bardzo kosztowne}.
+\item
+  \textbf{Londyn} (\textbf{PC1 = -4.41}, \textbf{PC2 = -3.42}) --
+  podobnie jak Nowy Jork, łączy \textbf{drogie życie z zaawansowaną
+  infrastrukturą społeczną} i \textbf{wysokim rozwojem technologicznym}.
+\item
+  \textbf{San Francisco Bay Area} (\textbf{PC1 = -4.04}, \textbf{PC2 =
+  -3.43}) -- silne centrum technologiczne o \textbf{niskiej dostępności
+  ekonomicznej}, ale z \textbf{najwyższą koncentracją startupów i
+  kapitału venture}.
+\item
+  \textbf{Lagos} (\textbf{PC1 = 4.79}, \textbf{PC2 = -2.09}) --
+  \textbf{wysoka wartość PC1} oznacza \textbf{niski koszt życia i
+  ograniczoną infrastrukturę społeczną}, przy jednoczesnym
+  \textbf{udziale w środowisku startupowym} (ujemne PC2). To przykład
+  miasta rozwijającego się, ale jeszcze bez zaplecza społecznego.
+\item
+  \textbf{Caracas} (\textbf{PC1 = 5.14}, \textbf{PC2 = -0.87}) -- miasto
+  o \textbf{niskiej jakości życia społecznego} i \textbf{dużej
+  ekonomicznej dostępności}, z \textbf{niewielkim zaangażowaniem w
+  nowoczesne sektory gospodarki}.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Te wyniki pokazują, że największe odległości od środka PCA mają zarówno
+\textbf{najbardziej rozwinięte miasta świata}, jak i \textbf{najbardziej
+marginalne} -- ale \textbf{z różnych powodów}: jedne z powodu
+\textbf{nadmiaru infrastruktury i kosztów}, inne z powodu \textbf{braku
+zasobów społecznych} i \textbf{niskich kosztów życia}.
+
 \subsection{e) Korelacja zmiennych}\label{e-korelacja-zmiennych}
 
-\subsection{d) Wizualizacja danych
-wielowymiarowych}\label{d-wizualizacja-danych-wielowymiarowych-1}
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/biplot_koniec-1} \end{center}
 
-\subsection{e) Korelacja zmiennych}\label{e-korelacja-zmiennych-1}
+\subsubsection{Wnioski z biplotu:}\label{wnioski-z-biplotu}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Długość strzałki} oznacza wpływ zmiennej na PC1 i PC2
+\item
+  \textbf{Kierunek strzałek}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Zbieżne} → \textbf{dodatnia korelacja}\\
+  \item
+    \emph{Przeciwne} → \textbf{ujemna korelacja}\\
+  \item
+    \emph{Prostopadłe} → \textbf{brak korelacji}
+  \end{itemize}
+\end{itemize}
+
+\paragraph{\texorpdfstring{\textbf{Silne
+zależności:}}{Silne zależności:}}\label{silne-zaleux17cnoux15bci}
+
+\textbf{Dodatnie:} - \textbf{Startups -- Venture Capital -- Leisure \&
+Culture}\\
+- \textbf{Safety -- Tolerance}\\
+- \textbf{Business.Freedom - Education - Environmental.Quality}
+
+\textbf{Ujemne:} - \textbf{Cost of Living} vs \textbf{Environmental
+Quality}, \textbf{Education}, \textbf{Business Freedom}\\
+- \textbf{Housing} vs \textbf{Education}
+
+\textbf{Brak istotnej korelacji:} - \textbf{Safety -- Housing}\\
+- \textbf{Commute -- Venture Capital}
+
+\paragraph{Porównanie z macierzą
+korelacji:}\label{poruxf3wnanie-z-macierzux105-korelacji}
+
+Wyniki biplotu są spójne z macierzą \texttt{cor()}:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Najsilniejsza korelacja}: \textbf{Startups -- Venture
+  Capital}\\
+\item
+  \textbf{Housing -- Cost of Living}\\
+\item
+  \textbf{Housing - Education}
+\item
+  \textbf{Business Freedom} silnie koreluje z:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Education}
+  \item
+    \textbf{Environmental Quality}
+  \item
+    \textbf{Healthcare}
+  \item
+    \textbf{Economy}
+  \end{itemize}
+\end{itemize}
 
 \subsection{f) Końcowe wnioski}\label{f-koux144cowe-wnioski}
 
-\subsection{f) Końcowe wnioski}\label{f-koux144cowe-wnioski-1}
+Na podstawie przeprowadzonych analiz i wyników biplotu, kilka istotnych
+wniosków:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Reprezentacja danych}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{PC1} i \textbf{PC2} wyjaśniają główną część zmienności
+    danych, szczególnie \textbf{PC1}, która tłumaczy różnice w jakości
+    życia i dostępności ekonomicznej. \textbf{PC3} dostarcza dodatkowych
+    informacji, ale ma mniejszy wpływ. Pierwsze 2--3 składowe wyjaśniają
+    około \textbf{80\% wariancji}.
+  \end{itemize}
+\item
+  \textbf{Składowe główne}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{PC1} (Jakość życia vs.~dostępność ekonomiczna): Większość
+    miast znajduje się na przeciwnych końcach tej osi, pokazując różnice
+    w równowadze między wysokimi kosztami życia a rozwiniętą
+    infrastrukturą społeczną.
+  \item
+    \textbf{PC2} (Środowisko startupowe vs.~jakość społeczna): Składa
+    się z zmiennych takich jak ``Startups'', ``Venture Capital'' i
+    ``Leisure \& Culture'', które opisują dynamiczne ośrodki
+    technologiczne.
+  \item
+    \textbf{PC3} (Komfort życia vs.~gospodarka): Zestawia miasta o
+    silnej gospodarce z tymi, które oferują wyższy komfort życia
+    codziennego.
+  \end{itemize}
+\item
+  \textbf{Znaczenie standaryzacji}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Standaryzacja} zmiennych miała kluczowy wpływ na wyniki PCA.
+    Bez niej, zmienne o większym zróżnicowaniu (np. koszty życia)
+    mogłyby dominować, prowadząc do błędnych wniosków. Po standaryzacji,
+    każda zmienna ma równy wpływ, co zapewnia bardziej sprawiedliwą
+    ocenę.
+  \end{itemize}
+\item
+  \textbf{Geograficzne różnice}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Z analizy biplotu wynika, że miasta rozmieszczone są zgodnie z
+    globalnymi różnicami w jakości życia, dostępności ekonomicznej i
+    rozwoju startupów. Duże zróżnicowanie występuje między miastami
+    rozwiniętymi (np. Nowy Jork, Londyn) a tymi na początku drogi
+    rozwoju (np. Lagos, Caracas). Wiele miast z krajów rozwiniętych
+    znajduje się w lewym dolnym rogu biplotu, co wskazuje na
+    \textbf{wysoką jakość usług społecznych} i \textbf{wyższe koszty
+    życia}.
+  \end{itemize}
+\end{enumerate}
+
+\subsubsection{Wnioski ogólne:}\label{wnioski-oguxf3lne}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Analiza PCA} dostarcza cennych informacji o relacjach między
+  różnymi aspektami życia w miastach. Widać, że miasta o wyższych
+  kosztach życia mają rozwiniętą infrastrukturę społeczną, podczas gdy
+  te o niższych kosztach życia oferują mniejszy rozwój infrastruktury,
+  ale większy dostęp do rozwoju gospodarczego.
+\item
+  \textbf{Standaryzacja} jest kluczowa do uzyskania rzetelnych wyników
+  PCA, eliminując wpływ różnic w skali danych.
+\end{itemize}
 
 \section{ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling
 (MDS)))}\label{zadanie-3-skalowaniewielowymiarowe-multidimensional-scaling-mds}
@@ -597,18 +1022,79 @@ Kolejno tworzymy diagram Shepherda
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/diagram shepherda-1} \end{center}
 
-Widać, że odległości w nowej przestrzeni danych zmieniły się, nadal mają
-podobny charakter, największe skupisko danych znajduje się przy lini x =
-y (w gdyby odległości zostały zachwoane, czyli w idealnym scenariuszu,
-to nasze nowe odległości przechodziły by właśnie przez tą linię).
+\textbf{Ocena jakości odwzorowania -- Diagram Shepherda}
 
-Pomimo, że duża liczba punktów odbiega od lini x = y , to jednak różnica
-między ich nową odległością a starą nie są duże (nie mamy znaczących
-rozrzutów na osi OY), więc możemy uznać skalowanie za dość dobre, chyba
-,że chcemy przeprowadzać bardzo dokładną analizę
+Na powyższym wykresie porównano oryginalne odległości (metoda Gowera) z
+odległościami otrzymanymi po zastosowaniu MDS.
+
+\textbf{Większość punktów układa się wzdłuż linii x = y}, co wskazuje na
+dobre odwzorowanie struktury danych. Choć niektóre punkty od niej
+odbiegają, to \textbf{różnice są stosunkowo niewielkie} -- zwłaszcza w
+zakresie mniejszych odległości, które są najbardziej istotne dla
+zachowania lokalnej struktury danych.
+
+\textbf{Wniosek:} Transformacja MDS zachowała strukturę danych na
+akceptowalnym poziomie. Diagram Shepherda potwierdza, że skalowanie
+wielowymiarowe wiernie odtworzyło relacje między punktami, szczególnie w
+przypadku najbliższych sąsiadów.
 
 \subsection{d) Wizualizacja danych}\label{d-wizualizacja-danych}
 
 \begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/rozrzut 2D-1} \end{center}
+
+Na powyższym wykresie przedstawiono wynik analizy MDS, w której obiekty
+zostały rozróżnione ze względu na zmienną \texttt{Survived}.
+
+Na wykresie wyraźnie widoczny jest \textbf{podział obiektów na dwa
+skupiska}. Pierwsze z nich (po lewej stronie wykresu) charakteryzuje się
+\textbf{dużym odsetkiem osób, które przeżyły}, natomiast drugie (po
+prawej) skupia głównie osoby, które \textbf{nie przeżyły}.
+
+Nie zaobserwowano \textbf{obserwacji odstających} ani punktów
+jednoznacznie nietypowych --- wszystkie dane mieszczą się w obrębie
+naturalnych skupisk.
+
+Na podstawie wykresu można wnioskować, że \textbf{analiza MDS skutecznie
+wydobyła ukrytą strukturę danych}, związaną ze zmienną
+\texttt{Survived}.
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wyk2-1} \end{center}
+
+Na powyższym wykresie przedstawiono wynik analizy MDS z uwzględnieniem
+klasy, w której podróżowali pasażerowie (\texttt{Pclass}).
+
+Rozkład punktów w przestrzeni odwzorowanej za pomocą MDS jest stosunkowo
+\textbf{równomierny}, a poszczególne klasy są \textbf{rozproszone w
+obrębie różnych skupisk}. Nie obserwuje się jednoznacznej separacji
+przestrzennej ze względu na klasę podróży. Wskazuje to na \textbf{brak
+silnej zależności między zmienną \texttt{Pclass} a układem punktów w
+przestrzeni MDS}.
+
+W odróżnieniu od zmiennej \texttt{Survived}, która wykazywała wyraźną
+strukturę klasową, tutaj nie ma widocznych skupisk odpowiadających
+konkretnym klasom. W każdej z trzech głównych grup przestrzennych
+występują pasażerowie różnych klas, co sugeruje, że klasa podróży
+\textbf{nie była głównym czynnikiem różnicującym obserwacje} w tej
+analizie wielowymiarowej.
+
+Nie zaobserwowano również punktów odstających ani obserwacji nietypowych
+--- dane układają się w sposób naturalny i uporządkowany.
+
+\begin{center}\includegraphics{Sprawozdanie2_files/figure-latex/wyk3-1} \end{center}
+
+Na powyższym wykresie przedstawiono wynik analizy MDS z podziałem na
+płeć pasażerów (\texttt{Sex}). Widoczny jest \textbf{wyraźny podział} na
+dwie grupy, odpowiadające kobietom i mężczyznom.
+
+Porównując ten wykres z wcześniejszą analizą przeżywalności
+(\texttt{Survived}), można zauważyć, że grupa odpowiadająca kobietom
+\textbf{częściej pokrywa się} z obszarami o wyższej przeżywalności. Jest
+to zgodne zarówno z intuicją, jak i historycznymi danymi dotyczącymi
+katastrofy Titanica, gdzie kobiety miały znacznie większe szanse
+przeżycia niż mężczyźni.
+
+Podobnie jak wcześniej, \textbf{nie zaobserwowano istotnych obserwacji
+odstających}, co świadczy o dobrej jakości danych i prawidłowym
+odwzorowaniu relacji między obserwacjami.
 
 \end{document}
