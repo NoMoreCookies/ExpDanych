@@ -15,6 +15,9 @@ output:
     toc: true
     toc_depth: '3'
     df_print: paged
+  word_document:
+    toc: true
+    toc_depth: '3'
 header-includes:
 - \usepackage[OT4]{polski}
 - \usepackage[utf8]{inputenc}
@@ -66,6 +69,12 @@ library(moments)
 library(cluster)
 library(reshape2)
 library(pheatmap)
+library(tidyverse)
+library(factoextra)
+library(stats)
+library(corrplot)
+library(gridExtra)
+library(grid)
 #---------------------------------------------------------
 ```
 
@@ -108,18 +117,18 @@ Zbiór danych zawiera wyniki pomiarów uzyskanych dla **trzech gatunków irysów
 ```{r zad1b}
 #TWORZENIE WYKRESÓW 1
 #---------------------------------------------------------
-p1 <- ggplot(data,aes(x = Sepal.Length,col = Species))+
-  geom_histogram()+
-  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
-p2 <- ggplot(data,aes(x = Sepal.Width,col = Species))+
-  geom_histogram()+
-  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
-p3 <- ggplot(data,aes(x = Petal.Length,col = Species))+
-  geom_histogram()+
-  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
-p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
-  geom_histogram()+
-  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
+#p1 <- ggplot(data,aes(x = Sepal.Length,col = Species))+
+#  geom_histogram()+
+#  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
+#p2 <- ggplot(data,aes(x = Sepal.Width,col = Species))+
+#  geom_histogram()+
+#  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
+#p3 <- ggplot(data,aes(x = Petal.Length,col = Species))+
+#  geom_histogram()+
+#  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
+#p4 <- ggplot(data,aes(x = Petal.Width,col = Species))+
+#  geom_histogram()+
+#  scale_color_manual(values = c("setosa" = color1, "versicolor" = color2, "virginica" = color3))
 #---------------------------------------------------------
 
 #RYSOWANIE WYKRESÓW (ONE TROCHĘ ZAŚMIECAJĄ I NIE SĄ POTRZEBNE)
@@ -164,9 +173,9 @@ p4 <- ggplot(data,aes(x = Petal.Width,y=y ,col=Species))+
 
 ```
 
-Po przeanalizowaniu scatter-plotów, widać ,że podczas szukania cechy o najlepszej zdolności dyskryminacyjnej warto zwrócić uwagę na **Petal.Length i Petal.Width**, natomiast jeżeli poszukujemy kolumny o najgorszej zdolności dyskryminacyjnej to wybór rozsztrzygamy spośród **Sepal.Length i Sepal.Width**
+Po przeanalizowaniu scatter-plotów, widać ,że podczas szukania cechy o najlepszej zdolności dyskretyzacyjnej warto zwrócić uwagę na **Petal.Length i Petal.Width**, natomiast jeżeli poszukujemy kolumny o najgorszej zdolności dyskretyzacyjnej to wybór rozsztrzygamy spośród **Sepal.Length i Sepal.Width**
 
-Musimy jednak wybrać **wartości najlepsze i najgorsze** do dyksryminacji, aby to zrobić przeanalizujemy **box-ploty**.
+Musimy jednak wybrać **wartości najlepsze i najgorsze** do dysktetyzacji, aby to zrobić przeanalizujemy **box-ploty**.
 
 ```{r zad1b2}
 
@@ -195,7 +204,7 @@ p4 <- ggplot(data,aes(x = Petal.Width,y=Species ,col=Species))+
 
 ```
 
-Na ich podstawie możemy uznać, że **Petal.Width może stanowić najlepszy wyznacznik gatunku** roślin **Najgorszym natomiast jest** **Sepal.Width**. Ponieważ dla **Petal.Width** gatunki w najmniejszym stopniu się pokrywają ze względu na tą cechę , a w **Sepal.Width** w największym.
+Na ich podstawie możemy uznać, że **Petal.Width może stanowić najlepszy wyznacznik gatunku** roślin. **Najgorszym natomiast jest** **Sepal.Width** ponieważ dla **Petal.Width** gatunki w najmniejszym stopniu się pokrywają ze względu na tą cechę , a w **Sepal.Width** w największym.
 
 ## c) Porównanie nienadzorowanych metod dyskretyzacji
 
@@ -268,7 +277,7 @@ tabela <- function(trainingData,method,results = c()){
   # Tworzymy wykres w ggplot2
   return   (ggplot(df_count, aes(x = results, y = count, fill = Species)) +
     geom_bar(stat = "identity", position = "stack", width = 0.7) +  # Słupki na podstawie zliczeń
-    geom_text(aes(label = count), position = position_stack(vjust = 0.5), size = 5) +  # Liczba w słupkach
+    geom_text(aes(label = count), position = position_stack(vjust = 0.5), size = 4) +  # Liczba w słupkach
     labs(x = "Przedziały wyników", y = "Liczba obserwacji", title = "Liczba obserwacji gatunków w przedziałach") +
     scale_fill_manual(values = colors) +  # Kolory dla gatunków
     theme_minimal())  # Estetyczny motyw
@@ -299,9 +308,9 @@ scatter_plot(trainingData1,"Frequency")
 #---------------------------------------------------------
 ```
 
-Widać, że linie uzyskane za pomocną **Frequency** dość do dobrze rozdzielają nasze dane .
+Widać, że linie uzyskane za pomocną **Frequency** dość dobrze rozdzielają nasze dane .
 
-Jeżeli chcemy dokłądniej przeanalizować zależność podziału od gatunków, narysujemy specjalne bar-ploty
+Jeżeli chcemy dokładniej przeanalizować zależność podziału od gatunków, narysujemy specjalne bar-ploty
 
 ```{r tabela_kondygnacji_1_najl}
 
@@ -309,7 +318,7 @@ tabela(trainingData1,"Frequency")
 
 ```
 
-Świadczą one o tym ,że metoda Frequency dla zmiennej Petal.Width bezproblemowo oddziela gatunek setosa, lecz wśród pozostałych występuje zjawisko mieszania się (3 virginica przyporządkowano do versicolor, a 5 versicolor do virginica)
+Świadczą one o tym, że metoda Frequency dla zmiennej **Petal.Width** bezproblemowo oddziela gatunek setosa, lecz wśród pozostałych występuje zjawisko mieszania się (3 virginica przyporządkowano do versicolor, a 5 versicolor do virginica)
 
 W przypadku tej metody **zgodność** uzyskanego grupowania z realnymi wartościami **wynosi** :
 
@@ -374,7 +383,7 @@ tabela(trainingData1,"Interval")
 
 ```
 
-Po tabeli przyporządkowań widać, że mamy trocjhę lepsze odróżnienienie versicolor od virginica
+Po tabeli przyporządkowań widać, że mamy trochę lepsze odróżnienienie versicolor od virginica
 
 Dla tej metody również mamy **zgodność na poziomie** :
 
@@ -405,9 +414,9 @@ tabela(trainingData2,"Interval")
 
 ```
 
-Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki, bardzo duża ich ilość znajduje się w środkowym przedziale, nie jest to dobry podział gatunkowy
+Dla tabeli zgodności widać, że metoda w zły sposób rozdziela przypadki. Bardzo duża ich ilość znajduje się w środkowym przedziale, więc nie jest to dobry podział gatunkowy
 
-Metoda ta, dla najgorszzej cechy dyksryminuje ze zgodnością :
+Metoda ta, dla najgorszej cechy dyskretyzuje ze zgodnością :
 
 ```{r tabela_zgodności_2_najg}
 results <- discretize(trainingData2, breaks = 3, method = method)
@@ -469,7 +478,7 @@ tabela(trainingData2,"Cluster")
 
 ```
 
-Bardziej równomierne rozłożenie jak w metodzie ubiegłej, lecz nie jest wciąż nie jest dobre pod względem gatunkowym
+Bardziej równomierne rozłożenie niż w metodzie poprzedniej, lecz nie jest wciąż dobre pod względem gatunkowym.
 
 Dla najgorszej cechy mamy zgodność :
 
@@ -503,7 +512,7 @@ geom_vline(xintercept = breaks.user, col = "darkgrey", lwd=0.5)+
 
 ```
 
-Na wykresie mamy zaznaczone też końce przedziałów, to jest potrzebne, co jest potrzebne podczas rysowania kolejnego wykresu
+Na wykresie mamy zaznaczone też końce przedziałów, co jest potrzebne podczas wizualizacji przedziałów zadanych przez użytkownika.
 
 ```{r tabela_kondygnacji_4_najl}
 results <- cut(trainingData1, breaks = breaks.user, include.lowest = TRUE, right = FALSE)
@@ -511,7 +520,7 @@ tabela(trainingData1,"fixed",results)
 
 ```
 
-Mamy najmniejsze rozmieszanie virignica i versicolor,tylko jedna versicolor została, źle przyporządkowana, ale aż 5 virginic zostało źle rozgrupowanych
+Mamy najmniejsze rozmieszanie virignica i versicolor. Tylko 1 versicolor została źle przyporządkowana w porównaniu do aż 5 virginic.
 
 Zgodność na poziome poprzednich dwóch metod, wynosi :
 
@@ -549,9 +558,9 @@ tabela(trainingData2,"fixed",results)
 
 ```
 
-Znaczącą przewaga obserwacji w środkowym przedziale
+Równomierny rozkład między pierwszymi dwoma przedziałami ale dalej nierozróżnialne na postawie tej metody, więc nie powinniśmy używać jej do dyskretyzacji.
 
-Dla cechy o najgorszej zdolności dyskryminacyjnej :
+Dla cechy o najgorszej zdolności dyskretyzacynej:
 
 ```{r tabela_zgodności_4_najg}
 R <- compareMatchedClasses(data$Species, results)$diag[1][1]
@@ -573,11 +582,11 @@ rownames(RESULTS)<- c("Petal.Width","Sepal.Length")
 kable(RESULTS)
 ```
 
-Na podstawie tabeli, dokłądniej **Porównania przyporządkować dla cech najgorszych i najlepszych pod względem dyskryminacji**. Możemy wnioskować, że dla obecnych danych **najlepszym algorytmem** **jest frequency(częstość)** odznacza się najlepszym przyporządkowaniem zarówno dla Sepal.Length jak i Petal.Width
+Na podstawie tabeli **przyporządkowań** dla cech najgorszych i najlepszych pod względem dyskretyzacji możemy wnioskować, że dla obecnych danych **najlepszym** algorytmem jest **frequency(częstość)**. Odznacza się dobrym przyporządkowaniem dla **Petal.Width** i najlepszym dla **Sepal.Length**
 
 # ZADANIE 2 (Analizaskładowych głównych (Principal Component Analysis (PCA)))
 
-## a) Przygotowanie danych
+## a) Przygotowanie i opis danych
 
 ```{r import_przygotowanie_danych}
 # =====================================================================
@@ -588,35 +597,49 @@ Na podstawie tabeli, dokłądniej **Porównania przyporządkować dla cech najgo
 data <- read.csv("uaScoresDataFrame.csv")
 ```
 
+**Podstawowe** informacje nt. danych **uaScoresDataFrame**
+
 ```{r podstawowe_info}
 kable(t(introduce(data)), 
-      row.names = TRUE, col.names = "",
-      caption = "Podstawowe informacje nt. danych `uaScoresDataFrame`")
+      row.names = TRUE, col.names = "")
 
 ```
 
-Typy danych w zbiorze
+Dane zawierają informacje o **266** miastach, obejmujące **21** cech, z których **18** to zmienne ciągłe, a **3** dyskretne. Zbiór jest **kompletny**, bez brakujących wartości, co oznacza pełne **5586** obserwacji.
+
+**Typy danych** w zbiorze
 
 ```{r typy_danych, fig.width=14, fig.height=2}
 # Typy zmiennych
-#kable(data.frame(Type = sapply(data, class)), caption = "Typy danych w zbiorze")
 vis_dat(data) +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank())
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank()) + scale_fill_manual(values = c(color1, color2, color3))
 
 # --- Wybór cech ilościowych ---
 data_numeric <- data[sapply(data, is.numeric) & names(data) != "X"]
+```
+**Tabela poniżej** przedstawia **pięć** przykładowych wierszy danych.
+
+```{r head_danych}
+index <- 0:(nrow(head(data)) - 1)
+kable(head(data)[, 1:10], format = "latex", booktabs = TRUE, digits = 3) %>%
+  kable_styling(latex_options = c("scale_down", "hold_position", "striped"))
+
+kable(cbind(X = index, head(data)[, 11:21]), format = "latex", booktabs = TRUE, digits = 3) %>%
+  kable_styling(latex_options = c("scale_down", "hold_position", "striped"))
 ```
 
 ```{r wykresy_jakosciowe, fig.width=14, fig.height=4}
 ggplot(data, aes(x = UA_Continent, fill = UA_Continent)) + 
   geom_bar() +
-  ggtitle("Wykres słupkowy dla UA_Continent") +
+  ggtitle("Wykres słupkowy pokazujący ilość rekordów dla każdego z kontynentów") +
   scale_fill_brewer(palette = "Set3") +
   scale_y_continuous(breaks = seq(0, max(table(data$UA_Continent)), by = 10))
+```
 
+```{r wykresy_country_ilosc_rekordow, fig.width=14, fig.height=4}
 ggplot(data, aes(x = UA_Country, fill = ..count..)) +
   geom_bar() +
-  ggtitle("Wykres słupkowy dla UA_Country alfabetycznie") +
+  ggtitle("Wykres słupkowy dla każdego kraju alfabetycznie") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
   scale_y_continuous(breaks = seq(0, max(table(data$UA_Country)), by = 1)) +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
@@ -628,188 +651,193 @@ data_sorted <- data %>%
 
 ggplot(data_sorted, aes(x = reorder(UA_Country, n), y = n, fill = n)) +
   geom_bar(stat = "identity") +
-  ggtitle("Wykres słupkowy dla UA_Country rosnąco") +
+  ggtitle("Wykres słupkowy dla każdego kraju rosnąco") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
   scale_y_continuous(breaks = seq(0, max(data_sorted$n), by = 1)) +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(x = "Kraj", y = "Liczba", fill = "Liczba")
 ```
 
+**Analiza wykresów** wskazuje, że **większość rekordów** pochodzi z **krajów rozwiniętych**, głównie z **Europy** i **Ameryki Północnej**.
+
 ```{r histogramy_ilosciowe1, fig.height=10, fig.width=10}
-plot_histogram_with_density <- function(data_numeric, nrow = 4, ncol = 5, 
-                                       title = "Histogramy z estymatorami gęstości", 
-                                       adjust = 0.5) {
-  data_long <- data_numeric %>%
-    gather(key = "Variable", value = "Value")
-  
-  ggplot(data_long, aes(x = Value)) +
-    geom_histogram(aes(y = after_stat(density)), 
-                  bins = 30, 
-                  fill = "lightblue", 
-                  color = "darkblue", 
-                  alpha = 0.7) +
-    geom_density(adjust = adjust, 
-                color = "red", 
-                linewidth = 1) +
-    geom_boxplot(aes(y = -0.02), 
-                width = 0.1, 
-                fill = "orange", 
-                alpha = 0.7,
-                outlier.color = "red",
-                outlier.size = 1.5) +
-    facet_wrap(~ Variable, scales = "free", nrow = nrow, ncol = ncol) +
-    labs(title = title) +
-    theme_minimal() +
-    theme(
-      plot.title = element_text(hjust = 0.5, size = 16),
-      strip.text = element_text(size = 10, face = "bold"),
-      axis.title.x = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
-    )
-}
+data_long <- data_numeric %>%
+  gather(key = "Variable", value = "Value")
 
-plot_histogram_with_density(
-  data_numeric,
-  nrow = 4,
-  ncol = 5,
-  title = "Histogramy z estymatorami gęstości i boxplotami dla zmiennych ilościowych",
-  adjust = 0.3
-)
-
+ggplot(data_long, aes(x = Value)) +
+  geom_histogram(aes(y = after_stat(density)), 
+                bins = 30, 
+                fill = color3, 
+                color = color2, 
+                alpha = 0.7) +
+  geom_density(adjust = 0.3, 
+              color = "darkgreen", 
+              linewidth = 1) +
+  geom_boxplot(aes(y = -0.02), 
+              width = 0.1, 
+              fill = "grey", 
+              alpha = 0.7,
+              outlier.color = "red",
+              outlier.size = 1.5) +
+  facet_wrap(~ Variable, scales = "free", nrow = 4, ncol = 5) +
+  labs(title = "Histogramy z estymatorami gęstości i boxplotami dla zmiennych") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),
+    strip.text = element_text(size = 10, face = "bold"),
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
+  )
 ```
 
-```{r qq_z_kurtoza, fig.height=10, fig.width=10}
-plot_qq_kurtosis <- function(data_numeric, nrow = 4, ncol = 5) {
-  data_long <- data_numeric %>%
-    gather(key = "Variable", value = "Value")
-  
-  get_kurtosis <- function(x) {
-    kurtosis_val <- round(kurtosis(x, na.rm = TRUE), 2)
-    return(kurtosis_val)
-  }
-  
-  kurtosis_stats <- data_long %>%
-    group_by(Variable) %>%
-    summarise(
-      kurtosis = get_kurtosis(Value),
-      .groups = "drop"
-    ) %>%
-    mutate(
-      kurtosis_type = case_when(
-        kurtosis < 3 ~ "platykurtyczny",
-        kurtosis > 3 ~ "leptokurtyczny",
-        TRUE ~ "mezokurtyczny"
-      ),
-      label = paste0("Kurtoza: ", kurtosis, " (", kurtosis_type, ")")
-    )
-  data_with_kurtosis <- left_join(data_long, kurtosis_stats, by = "Variable")
-  
-  ggplot(data_with_kurtosis, aes(sample = Value)) +
-    stat_qq(color = "steelblue", size = 1, alpha = 0.7) +
-    stat_qq_line(color = "darkblue", linewidth = 0.8) +
-    geom_text(
-      aes(x = -2, y = Inf, label = label),
-      hjust = 0, vjust = 1,
-      size = 2.5, color = "black",
-      check_overlap = TRUE
-    ) +
-    labs(
-      title = "Wykresy Q-Q dla zmiennych ilościowych",
-    ) +
-    facet_wrap(~ Variable, scales = "free", nrow = nrow, ncol = ncol) +
-    theme_minimal() +
-    theme(
-      plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-      plot.subtitle = element_text(hjust = 0.5, size = 10),
-      strip.text = element_text(size = 10, face = "bold"),
-      strip.background = element_rect(fill = "lightyellow", color = "grey"),
-      panel.background = element_rect(fill = "white", color = NA),
-      panel.grid.major = element_line(color = "gray90"),
-      panel.grid.minor = element_line(color = "gray95"),
-      axis.text = element_text(size = 5)
-    )
-}
+---
 
-plot_qq_kurtosis(data_numeric, nrow = 4, ncol = 5)
-```
+**Wolność biznesowa (Business.Freedom):**  
+Większość miast zapewnia dobre warunki dla biznesu (szczyt ok. 8.5), niewiele wypada słabo (<5).  
+
+**Dojazdy (Commute):**  
+Większość miast cechuje się przeciętnym/słabym poziomem skomunikowania (4–6).
+
+**Koszty życia (Cost.of.Living):**  
+Podział na miasta średnio drogie (szczyt 5–6) i drogie (7–8).  
+
+**Gospodarka (Economy):**  
+Większość miast ma silną gospodarkę (szczyt 8–9), niewiele słabych (<5).  
+
+**Edukacja (Education):**  
+Wyraźny podział – bardzo niski (0–2) i przeciętny (4–6) poziom edukacji.  
+
+**Jakość środowiska (Environmental.Quality):**  
+Większość miast z dobrą jakością środowiska (6–8).
+
+**Opieka zdrowotna (Healthcare):**  
+Podział na miasta z dobrą (8-9) i przeciętną (5–6) opieką, mało słabych  
+
+**Mieszkalnictwo (Housing):**  
+Dominują przeciętne warunki (5–6), część z bardzo dobrymi (8–9).  
+
+**Dostęp do internetu (Internet.Access):**  
+Powszechnie przeciętny dostęp (5–7) 
+
+**Kultura i rozrywka (Leisure.&.Culture):**  
+Przyzwoity poziom w większości miast (5–7).
+
+**Aktywności na świeżym powietrzu (Outdoors):**  
+Głównie średni poziom (4 - 6)
+
+**Bezpieczeństwo (Safety):**  
+Większość miast jest bezpieczna (6-9)
+
+**Startupy (Startups):**  
+Większość miast przeciętna (4–5), mniejsza grupa z bardzo dobrymi warunkami (9–10).  
+
+**Podatki (Taxation):**  
+Większość miast z umiarkowanymi lub wysokimi podatkami (4–5). 
+
+**Tolerancja (Tolerance):**  
+Dominują wysokie oceny (7–8), bardzo mało niskich (<4).  
+
+**Połączenia komunikacyjne (Travel.Connectivity):**  
+Większość miast ze słabymi połączeniami (2–3), tylko nieliczne dobre (6–7).  
+
+**Kapitał venture (Venture.Capital):**  
+Dostęp bardzo ograniczony – większość miast w przedziale 1–2, nieliczne wyjątki.  
+
+---
 
 ```{r wykresy_korelacji, fig.height=10, fig.width=10}
 plot_correlation(na.omit(data), type="continuous",
-                 title="Macierz korelacji dla zmiennych ciągłych")
+                 title="Macierz korelacji dla zmiennych")
 ```
 
 ```{r znaczace_korelacje}
 find_significant_correlations <- function(data, alpha = 0.05) {
-  numeric_data <- data %>% select_if(is.numeric)
-  var_names <- names(numeric_data)
-  results <- data.frame(Variable1 = character(), Variable2 = character(), Correlation = numeric(), P_Value = numeric(), stringsAsFactors = FALSE)
-
-  for (i in 1:(length(var_names) - 1)) {
-    for (j in (i + 1):length(var_names)) {
-      var1 <- var_names[i]
-      var2 <- var_names[j]
-      complete_data <- numeric_data[complete.cases(numeric_data[, c(var1, var2)]), c(var1, var2)]
+  data_numeric <- data %>% select_if(is.numeric)
+  
+  pairs <- combn(names(data_numeric), 2, simplify = FALSE)
+  
+  results <- map_dfr(pairs, function(pair) {
+    var1 <- pair[1]
+    var2 <- pair[2]
+  
+    complete_data <- data_numeric[complete.cases(data_numeric[, c(var1, var2)]), c(var1, var2)]
+    
+    if (nrow(complete_data) > 2) {
+      cor_test <- cor.test(complete_data[[var1]], complete_data[[var2]])
       
-      if (nrow(complete_data) > 2) {
-        cor_test <- cor.test(complete_data[[var1]], complete_data[[var2]])
-        
-        if (cor_test$p.value < alpha) {
-          results <- rbind(results, data.frame(Variable1 = var1, Variable2 = var2, Correlation = cor_test$estimate, P_Value = cor_test$p.value))
-        }
+      if (cor_test$p.value < alpha) {
+        return(data.frame(
+          Variable1 = var1,
+          Variable2 = var2,
+          Correlation = cor_test$estimate,
+          P_Value = cor_test$p.value
+        ))
       }
     }
-  }
-  
-  results <- results %>% mutate(Abs_Correlation = abs(Correlation)) %>% arrange(desc(Abs_Correlation)) %>% select(-Abs_Correlation)
-  return(results)
+    return(NULL)
+  })
+  results %>% 
+    arrange(desc(abs(Correlation)))
 }
 
 visualize_top_correlations <- function(data, top_n = 10) {
   significant_correlations <- find_significant_correlations(data)
 
-  top_correlations <- significant_correlations %>% head(min(top_n, nrow(significant_correlations)))
-
+  top_correlations <- significant_correlations %>% 
+    head(min(top_n, nrow(significant_correlations)))
+  
   plot_data <- top_correlations %>%
-    mutate(Pair = paste(Variable1, "&", Variable2), Pair = factor(Pair, levels = rev(Pair)), P_Value = format.pval(P_Value, digits = 3))
-
+    mutate(
+      Pair = paste(Variable1, "&", Variable2),
+      Pair = factor(Pair, levels = rev(Pair)),
+      P_Value = format.pval(P_Value, digits = 3)
+    )
+  
   ggplot(plot_data, aes(x = Correlation, y = Pair, fill = Correlation)) +
     geom_col() +
-    scale_fill_gradient2(low = "firebrick", mid = "white", high = "steelblue", midpoint = 0, limits = c(-1, 1)) +
-    labs(title = paste("Najsilniejsze istotne korelacje (top", min(top_n, nrow(significant_correlations)), ")"), x = "Współczynnik korelacji", y = NULL) +
+    scale_fill_gradient2(
+      low = color3, 
+      mid = "white", 
+      high = color1, 
+      midpoint = 0, 
+      limits = c(-1, 1)
+    ) +
+    labs(
+      title = paste(min(top_n, nrow(significant_correlations)), "najsilniejszych istotnych korelacji"), 
+      x = "Współczynnik korelacji", 
+      y = NULL
+    ) +
     theme_minimal() +
-    theme(legend.position = "none", plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), axis.text.y = element_text(size = 10), panel.grid.major.y = element_line(color = "gray90"), panel.grid.minor = element_blank()) +
-    geom_text(aes(label = sprintf("r = %.3f (p = %s)", Correlation, P_Value)), hjust = ifelse(plot_data$Correlation > 0, -0.1, 1.1), size = 3.5) +
+    theme(
+      legend.position = "none", 
+      plot.title = element_text(hjust = 0.5, size = 10, face = "bold"), 
+      axis.text.y = element_text(size = 5), 
+      panel.grid.major.y = element_line(color = "gray90"), 
+      panel.grid.minor = element_blank()
+    ) +
+    geom_text(
+      aes(label = sprintf("r = %.3f (p = %s)", Correlation, P_Value)), 
+      hjust = ifelse(plot_data$Correlation > 0, -0.1, 1.1), 
+      size = 2
+    ) +
     scale_x_continuous(limits = c(-1, 1))
 }
 
 visualize_top_correlations(na.omit(data), top_n = 10)
 ```
 
-```{r tabelka_pierwszych_wierszy}
-# Pierwsze wiersze danych
-index <- 0:(nrow(head(data)) - 1)
+Z wykresu wynika, że **najsilniejsza korelacja** występuje między **Startups** i **Venture Capital**, co sugeruje, że dostęp do kapitału inwestycyjnego silnie wspiera rozwój środowiska startupowego.  
 
-kable(head(data)[, 1:6],
-      format = "pandoc",
-      booktabs = TRUE,
-      digits = 3,
-      table.attr = "style='width:100%; font-size:5px;'")
+Silna zależność widoczna jest również pomiędzy **Housing** i **Cost of Living**, co oznacza, że lepsze warunki mieszkaniowe często wiążą się z wyższymi kosztami życia.
 
-kable(cbind(X = index, head(data)[, 7:11]),
-      format = "pandoc",
-      booktabs = TRUE,
-      digits = 3)
+Silne korelacje dotyczą także:  
+- **Business Freedom & Education**,  
+- **Business Freedom & Environmental Quality**,  
+- **Business Freedom & Healthcare**,  
+- **Business Freedom & Economy**  
 
-kable(cbind(X = index, head(data)[, 12:16]),
-      format = "pandoc",
-      booktabs = TRUE,
-      digits = 3)
+co sugeruje, że **większa swoboda gospodarcza** często idzie w parze z **lepszą edukacją**, **czystszym środowiskiem**, **lepszą opieką zdrowotną** i ogólnie **lepszą gospodarką**.
 
-kable(cbind(X = index, head(data)[, 17:ncol(data)]),
-      format = "pandoc",
-      booktabs = TRUE,
-      digits = 3)
-```
 
 ```{r tabela_wariancji}
 # --- Analiza wariancji cech ---
@@ -818,11 +846,14 @@ kable(data.frame(Wariancja = variances),
       digits = 3,
       col.names = c("Wariancja"), 
       format = "markdown")
-
-# --- Wniosek ---
-# Wariancje cech różnią się znacznie – konieczna jest standaryzacja przed analizą PCA.
 # =====================================================================
 ```
+
+**Dlaczego standaryzacja jest konieczna?**
+
+- Bez standaryzacji **PCA faworyzuje zmienne** o większym zróżnicowaniu, co może prowadzić do **błędnych wniosków**.
+- **Standaryzacja** (średnia = 0, odchylenie = 1) zapewnia **równomierne traktowanie** wszystkich zmiennych, eliminując wpływ **skali**.
+
 
 ```{r wykresy_rozkładów_standaryzacja_boxplot}
 # =====================================================================
@@ -842,28 +873,28 @@ plot_boxplot <- function(df, title, fill_color, line_color) {
 }
 
 # --- Wykres cech przed standaryzacją ---
-plot_boxplot(data_numeric, "Rozkład cech ilościowych przed standaryzacją", "skyblue", "darkblue")
+plot_boxplot(data_numeric, "Rozkład cech ilościowych przed standaryzacją", color3, color1)
 
 # --- Standaryzacja danych ---
 data_numeric_scaled <- scale(data_numeric)
 
 # --- Wykres cech po standaryzacji ---
-plot_boxplot(data_numeric_scaled, "Rozkład cech ilościowych po standaryzacji", "lightgreen", "darkgreen")
+plot_boxplot(data_numeric_scaled, "Rozkład cech ilościowych po standaryzacji", color2, color1)
 # =====================================================================
 
 ```
 
 ## b) Wyznaczenie składowych głównych
 
+**Analiza PCA**
+
 ```{r PCA_składowe_wariancja_tabela}
 # =====================================================================
 # b) Wyznaczenie składowych głównych (PCA)
 # =====================================================================
 
-# --- PCA ---
 pca <- prcomp(data_numeric_scaled)
 
-# --- Tabela podsumowująca wyniki PCA ---
 tabela_pca <- data.frame(
   Składowa = paste0("PC", 1:17),
   Odchylenie_standardowe = c(2.251, 1.606, 1.443, 1.140, 1.095, 0.980, 0.831, 0.815, 0.764, 0.651, 
@@ -874,26 +905,16 @@ tabela_pca <- data.frame(
                             93.35, 95.06, 96.68, 97.79, 98.69, 99.42, 100)
 )
 
-kable(tabela_pca, "pandoc", caption = "Podsumowanie analizy PCA") %>%
+kable(tabela_pca, "pandoc") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
                 full_width = FALSE,
                 position = "center") %>%
   column_spec(1, bold = TRUE) %>%
-  column_spec(2:4, width = "4cm") %>%
+  column_spec(2:4, width = "30%") %>%
   row_spec(0, bold = TRUE, background = "#f2f2f2")
-
-# --- Wniosek ---
-# Składowa PC1 wyjaśnia około 30% zmienności, PC2 około 15%. Rozkład zmienności jest stosunkowo rozproszony.
-# =====================================================================
-
 ```
 
-## c) Zmienność odpowiadająca poszczególnym składowym
-
 ```{r rozklad_wartosci_wykres_boxplot}
-# =====================================================================
-# c) Rozkład wartości składowych głównych
-# =====================================================================
 
 # --- Przygotowanie danych ---
 pca_data <- as.data.frame(pca$x)
@@ -903,7 +924,7 @@ pca_melted$Składowa <- factor(pca_melted$Składowa, levels = paste0("PC", seq_l
 
 # --- Wykres ---
 ggplot(pca_melted, aes(x = Składowa, y = Wartość)) +
-  geom_boxplot(fill = "plum", color = "purple", alpha = 0.7) +
+  geom_boxplot(fill = color3, color = color1, alpha = 0.7) +
   labs(title = "Rozkład wartości składowych głównych", x = "Składowa główna", y = "Wartość") +
   theme_minimal(base_size = 10) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1),
@@ -911,6 +932,17 @@ ggplot(pca_melted, aes(x = Składowa, y = Wartość)) +
         axis.title.y = element_text(size = 14))
 # =====================================================================
 
+```
+
+**PC1** wykazuje **największą zmienność**, tłumacząc największą część wariancji. Kolejne składowe mają coraz mniejszy wpływ na strukturę danych. Od **PC7–PC8** zmienność jest **niewielka**, co sugeruje ograniczone znaczenie analityczne dalszych komponentów.
+
+**Macierz korelacji zmiennych głównych**
+
+```{r wykres_istotnosci_zmiennych_w_danych_ladunkach}
+numeric.features <- sapply(data, is.numeric)
+data.pca <- data[, numeric.features]
+variables <- get_pca_var(pca)
+corrplot(variables$cor, is.corr = FALSE, method = "color")
 ```
 
 ```{r ladunki}
@@ -931,6 +963,54 @@ kable(as.data.frame(loadings[, 1:3]), caption = "Wektory ładunków dla PC1, PC2
 
 ```
 
+**Składowa główna 1 (PC1): Jakość życia vs. dostępność ekonomiczna**  
+PC1 kontrastuje miasta o wysokiej jakości usług z miastami ekonomicznie dostępnymi. Najsilniejsze ładunki:
+
+- **Edukacja** (-0.40),  
+- **Wolność biznesowa** (-0.38),  
+- **Jakość środowiska** (-0.33) - wszystkie **ujemne**  
+- **Mieszkalnictwo** (0.31),  
+- **Koszty życia** (0.26) - **dodatnie**
+
+Wysokie wartości PC1 wskazują na miasta o niższych kosztach życia, ale słabszej infrastrukturze społecznej. Niskie wartości PC1 charakteryzują rozwiniętą infrastrukturę społeczną przy wyższych kosztach.
+
+---
+
+**Składowa główna 2 (PC2): Środowisko startupowe vs. jakość społeczna**  
+PC2 przeciwstawia ośrodki technologiczne miastom o wysokich wskaźnikach społecznych:
+
+- **Startupy** (-0.48),  
+- **Kapitał venture** (-0.43),  
+- **Kultura i rozrywka** (-0.36) - **ujemne**  
+- **Tolerancja** (0.36),  
+- **Jakość środowiska** (0.25),  
+- **Bezpieczeństwo** (0.29) - **dodatnie**
+
+Wysokie wartości PC2 oznaczają miasta bardziej przyjazne społecznie, niskie wartości wskazują na dynamiczne centra technologiczne.
+
+---
+
+**Składowa główna 3 (PC3): Komfort codziennego życia vs. gospodarka**  
+PC3 zestawia komfort życia codziennego z rozwojem ekonomicznym:
+
+- **Dojazdy** (-0.51),  
+- **Połączenia komunikacyjne** (-0.34),  
+- **Bezpieczeństwo** (-0.33) - **ujemne**  
+- **Gospodarka** (0.31) - **dodatnie**
+
+Miasta o wysokich wartościach PC3 mają silną gospodarkę kosztem wygody życia codziennego, podczas gdy niskie wartości PC3 wskazują na większy komfort przy mniej dynamicznej ekonomii.
+
+---
+
+**Podsumowanie**  
+Te trzy wymiary tworzą kompleksowe ramy do klasyfikacji miast:
+
+- **PC1**: Balans między rozwojem społecznym a dostępnością ekonomiczną  
+- **PC2**: Równowaga między ekosystemem startupowym a jakością życia społecznego  
+- **PC3**: Kompromis między codziennym komfortem a silną gospodarką
+
+## c) Zmienność odpowiadająca poszczególnym składowym
+
 ```{r Zmiennosc_skladowych_w_PCA}
 # =====================================================================
 # Zmienność odpowiadająca poszczególnym składowym
@@ -945,9 +1025,9 @@ df_variance <- data.frame(PC = seq_along(variance_explained), Variance = varianc
 
 # --- Wykres procentu wyjaśnionej wariancji ---
 ggplot(df_variance, aes(x = PC, y = Variance)) +
-  geom_bar(stat = "identity", fill = "cornflowerblue", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "darkblue", linetype = "dashed", size = 1) +
-  geom_point(color = "red", size = 3) +
+  geom_bar(stat = "identity", fill = color2, alpha = 0.7) +
+  geom_line(aes(group = 1), color = color1, linetype = "dashed", size = 1) +
+  geom_point(color = color3, size = 3) +
   labs(title = "Procent wyjaśnionej wariancji przez składowe główne",
        x = "Numer składowej głównej", y = "Procent wariancji") +
   theme_minimal(base_size = 10) +
@@ -956,11 +1036,11 @@ ggplot(df_variance, aes(x = PC, y = Variance)) +
 
 # --- Wykres skumulowanej wariancji ---
 ggplot(data.frame(PC = seq_along(cumulative_variance), CumulativeVariance = cumulative_variance)) +
-  geom_point(aes(x = PC, y = CumulativeVariance), color = "blue", size = 3) +
-  geom_line(aes(x = PC, y = CumulativeVariance), color = "blue", linetype = "dashed") +
-  geom_hline(yintercept = c(0.80, 0.90), linetype = "dashed", color = c("red", "green")) +
+  geom_point(aes(x = PC, y = CumulativeVariance), color = color3, size = 3) +
+  geom_line(aes(x = PC, y = CumulativeVariance), color = color3, linetype = "dashed") +
+  geom_hline(yintercept = c(0.80, 0.90), linetype = "dashed", color = c(color1, color2)) +
   annotate("text", x = 15, y = c(0.82, 0.92), label = c("80% wariancji", "90% wariancji"),
-           color = c("red", "green")) +
+           color = c(color1, color2)) +
   labs(title = "Kumulatywna wariancja wyjaśniona przez składowe główne",
        x = "Numer składowej głównej", y = "Kumulatywna proporcja wariancji") +
   theme_minimal(base_size = 10) +
@@ -972,26 +1052,166 @@ num_components_90 <- min(which(cumulative_variance >= 0.90))
 # =====================================================================
 ```
 
-Liczba składowych głównych wyjaśniających **80%** wariancji: **`r num_components_80`**\
-Liczba składowych głównych wyjaśniających **90%** wariancji: **`r num_components_90`**
+Na podstawie przedstawionych wykresów można zauważyć, że **pierwsze składowe główne** mają największy wpływ na wyjaśnienie wariancji danych. W szczególności **pierwsza składowa (PC1)**. Kolejne składowe, takie jak **PC2** i **PC3**, również wnoszą istotne informacje, ale ich udział w wyjaśnieniu wariancji jest stopniowo coraz mniejszy.
+
+Z wykresu skumulowanej wariancji można wywnioskować, że pierwsze **`r num_components_80`** składowych wyjaśnia około **80%** całkowitej zmienności, a pierwsze **`r num_components_90`** składowych odpowiada za **90%** wariancji, co sugeruje, że można ograniczyć liczbę analizowanych cech bez znaczącej utraty informacji.
+
 
 ## d) Wizualizacja danych wielowymiarowych
 
-## e) Korelacja zmiennych
+```{r wykres_2D, fig.height=10, fig.width=10}
+fviz_pca_ind(pca, col.ind = data$UA_Continent, addEllipses=TRUE, ellipse.level=0.9, label="var")
+```
 
-## d) Wizualizacja danych wielowymiarowych
+**Europa** *(zielone kwadraty)*  
+- Po **lewej stronie PC1** → **wysoka jakość życia**, silna infrastruktura społeczna (edukacja, bezpieczeństwo, środowisko).  
+- **Wyższe koszty życia**, **mniejsza dostępność ekonomiczna**.  
+- Oś PC2 lekko dodatnia → **zrównoważony rozwój społeczno-startupowy**.
 
-```{r}
+**Ameryka Północna** *(turkusowe plusy)*  
+- Również **lewa strona PC1** → wysoka jakość życia.  
+- **Niższe wartości PC2** → **dynamiczne środowisko technologiczne**, kosztem aspektów społecznych.  
+- Duże **zróżnicowanie** – od wybitnie startupowych miast (np. USA) po umiarkowane.
 
-#_________________________________________________________________________________________________
+**Azja** *(żółte trójkąty)*  
+  - **Niskie koszty życia**, ale **słabsza jakość usług społecznych**.  
+  - **Silna obecność centrów startupowych** (np. Singapur, Chiny).
+
+**Afryka** *(czerwone koła)*  
+- **Wysokie PC1** → **niska jakość usług społecznych**, ale **dobra dostępność ekonomiczna**.  
+- **PC2 bliskie zeru** → przeciętna jakość społeczna, **słabe środowisko innowacyjne**.
+
+**Oceania** *(niebieskie romby)*  
+- **Lewa górna ćwiartka** (PC1 ujemny, PC2 dodatni):  
+  - **Bardzo wysoka jakość życia**, dobre wskaźniki społeczne (tolerancja, środowisko).  
+  - Mało miast, ale **wyraźnie pozytywne wyniki**.
+
+**Ameryka Południowa** *(fioletowe gwiazdki)*  
+- **Blisko środka** (lekko dodatni PC1):  
+  - **Umiarkowana jakość życia**, rozsądne koszty.  
+  - **Niska aktywność startupowa**.
+
+
+```{r mapa_wyróżniających_się_miast, fig.height=10, fig.width=10}
+#odległość w lini prostej do (0,0)
+kontynenty <- as.factor(data$UA_Continent)
+kolory <- rainbow(length(levels(kontynenty)))
+
+pca_2d <- as.data.frame(pca$x[, 1:2])
+pca_2d$Name <- data$UA_Name
+
+pca_2d$dist_from_center <- sqrt(pca_2d$PC1^2 + pca_2d$PC2^2)
+
+top_outliers <- pca_2d[order(-pca_2d$dist_from_center), ][1:5, ]
+plot(pca$x[,1], pca$x[,2],
+     col = kolory[as.numeric(kontynenty)],
+     pch = 16, xlab = "PC1", ylab = "PC2", main = "Mapa miast względem ich PC1 i PC2")
+text(pca$x[,1], pca$x[,2] + 0.2, labels = data$UA_Name, cex = 0.5)
+points(top_outliers$PC1, top_outliers$PC2, col = "red", pch = 19, cex = 1.5)
+text(top_outliers$PC1, top_outliers$PC2 + 0.2, labels = top_outliers$UA_City, cex = 0.7, font = 2, col = "red")
+legend("topright", legend = c("Wszystkie miasta", "Wyróżniające się miasta"),
+       col = c("black", "red"), pch = c(16, 19), pt.cex = c(1, 1.5))
+
+top_outliers_rounded <- top_outliers
+top_outliers_rounded$PC1 <- round(top_outliers_rounded$PC1, 2)
+top_outliers_rounded$PC2 <- round(top_outliers_rounded$PC2, 2)
+top_outliers_rounded$dist_from_center <- round(top_outliers_rounded$dist_from_center, 2)
+
+kable(top_outliers_rounded,
+      caption = "Miasta najbardziej oddalone od środka układu współrzędnych (PCA)",
+      col.names = c("PC1", "PC2", "Miasto", "Odległość od środka"))
 
 ```
 
+**Miasta najbardziej oddalone od środka układu PCA** charakteryzują się **skrajnymi wartościami** dla głównych składowych, co oznacza, że **wyróżniają się na tle reszty pod względem profilu jakości życia, kosztów, rozwoju technologicznego i społecznego**.
+
+- **Nowy Jork** (**PC1 = -4.15**, **PC2 = -3.81**) – silnie ujemne wartości obu składowych wskazują na **wysoką jakość infrastruktury społecznej** (PC1) oraz **intensywnie rozwinięte środowisko startupowe** (PC2). To miasto dynamiczne, ale jednocześnie **bardzo kosztowne**.
+  
+- **Londyn** (**PC1 = -4.41**, **PC2 = -3.42**) – podobnie jak Nowy Jork, łączy **drogie życie z zaawansowaną infrastrukturą społeczną** i **wysokim rozwojem technologicznym**.
+
+- **San Francisco Bay Area** (**PC1 = -4.04**, **PC2 = -3.43**) – silne centrum technologiczne o **niskiej dostępności ekonomicznej**, ale z **najwyższą koncentracją startupów i kapitału venture**. 
+
+- **Lagos** (**PC1 = 4.79**, **PC2 = -2.09**) – **wysoka wartość PC1** oznacza **niski koszt życia i ograniczoną infrastrukturę społeczną**, przy jednoczesnym **udziale w środowisku startupowym** (ujemne PC2). To przykład miasta rozwijającego się, ale jeszcze bez zaplecza społecznego.
+
+- **Caracas** (**PC1 = 5.14**, **PC2 = -0.87**) – miasto o **niskiej jakości życia społecznego** i **dużej ekonomicznej dostępności**, z **niewielkim zaangażowaniem w nowoczesne sektory gospodarki**.
+
+---
+
+Te wyniki pokazują, że największe odległości od środka PCA mają zarówno **najbardziej rozwinięte miasta świata**, jak i **najbardziej marginalne** – ale **z różnych powodów**: jedne z powodu **nadmiaru infrastruktury i kosztów**, inne z powodu **braku zasobów społecznych** i **niskich kosztów życia**.
+
+
 ## e) Korelacja zmiennych
 
-## f) Końcowe wnioski
+```{r biplot_koniec, fig.width=6, fig.height=6}
+
+fviz_pca_biplot(pca,
+                repel = TRUE,
+                label = "var",
+                labelsize = 3,
+                col.var = color1,
+                title = "Biplot PCA – zmienne")
+```
+
+### Wnioski z biplotu:
+
+- **Długość strzałki** oznacza wpływ zmiennej na PC1 i PC2
+- **Kierunek strzałek**:
+  - *Zbieżne* → **dodatnia korelacja**  
+  - *Przeciwne* → **ujemna korelacja**  
+  - *Prostopadłe* → **brak korelacji**
+
+#### **Silne zależności:**
+
+**Dodatnie:**
+- **Startups – Venture Capital – Leisure & Culture**  
+- **Safety – Tolerance**  
+- **Business.Freedom - Education - Environmental.Quality**
+
+**Ujemne:**
+- **Cost of Living** vs **Environmental Quality**, **Education**, **Business Freedom**  
+- **Housing** vs **Education**  
+
+**Brak istotnej korelacji:**
+- **Safety – Housing**  
+- **Commute – Venture Capital**
+
+#### Porównanie z macierzą korelacji:     
+
+Wyniki biplotu są spójne z macierzą `cor()`:
+
+- **Najsilniejsza korelacja**: **Startups – Venture Capital**  
+- **Housing – Cost of Living**  
+- **Housing - Education**
+- **Business Freedom** silnie koreluje z:
+  - **Education**
+  - **Environmental Quality**
+  - **Healthcare**
+  - **Economy**  
+
+
 
 ## f) Końcowe wnioski
+
+Na podstawie przeprowadzonych analiz i wyników biplotu, kilka istotnych wniosków:
+
+1. **Reprezentacja danych**:
+   - **PC1** i **PC2** wyjaśniają główną część zmienności danych, szczególnie **PC1**, która tłumaczy różnice w jakości życia i dostępności ekonomicznej. **PC3** dostarcza dodatkowych informacji, ale ma mniejszy wpływ. Pierwsze 2–3 składowe wyjaśniają około **80% wariancji**.
+
+2. **Składowe główne**:
+   - **PC1** (Jakość życia vs. dostępność ekonomiczna): Większość miast znajduje się na przeciwnych końcach tej osi, pokazując różnice w równowadze między wysokimi kosztami życia a rozwiniętą infrastrukturą społeczną.
+   - **PC2** (Środowisko startupowe vs. jakość społeczna): Składa się z zmiennych takich jak "Startups", "Venture Capital" i "Leisure & Culture", które opisują dynamiczne ośrodki technologiczne.
+   - **PC3** (Komfort życia vs. gospodarka): Zestawia miasta o silnej gospodarce z tymi, które oferują wyższy komfort życia codziennego.
+
+3. **Znaczenie standaryzacji**:
+   - **Standaryzacja** zmiennych miała kluczowy wpływ na wyniki PCA. Bez niej, zmienne o większym zróżnicowaniu (np. koszty życia) mogłyby dominować, prowadząc do błędnych wniosków. Po standaryzacji, każda zmienna ma równy wpływ, co zapewnia bardziej sprawiedliwą ocenę.
+
+4. **Geograficzne różnice**:
+   - Z analizy biplotu wynika, że miasta rozmieszczone są zgodnie z globalnymi różnicami w jakości życia, dostępności ekonomicznej i rozwoju startupów. Duże zróżnicowanie występuje między miastami rozwiniętymi (np. Nowy Jork, Londyn) a tymi na początku drogi rozwoju (np. Lagos, Caracas). Wiele miast z krajów rozwiniętych znajduje się w lewym dolnym rogu biplotu, co wskazuje na **wysoką jakość usług społecznych** i **wyższe koszty życia**.
+
+### Wnioski ogólne:
+- **Analiza PCA** dostarcza cennych informacji o relacjach między różnymi aspektami życia w miastach. Widać, że miasta o wyższych kosztach życia mają rozwiniętą infrastrukturę społeczną, podczas gdy te o niższych kosztach życia oferują mniejszy rozwój infrastruktury, ale większy dostęp do rozwoju gospodarczego.
+- **Standaryzacja** jest kluczowa do uzyskania rzetelnych wyników PCA, eliminując wpływ różnic w skali danych.
+
 
 # ZADANIE 3 (Skalowaniewielowymiarowe (Multidimensional Scaling (MDS)))
 
@@ -1041,8 +1261,6 @@ Kolejno tworzymy diagram Shepherda
 
 ```{r diagram shepherda}
 # Załaduj wymagane pakiety
-library(cluster)   # dla daisy()
-library(stats)     # dla cmdscale()
 
 new_data <- data[,-1]
 
@@ -1070,15 +1288,13 @@ plot(as.vector(diss), as.vector(mds_distances),
 abline(0, 1, col = "red", lwd = 2, lty = 2)
 ```
 
-Widać, że odległości w nowej przestrzeni danych zmieniły się, nadal mają podobny charakter, największe skupisko danych znajduje się przy lini x = y (w gdyby odległości zostały zachwoane, czyli w idealnym scenariuszu, to nasze nowe odległości przechodziły by właśnie przez tą linię).
+Widać, że odległości w nowej przestrzeni danych **zmieniły się**. Nadal mają podobny charakter ponieważ największe skupisko danych znajduje się przy prostej **x = y** (gdyby odległości zostały zachowane, czyli w idealnym scenariuszu, to nasze nowe odległości przechodziły by właśnie przez tę linię).
 
-Pomimo, że duża liczba punktów odbiega od lini x = y , to jednak różnica między ich nową odległością a starą nie są duże (nie mamy znaczących rozrzutów na osi OY), więc możemy uznać skalowanie za dość dobre, chyba ,że chcemy przeprowadzać bardzo dokładną analizę
+Pomimo, że duża liczba punktów **odbiega** od prostej **x = y**, to jednak różnica między ich nową odległością a starą w większości nie jest duża (nie mamy znaczących rozrzutów na osi OY), więc możemy uznać skalowanie za dopuszalnie dobrą metodę.
 
 ## d) Wizualizacja danych
 
 ```{r rozrzut 2D}
-library(ggplot2)
-
 # 1. Przekształć wyniki MDS do ramki danych
 mds_df <- as.data.frame(mds.results)
 colnames(mds_df) <- c("Dim1", "Dim2")
@@ -1110,7 +1326,11 @@ p3 <- ggplot(mds_df, aes(x = Dim1, y = Dim2, color = Survived)) +
 p3
 ```
 
-Widoczny podział obiektów na grupym pierwsze zagęszczenie charakteryzuje się dużą przeżywalnością a drugie o wiele mniejszą.
+```{r}
+
+```
+
+Widoczny podział obiektów na grupy: pierwsze zagęszczenie charakteryzuje się dużą przeżywalnością a drugie o wiele mniejszą.
 
 Na wykresach nie ma obserwacji odstajacych, bądź nietypowych.
 
@@ -1124,4 +1344,4 @@ p2
 p1
 ```
 
-Widać bardzo jasny podział na kobiety i mężczyzn, porównując do porzedniego wykresu widać, że większ przeżywalnością charakteryzuje się grupa kobiet co jest zgodne z intuicją i rzeczywistymi danymi.
+Widać bardzo jasny podział na kobiety i mężczyzn. Porównując do porzedniego wykresu widać, że większą przeżywalnością charakteryzuje się grupa kobiet, co jest zgodne z intuicją i rzeczywistymi danymi.
