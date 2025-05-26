@@ -1,0 +1,120 @@
+---
+title: "Untitled"
+author: "Mateusz Wizner"
+date: "2025-05-25"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE )
+```
+
+## a) Dane: Wine (biblioteka HDclassif).
+
+```{r}
+library(MASS)
+library(HDclassif)
+library(dplyr)
+library(knitr)
+```
+
+```{r wine}
+data("wine")
+dane <- wine 
+```
+
+**Opis** zmiennych w zbiorze danych **Wine**
+
+```{r Opis_danych_wine}
+tabela_danych <- data.frame(
+  Kolumna = c("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13"),
+  Nazwa_zmiennej = c("Alcohol", "Malic acid", "Ash", "Alcalinity of ash", "Magnesium", 
+                      "Total phenols", "Flavanoids", "Nonflavanoid phenols", "Proanthocyanins", 
+                      "Color intensity", "Hue", "OD280/OD315 of diluted wines", "Proline"),
+  Opis = c("Zawartość alkoholu (%)", "Zawartość kwasu jabłkowego (g/l)", "Zawartość popiołu (g/l)", 
+           "Zasadowość popiołu (g/l)", "Zawartość magnezu (mg/l)", "Zawartość fenoli ogółem (g/l)", 
+           "Zawartość flawonoidów (g/l)", "Zawartość fenoli nienależących do flawonoidów (g/l)", 
+           "Zawartość proantocyjaninów (g/l)", "Intensywność koloru (od 0 do 13)", "Odcień barwy", 
+           "Absorbancja przy długości fali 280 nm do 315 nm (rozcieńczone wino)", "Zawartość proliny (mg/l)")
+)
+
+kable(tabela_danych, col.names = c("Kolumna", "Nazwa zmiennej", "Opis"))
+```
+
+-----
+
+Pierwsze 10 rekordów zbioru danych.
+
+```{r wstep}
+kable(head(dane, 10))
+```
+
+```{r przypadki, echo=FALSE}
+P = nrow(dane)  # liczba przypadków (obserwacji)
+Z = ncol(dane)  # liczba zmiennych (cech)
+```
+
+Zbiór danych ma **`r P`** przypadków i **`r Z`** zmiennych
+
+```{r jaka_etykieta}
+unique_counts <- sapply(dane, function(x) length(unique(x)))
+
+kable(data.frame(Liczba_unikalnych = unique_counts), 
+      col.names = "Liczba unikalnych", 
+      caption = "Liczba unikalnych wartości w każdej zmiennej")
+```
+
+Zmienna **class** pełni rolę etykiety klas, informując o przynależności każdego obiektu do jednej z trzech grup. Świadczy o tym zarówno jej nazwa, jak i liczba unikalnych wartości, które przyjmuje — są to trzy klasy: ***1***, ***2*** i ***3***.
+
+---
+
+Ilość rekordów przypisanych do odpowiedniej klasy.
+
+```{r class_ilosc}
+kable(as.data.frame(table(dane$class)), col.names = c("Klasa", "Ilość"))
+```
+
+---
+
+Ilość danych oznaczonych jako **Na** w danych kolumnach.
+
+```{r braki_nietypowe_kodowanie}
+colSums(is.na(dane))
+
+#sapply(dane, function(x) unique(x))
+```
+
+
+**Analizując dane**, można zauważyć, że **zbiór nie zawiera żadnych braków** — ani oznaczonych jako **NA**, ani zapisanych w inny sposób. **Wszystkie obserwacje** wydają się być **poprawnie wprowadzone**.  
+
+Jeśli chodzi o **wartości nietypowe**, to w kolumnie **V10** znajduje się **jedna obserwacja** o wartości **9.899999**, która ma **aż sześć miejsc po przecinku**.  
+
+Dla porównania, **pozostałe wartości** w tej kolumnie mają **najwyżej dwie cyfry po przecinku**, co może **sugerować błąd w zapisie** tej konkretnej danej.  
+
+W kolumnie **V5** pojawia się również wartość **162**, która **znacząco odstaje od reszty obserwacji** i może być wynikiem **błędu pomiaru** lub **wprowadzenia danych**.  
+
+---
+
+**Typ** danych jaki przyjmują wartości z danej kolumny
+
+```{r sprawdzenie_typow}
+kable(data.frame(Typ_Danych = sapply(dane, class)), col.names = "Typ danych")
+```
+
+Widać, że **wszystkie zmienne mają prawidłowo przypisane typy danych**, z wyjątkiem **naszej etykiety klas** — kolumny **class**.  
+
+Obecnie ma ona typ **integer**, co jest zrozumiałe, ponieważ wartości to liczby całkowite **{1, 2, 3}**.  
+
+Jednak **dla poprawnej analizy** i właściwego traktowania tej zmiennej jako **zbioru kategorii**, powinna zostać **przekonwertowana na typ factor**.  
+
+---
+
+```{r zmiana_int_na_factor}
+dane$class <- as.factor(dane$class)
+
+```
+
+

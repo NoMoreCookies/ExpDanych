@@ -1236,12 +1236,23 @@ data$Embarked <- as.ordered(data$Embarked)
 data$Sex <- as.factor(data$Sex)
 
 # Dla ułatwienia usuwamy wiersze zawierające brakujące wartości
-data <- na.omit(data)
+data$Age[is.na(data$Age)] <- median(data$Age, na.rm = TRUE)
+
+most_common <- names(sort(table(data$Embarked), decreasing = TRUE))[1]
+
+data <- data %>%
+  mutate(Embarked = na_if(Embarked, "")) %>%
+  mutate(Embarked = replace_na(Embarked, most_common)) %>%
+  mutate(Embarked = as.factor(Embarked))
+
+
 data[] <- lapply(data, function(col) {
   if (is.character(col)) factor(col) else col
 })
 
 ```
+
+
 
 ## c) Redukcja wymiaru na bazie MDS
 
