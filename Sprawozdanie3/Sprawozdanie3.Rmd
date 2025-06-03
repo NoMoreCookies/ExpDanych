@@ -1,0 +1,630 @@
+---
+title: "Sprawozdanie 3"
+subtitle: "Eksploracja danych"
+author: "Kacper Szmigielski, 282255 i Mateusz Wizner"
+date: "`r Sys.Date()`"
+header-includes:
+   - \usepackage[OT4]{polski}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage{graphicx}
+   - \usepackage{float}
+   - \usepackage{xcolor}
+   - \definecolor{myblue}{HTML}{D0E9F9}
+   - \definecolor{myyellow}{HTML}{FFFACD}
+output: 
+  pdf_document:
+    toc: true
+    fig_caption: yes
+    fig_width: 5 
+    fig_height: 4 
+    toc_depth: 3  
+    number_sections: true
+fontsize: 12pt 
+---
+
+```{r setup, include=FALSE}
+#USTAWIENIA DO PROJEKTU 
+### echo = FALSE (Nie wypisuje kodu przy egzekucji programu)
+### message = FALSE (Nie wyświetla jakiś powiadomień)
+### warning = Flase (Nie wyświetla błędów jak się pojawią)
+#---------------------------------------------------------
+knitr::opts_chunk$set(echo = FALSE,message = FALSE, warning = FALSE )
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "", fig.align = "center")
+#---------------------------------------------------------
+```
+
+```{r biblioteki}
+# POTRZEBNE BIBLIOTEKI
+#---------------------------------------------------------
+library(datasets) 
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+#---------------------------------------------------------
+```
+
+```{r kolory}
+# Pastelowe kolory (HEX)
+pblue    <- "#AEC6CF"
+pgreen   <- "#BFD8B8"
+ppurple  <- "#CBAACB"
+porange  <- "#FFD8B1"
+pyellow  <- "#FFFACD"
+ppink    <- "#FBB1BD"
+pgray    <- "#D3D3D3"  # warm gray
+pmint    <- "#C1E1C1"  # cool mint
+
+```
+
+\newpage
+
+# Zadanie 1
+
+## a) **Analizowane dane**
+
+Zbiór danych Iris to klasyczny zestaw danych w statystyce i uczeniu maszynowym, wprowadzony przez R.A. Fishera w 1936 roku. Zawiera 150 obserwacji kwiatów z trzech gatunków ( \colorbox{myyellow}{K=3 klasy} ) irysa: setosa, versicolor i virginica.
+
+Każdy rekord opisuje pojedynczy kwiat za pomocą czterech cech numerycznych ( \colorbox{myblue}{p=4 cechy ilościowe} ) :
+
+-   Sepal.Length – długość działki kielicha (w cm)
+-   Sepal.Width – szerokość działki kielicha (w cm)
+-   Petal.Length – długość płatka (w cm)
+-   Petal.Width – szerokość płatka (w cm)
+
+Przykładowe **3 wiersze** z danych iris
+
+```{r data_import_iris}
+
+#WYPISYWANIE PRZYKŁADOWYCH DANYCH ZE ZBIORU IRIS
+#---------------------------------------------------------
+data(iris)
+
+iris_data <- iris
+
+iris_sample <- iris %>%
+  group_by(Species) %>%
+  slice(1) %>%    # pierwszy wiersz z każdej grupy
+  ungroup()
+
+
+kable(iris_sample, format = "latex", booktabs = TRUE) %>%
+  row_spec(0, background = c(rep("#D0E9F9", 4), "#FFFACD"))  # 0 oznacza wiersz nagłówka
+#---------------------------------------------------------
+
+```
+
+Liczebność klas w danym zbiorze
+
+```{r species_frequency}
+#OBLCIZANIE ORAZ RYSOWANIE CZĘSTOŚCI WYSTĘPOWANIA POSZCZEGÓLNYCH GATUNKÓW W DANYM ZBIORZE
+#---------------------------------------------------------
+counts <- iris_data %>%
+  count(Species)
+
+ggplot(counts, aes(x = Species, y = n, fill = Species)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  scale_fill_manual(values = c(ppink,pgreen,pblue)) +
+  labs(title = "Liczebność każdego gatunku irysa",
+       x = "Gatunek",
+       y = "Liczba obserwacji") +
+  theme_minimal(base_size = 15) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5)  # wyśrodkowanie tytułu
+  )
+#---------------------------------------------------------
+```
+
+Mamy równy podział danych w zbiorze. Obserwacji każdego gatunku jest 50.
+
+\newpage
+
+## b) **Podział danych na zbiór uczący i testowy**
+
+Dane zostały podzielone tak, aby zachować proporcje poszczególnych klas **(każda klasa zajmuje ok33% wszystkich danych)**, dzięki czemu zbiór uczący zawiera **reprezentatywną i równomierną próbkę wszystkich klas.**
+
+```{r data_partioning}
+#USTAWIENIE SEEDU, DO LOSOWANIA DANYCH (NIE ZMIENIAĆ , SPRAWOZDANIE JEST PRZYGOTOWANE POD TEN SEED, I WYNIKI MOGĄ SIĘ ZNACZNIE RÓŻNIC W ZALEŻNOŚCI OD DOBRANEGO SEEDU)
+#---------------------------------------------------------
+set.seed(123)
+#---------------------------------------------------------
+
+#TWORZĘ TRAIN SET Z ZACHOWANIE PROPORCJI
+#---------------------------------------------------------
+train_set <- iris %>%
+  group_by(Species) %>%
+  sample_frac(1/3) %>%
+  ungroup()
+#---------------------------------------------------------
+
+#TWORZĘ TEST SET Z POZOSTAŁYCH DANYCH
+#---------------------------------------------------------
+test_set <- anti_join(iris, train_set, by = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"))
+#---------------------------------------------------------
+
+```
+
+Po takim podziale **zbiór uczący zawiera** $\frac{1}{3}$ danych, a **zbiór testowy zawiera** $\frac{2}{3}$ wszystkich danych.
+
+```{r mini wizualizacja}
+
+#MINI WYKRES PRZEDSTAWIAJĄCY PROPORCJĘ DANYCH
+#---------------------------------------------------------
+df <- data.frame(
+  set = c("train_set", "test_set"),
+  value = c(1, 2)
+)
+
+ggplot(df, aes(x = set, y = value,fill = set)) +
+  geom_col( width = 0.6) +
+  scale_fill_manual(values = c(train_set = ppurple,test_set =pblue)) +
+  theme_void() +  # usuwa tło, siatki, osie
+  theme(
+    axis.text.x = element_text(size = 12, color = "black", vjust = 2),  # podpisy pod słupkami
+    plot.margin = margin(20, 20, 20, 20)
+  )
+#---------------------------------------------------------
+
+
+```
+
+\newpage
+
+## c) **Konstrukcja klasyfikatora i wyznaczenie prognoz**
+
+### Inicjalizacja klasyfikatora
+
+-   Na początek wyznaczamy macierz modelu (macierze eksperymentu), zawierającą wartości poszczególnych zmiennych (dla odpowiednio danych testowych oraz uczących)
+
+**X1 - macierz dla danych testowych** **X2 - macierz dla danych trenujących**
+
+```{r macierz,echo = TRUE}
+K=3
+p = 4
+n1= 99
+n2 = 51
+# X1 - macierz eksperymentu (ang. design matrix) dla danych TESTOWYCH
+X1 <- cbind(rep(1,99), test_set[,1:4])
+X1 <- as.matrix(X1)
+
+# X2 - macierz eksperymentu (ang. design matrix) dla danych UCZĄCYCH
+X2 <- cbind(rep(1,51), train_set[,1:4])
+X2 <- as.matrix(X2)
+
+```
+
+-   Następnie tworzę macierz wskaźnikową Y2 wymiaru 51 **(u nas podział zbioru to 99/51)** x K, która zawiera zmienne binarne kodujące poszczególne klasy.
+
+```{r inicjalizacja macierzy zer}
+
+#DANE TESTOWE
+#--------------------------------------------
+
+# etykietki klas (gatunki)
+etykietki.klas1 <-  test_set$Species
+
+# inicjalizacja (macierz wypełniona zerami)
+Y1 <- matrix(0, nrow=n1, ncol=K)
+
+# konwersja etykietek klas na wartości numeryczne
+etykietki.num1 <- as.numeric(etykietki.klas1)
+
+for (k in 1:K)  
+  Y1[etykietki.num1==k, k] <- 1
+
+#--------------------------------------------
+
+
+#DANE UCZĄCE
+#--------------------------------------------
+
+# etykietki klas (gatunki)
+etykietki.klas2 <-  train_set$Species
+
+# inicjalizacja (macierz wypełniona zerami)
+Y2 <- matrix(0, nrow=n2, ncol=K)
+
+# konwersja etykietek klas na wartości numeryczne
+etykietki.num2 <- as.numeric(etykietki.klas2)
+
+for (k in 1:K)  
+  Y2[etykietki.num2==k, k] <- 1
+
+#--------------------------------------------
+
+```
+
+### Estymacja współczynników i konstrukcja prognoz
+
+-   Wykorzystujemy metodę najmniejszych kwadratów (MNK) aby wyznaczyć estymatory współczynników modelu
+
+```{r estymacja,echo = TRUE}
+
+# Macierz estymowanych współczynników 
+B.hat1 <- solve(t(X2)%*%X2) %*% t(X2) %*% Y2 # X2 i Y2 są dla danych uczących
+
+```
+
+-   Na podstawie dopasowanego modelu możemy teraz wyznaczyć wartości prognozowane dla zbioru danych testowych oraz trenujących
+
+```{r Wartosci_prognozowane}
+
+#PROGNOZOWANIE WARTOŚCI
+#---------------------------------------------------------
+Y.hat1 <- X1%*%B.hat1 #X1 TO DANE TESTOWE
+
+Y.hat2 <- X2%*%B.hat1 #X2 TO DANE UCZĄCE
+#---------------------------------------------------------
+
+```
+
+Wyznaczone prawdopodobieństwa możemy przedstawić na wykresach
+
+```{r wykresy1}
+
+#PRZEDSTAWIENIE PRAWDOPODOBIEŃSTW NA WYKRESIE
+#---------------------------------------------------------
+matplot(Y.hat1, main="Prognozy gatunków dla danych testowych",xlab="id",ylab = "Prawdopodobieństwo", ylim=c(-.5,2))
+
+abline(v=c(50,100), lty=2, col="gray")
+
+legend(x="topright", legend=paste(1:3,levels(train_set$Species)), col=1:3, text.col=1:3, bg="azure2")
+#---------------------------------------------------------
+
+
+```
+
+Widać, **wyraźny podział na przedziały**, w których prawdopodobieństwo przynaleźności do odpowiednio grup 1,2,3 jest największe
+
+```{r wykresy2}
+
+#ZNOWU PRAWDOPODOBIEŃSTWA PRZEDSTAWIONE NA WYKRESIE
+#---------------------------------------------------------
+matplot(Y.hat2, main="Prognozy gatunków dla danych uczących",xlab="id",ylab = "Prawdopodobieństwo",ylim=c(-.5,2))
+
+abline(v=c(50,100), lty=2, col="gray")
+
+legend(x="topright", legend=paste(1:3,levels(train_set$Species)), col=1:3, text.col=1:3, bg="azure2")
+#---------------------------------------------------------
+
+```
+
+Dla prognozowanych gatunków w zbiorze treningowym obserwujemy **podobny rozkład, z wyjątkiem środkowej grupy**. W tym przypadku występuje **zjawisko maskowania — gatunek nr 2 jest częściowo przesłaniany przez gatunek nr 3**. Na podstawie wykresu trudno jednoznacznie ocenić, który z tych dwóch gatunków ma w tym obszarze większe prawdopodobieństwo.
+
+\newpage
+
+## d) **Ocena jakości modelu**
+
+```{r klasyfikacja}
+
+#SPRAWDZANIE JAKOŚCI MODELU PREDYKCJI
+#---------------------------------------------------------
+# zapisujemy nazwy kolejnych klas 
+klasy1 <- levels(train_set$Species)
+
+# Dla każdego wiersza sprawdzamy, który element wektora Y.hat (1,2 lub 3) jest maksymalny
+maks.ind1 <- apply(Y.hat1, 1, FUN=function(x) which.max(x))
+
+
+# zapisujemy nazwy kolejnych klas 
+klasy2 <- levels(train_set$Species)
+
+# Dla każdego wiersza sprawdzamy, który element wektora Y.hat (1,2 lub 3) jest maksymalny
+maks.ind2 <- apply(Y.hat2, 1, FUN=function(x) which.max(x))
+#---------------------------------------------------------
+
+```
+
+```{r prognozowane_etykiety}
+
+#PROGNOZOWANE ETYKIET DLA GRUPY TESTOWEJ ORAZ UCZĄCEJ
+#---------------------------------------------------------
+# Konwersja na etykietki klas
+prognozowane.etykietki1 <- klasy1[maks.ind1]
+
+# Konwersja na etykietki klas
+prognozowane.etykietki2 <- klasy2[maks.ind2]
+#---------------------------------------------------------
+
+```
+
+Tworzymy macierz pomyłek, wygenerowanych etykiet odpowiednio dla:
+
+-   **Danych trenujących**
+
+```{r macierz_pomyłek1}
+
+#PREZENTACJA MACIERZY POMYŁEK DLA TESTOWYCH
+#---------------------------------------------------------
+rzeczywiste.etykietki1 <- etykietki.klas1
+
+# macierz pomyłek (ang. confusion matrix)
+macierz.pomylek1 <- table(rzeczywiste.etykietki1, prognozowane.etykietki1)
+
+kable(macierz.pomylek1)
+#---------------------------------------------------------
+
+```
+
+-   **Danych uczących**
+
+```{r macierz pomyłek 2}
+
+#MACIERZ POMYŁEK DLA UCZĄCYCH
+#---------------------------------------------------------
+rzeczywiste.etykietki2 <- etykietki.klas2
+
+# macierz pomyłek (ang. confusion matrix)
+macierz.pomylek2 <- table(rzeczywiste.etykietki2, prognozowane.etykietki2)
+
+kable(macierz.pomylek2)
+#---------------------------------------------------------
+
+```
+
+Teraz liczymy **dokładność naszego modelu dla danych testowych**
+
+```{r dokładność_klasyfikacji1}
+
+#DOKŁADNOŚĆ KLASYFIKACJI 
+#---------------------------------------------------------
+# Oblicz dokładność
+accuracy <- sum(diag(macierz.pomylek1)) / n1
+
+# Zamień na data.frame z nazwą kolumny
+accuracy_df <- data.frame(Dokładność = accuracy)
+
+kable(accuracy_df)
+#---------------------------------------------------------
+
+```
+
+Widzimy **dokładność na poziomie ok 87% dla danych trenujących**, jest to dokładność na dobrym poziomie
+
+Następnie dla danych uczących
+
+```{r dokładność klasyfikacji2}
+
+#DOKŁADNOŚĆ KLASYFIKACJI
+#---------------------------------------------------------
+# Oblicz dokładność
+accuracy <- sum(diag(macierz.pomylek2)) / n2
+
+# Zamień na data.frame z nazwą kolumny
+accuracy_df <- data.frame(Dokładność = accuracy)
+
+kable(accuracy_df)
+#---------------------------------------------------------
+
+```
+
+Warto zwrócić uwagę na zauważalny i istotny, a zarazem paradoksalny spadek dokładności dopasowania, mimo że etykiety przypisujemy do danych treningowych, gdzie teoretycznie oczekiwalibyśmy zgodności na poziomie 100%. **Tymczasem uzyskana wartość wynosi jedynie 84%, co oznacza spadek o około 3%.**
+
+\newpage
+
+## e) **Budowa modelu liniowego dla rozszerzonej przestrzeni cech**
+
+Teraz powtórzymy budowę modelu regresji, po uzupełnieniu cech o składniki wielomianowe stopnia 2 Dokładniej o ${SL}^2, {SW}^2, PL * PW, PL * SW, PL * SL, PW * SL, PW * SW, SL * SW$
+
+**Kroki b) oraz c) przebiegają analogicznie** — tworzymy model regresji w ten sam sposób, z tą różnicą, że **teraz uwzględniamy dodatkowe cechy**
+
+```{r zmiana nazw}
+
+#PRZYGOTOWANIE DANYCH
+#---------------------------------------------------------
+#DEFINICJA NOWYCH DANYCH 
+new_iris <- iris
+
+#ZMIANA NAZW
+names(new_iris) <- c("SL","SW","PL","PW","Spec")
+
+#DODANIE NOWYCH ZMIENNYCH (WPROWADZENIE DRUGIEGO WYMIARU)
+new_iris<- transform(new_iris, SL.SW=SL*SW,  PL.PW=PL*PW, PL.SL=PL*SL, PL.SW=PL*SW, PW.SW=PW*SW, PW.SL=PW*SL, PL2=PL*PL, PW2=PW*PW, SL2=SL*SL, SW2=SW*SW)
+#---------------------------------------------------------
+
+```
+
+```{r data_partioning_rozszerzone}
+#PRZYGOTWANIE ZBIÓR UCZĄCEGO I TESTOWEGO
+#---------------------------------------------------------
+#TUTAJ TO DAJE NAM, ŻE MAMY PROPOCJE KLAS ZACHOWANE
+train_set <- new_iris %>%
+  group_by(Spec) %>%
+  sample_frac(1/3) %>%
+  ungroup()
+
+test_set <- anti_join(new_iris, train_set, by = colnames(new_iris))
+#---------------------------------------------------------
+
+```
+
+```{r tworzenie_macierzy_rozszerzone}
+#TWORZENIE MACIERZY ZE STAŁĄ REGRESJI LINIOWEJ, ABY STWORZYĆ MODEL
+#---------------------------------------------------------
+K=3
+p = 14
+n1= nrow(test_set)
+n2 = nrow(train_set)
+# X1 - macierz eksperymentu (ang. design matrix) dla danych TESTOWYCH
+X1 <- cbind(rep(1,n1), test_set[,1:14][,-5])
+X1 <- as.matrix(X1)
+
+# X2 - macierz eksperymentu (ang. design matrix) dla danych UCZĄCYCH
+X2 <- cbind(rep(1,n2), train_set[,1:14][,-5])
+X2 <- as.matrix(X2)
+#---------------------------------------------------------
+
+```
+
+```{r inicjalizacja macierzy zer_rozszerzone}
+
+#DANE TESTOWE
+#--------------------------------------------
+
+# etykietki klas (gatunki)
+etykietki.klas1 <-  test_set$Spec
+
+# inicjalizacja (macierz wypełniona zerami)
+Y1 <- matrix(0, nrow=n1, ncol=K)
+
+# konwersja etykietek klas na wartości numeryczne
+etykietki.num1 <- as.numeric(etykietki.klas1)
+
+for (k in 1:K)  
+  Y1[etykietki.num1==k, k] <- 1
+
+#--------------------------------------------
+
+#DANE UCZĄCE
+#--------------------------------------------
+
+# etykietki klas (gatunki)
+etykietki.klas2 <-  train_set$Spec
+
+# inicjalizacja (macierz wypełniona zerami)
+Y2 <- matrix(0, nrow=n2, ncol=K)
+
+# konwersja etykietek klas na wartości numeryczne
+etykietki.num2 <- as.numeric(etykietki.klas2)
+
+for (k in 1:K)  
+  Y2[etykietki.num2==k, k] <- 1
+
+#--------------------------------------------
+
+```
+
+```{r estymacja_rozszerzone}
+
+# Macierz estymowanych współczynników 
+B.hat1 <- solve(t(X2)%*%X2) %*% t(X2) %*% Y2 # X2 i Y2 są dla danych uczących
+
+```
+
+```{r Wartosci_prognozowane_rozszerzone}
+
+Y.hat1 <- X1%*%B.hat1 #X1 TO DANE TESTOWE
+
+Y.hat2 <- X2%*%B.hat1 #X2 TO DANE UCZĄCE
+
+```
+
+Wyznaczone w nowy sposób prawdopodobieństwa przypisań możemy ponownie przedstawić za pomocą wykresów.
+
+```{r wykresy_rozszerzone1}
+
+matplot(Y.hat1, main="Prognozy gatunków dla danych testowych",xlab="id", ylab = "Prawdopodobieństwo",ylim=c(-.5,2))
+
+abline(v=c(50,100), lty=2, col="gray")
+
+legend(x="topright", legend=paste(1:3,levels(train_set$Spec)), col=1:3, text.col=1:3, bg="azure2")
+
+
+```
+
+Widać jeszcze wyraźniejszy podział na grupy niż w przypadku predykcji bez dodatkowych cech. Szczególnie dobrze widać dla których przedziałów dominują prawdopodobieństwa poszczególnych grup.
+
+```{r wykresy_rozszerzone2}
+
+matplot(Y.hat2, main="Prognozy gatunków dla danych uczących",xlab="id",ylab = "Prawdopodobieństwo",ylim=c(-.5,2))
+
+abline(v=c(50,100), lty=2, col="gray")
+
+legend(x="topright", legend=paste(1:3,levels(train_set$Spec)), col=1:3, text.col=1:3, bg="azure2")
+
+```
+
+Dla danych uczących obserwujemy podobne cechy jak na poprzednim wykresie — nie dostrzegamy żadnych oznak maskowania. Wyraźnie zaznaczają się przedziały największych prawdopodobieństw dla poszczególnych grup. Całość cechuje się znacznie większą przejrzystością niż w przypadku regresji liniowej bez dodatkowych cech.
+
+#### **Ocena jakości nowego modelu**
+
+```{r klasyfikacja_rozszerzone}
+
+# zapisujemy nazwy kolejnych klas 
+klasy1 <- levels(train_set$Spec)
+
+# Dla każdego wiersza sprawdzamy, który element wektora Y.hat (1,2 lub 3) jest maksymalny
+maks.ind1 <- apply(Y.hat1, 1, FUN=function(x) which.max(x))
+
+
+# zapisujemy nazwy kolejnych klas 
+klasy2 <- levels(train_set$Spec)
+
+# Dla każdego wiersza sprawdzamy, który element wektora Y.hat (1,2 lub 3) jest maksymalny
+maks.ind2 <- apply(Y.hat2, 1, FUN=function(x) which.max(x))
+
+```
+
+```{r prognozowane_etykiety_rozszerzone}
+
+# Konwersja na etykietki klas
+prognozowane.etykietki1 <- klasy1[maks.ind1]
+
+# Konwersja na etykietki klas
+prognozowane.etykietki2 <- klasy2[maks.ind2]
+
+```
+
+Tworzymy macierz pomyłek, wygenerowanych etykiet odpowiednio dla:
+
+\*Danych trenujących
+
+```{r macierz_pomyłek_rozszerzone}
+
+rzeczywiste.etykietki1 <- etykietki.klas1
+
+# macierz pomyłek (ang. confusion matrix)
+macierz.pomylek1 <- table(rzeczywiste.etykietki1, prognozowane.etykietki1)
+kable(macierz.pomylek1)
+
+```
+
+-   Danych uczących
+
+```{r macierz pomyłek_rozszerzone}
+
+rzeczywiste.etykietki2 <- etykietki.klas2
+
+# macierz pomyłek (ang. confusion matrix)
+macierz.pomylek2 <- table(rzeczywiste.etykietki2, prognozowane.etykietki2)
+kable(macierz.pomylek2)
+
+```
+
+I liczymy dokładność naszego modelu dla danych testowych
+
+```{r dokładność_klasyfikacji_rozszerzone}
+
+# Oblicz dokładność
+accuracy <- sum(diag(macierz.pomylek1)) / n1
+
+# Zamień na data.frame z nazwą kolumny
+accuracy_df <- data.frame(Dokładność = accuracy)
+
+kable(accuracy_df)
+
+```
+
+W przypadku danych treningowych obserwujemy dokładność na poziomie około 95%, co stanowi znakomity wynik — to aż **o 8 punktów procentowych więcej niż w przypadku standardowego modelu regresji liniowej.**
+
+Następnie dla danych uczących
+
+```{r dokładność klasyfikacji_rozszerzone}
+
+# Oblicz dokładność
+accuracy <- sum(diag(macierz.pomylek2)) / n2
+
+# Zamień na data.frame z nazwą kolumny
+accuracy_df <- data.frame(Dokładność = accuracy)
+
+kable(accuracy_df)
+
+```
+
+W nowym modelu obserwujemy wzrost dokładności dla danych treningowych — **osiąga ona bardzo wysoki poziom 98%**. To o 1 punkt procentowy więcej niż dla danych testowych oraz aż o 13 punktów procentowych więcej w porównaniu do modelu bez dodatkowych cech.
+
+## Wnioski
+
+Dodanie dodatkowych cech znacząco poprawia dokładność modelu regresji liniowej, jednocześnie zmniejszając jego podatność na efekt maskowania między klasami.
