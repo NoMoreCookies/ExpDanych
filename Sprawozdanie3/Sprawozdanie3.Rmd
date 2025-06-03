@@ -42,11 +42,16 @@ library(kableExtra)
 library(ggplot2)
 library(dplyr)
 library(patchwork)
+library(MASS)
+library(HDclassif)
+library(dplyr)
+library(knitr)
 #---------------------------------------------------------
 ```
 
 ```{r kolory}
 # Pastelowe kolory (HEX)
+#---------------------------------------------------------
 pblue    <- "#AEC6CF"
 pgreen   <- "#BFD8B8"
 ppurple  <- "#CBAACB"
@@ -55,6 +60,7 @@ pyellow  <- "#FFFACD"
 ppink    <- "#FBB1BD"
 pgray    <- "#D3D3D3"  # warm gray
 pmint    <- "#C1E1C1"  # cool mint
+#---------------------------------------------------------
 
 ```
 
@@ -628,3 +634,192 @@ W nowym modelu obserwujemy wzrost dokładności dla danych treningowych — **os
 ## Wnioski
 
 Dodanie dodatkowych cech znacząco poprawia dokładność modelu regresji liniowej, jednocześnie zmniejszając jego podatność na efekt maskowania między klasami.
+
+# Zadanie 2
+
+## a) Wybór i zapoznanie się z danymi
+
+```{r wine}
+data("wine")
+dane <- wine 
+```
+
+**Opis** zmiennych w zbiorze danych **Wine**
+
+```{r Opis_danych_wine}
+tabela_danych <- data.frame(
+  Kolumna = c("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13"),
+  Nazwa_zmiennej = c("Alcohol", "Malic acid", "Ash", "Alcalinity of ash", "Magnesium", 
+                      "Total phenols", "Flavanoids", "Nonflavanoid phenols", "Proanthocyanins", 
+                      "Color intensity", "Hue", "OD280/OD315 of diluted wines", "Proline"),
+  Opis = c("Zawartość alkoholu (%)", "Zawartość kwasu jabłkowego (g/l)", "Zawartość popiołu (g/l)", 
+           "Zasadowość popiołu (g/l)", "Zawartość magnezu (mg/l)", "Zawartość fenoli ogółem (g/l)", 
+           "Zawartość flawonoidów (g/l)", "Zawartość fenoli nienależących do flawonoidów (g/l)", 
+           "Zawartość proantocyjaninów (g/l)", "Intensywność koloru (od 0 do 13)", "Odcień barwy", 
+           "Absorbancja przy długości fali 280 nm do 315 nm (rozcieńczone wino)", "Zawartość proliny (mg/l)")
+)
+
+kable(tabela_danych, col.names = c("Kolumna", "Nazwa zmiennej", "Opis"))
+```
+
+------------------------------------------------------------------------
+
+Pierwsze 10 rekordów zbioru danych.
+
+```{r wstep}
+kable(head(dane, 10))
+```
+
+```{r przypadki, echo=FALSE}
+P = nrow(dane)  # liczba przypadków (obserwacji)
+Z = ncol(dane)  # liczba zmiennych (cech)
+```
+
+Zbiór danych ma **`r P`** przypadków i **`r Z`** zmiennych
+
+```{r jaka_etykieta}
+unique_counts <- sapply(dane, function(x) length(unique(x)))
+
+kable(data.frame(Liczba_unikalnych = unique_counts), 
+      col.names = "Liczba unikalnych", 
+      caption = "Liczba unikalnych wartości w każdej zmiennej")
+```
+
+Zmienna **class** pełni rolę etykiety klas, informując o przynależności każdego obiektu do jednej z trzech grup. Świadczy o tym zarówno jej nazwa, jak i liczba unikalnych wartości, które przyjmuje — są to trzy klasy: ***1***, ***2*** i ***3***.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+Ilość danych oznaczonych jako **Na** w danych kolumnach.
+
+```{r braki_nietypowe_kodowanie}
+colSums(is.na(dane))
+
+#sapply(dane, function(x) unique(x))
+```
+
+**Analizując dane**, można zauważyć, że **zbiór nie zawiera żadnych braków** — ani oznaczonych jako **NA**, ani zapisanych w inny sposób. **Wszystkie obserwacje** wydają się być **poprawnie wprowadzone**.
+
+Jeśli chodzi o **wartości nietypowe**, to w kolumnie **V10** znajduje się **jedna obserwacja** o wartości **9.899999**, która ma **aż sześć miejsc po przecinku**.
+
+Dla porównania, **pozostałe wartości** w tej kolumnie mają **najwyżej dwie cyfry po przecinku**, co może **sugerować błąd w zapisie** tej konkretnej danej.
+
+W kolumnie **V5** pojawia się również wartość **162**, która **znacząco odstaje od reszty obserwacji** i może być wynikiem **błędu pomiaru** lub **wprowadzenia danych**.
+
+------------------------------------------------------------------------
+
+**Typ** danych jaki przyjmują wartości z danej kolumny
+
+```{r sprawdzenie_typow}
+kable(data.frame(Typ_Danych = sapply(dane, class)), col.names = "Typ danych")
+```
+
+Widać, że **wszystkie zmienne mają prawidłowo przypisane typy danych**, z wyjątkiem **naszej etykiety klas** — kolumny **class**.
+
+Obecnie ma ona typ **integer**, co jest zrozumiałe, ponieważ wartości to liczby całkowite **{1, 2, 3}**.
+
+Jednak **dla poprawnej analizy** i właściwego traktowania tej zmiennej jako **zbioru kategorii**, powinna zostać **przekonwertowana na typ factor**.
+
+------------------------------------------------------------------------
+
+```{r zmiana_int_na_factor}
+dane$class <- as.factor(dane$class)
+
+```
+
+## b) Wstępna analiza danych
+
+### Rozkład klas w zbiorze
+
+Ilość rekordów przypisanych do odpowiedniej klasy.
+
+```{r class_ilosc}
+kable(as.data.frame(table(dane$class)), col.names = c("Klasa", "Ilość"))
+```
+
+W zbiorze danych widoczne są wyraźne dysproporcje w liczebności poszczególnych klas. Najliczniejsza jest klasa 2, która stanowi około 40% wszystkich obserwacji. Następnie plasuje się klasa 1 z udziałem na poziomie około 33%. Najmniej reprezentowana jest klasa 3, obejmująca pozostałe przypadki.
+
+Jeżeli przypisalibyśmy wszystkie obiekty do jednej dominującej klasy **(klasa 2)**, to aż 107 win byłoby przyporządkowanych źle. Wszystkich trunków mamy 178, więc mielibyśmy błąd klasyfikacji na poziome $\frac{107}{178}\approx 60\%$
+
+### Wariancje poszczególnych cech
+
+Dla danych możemy zwizualizować wariancje poszczególnych cech na wykresie słupkowym:
+
+```{r cechy}
+
+
+# Załóżmy, że dane1 to ramka danych numerycznych z nazwanymi kolumnami
+
+# Obliczamy wariancję dla każdej kolumny
+wariancje <- apply(dane[,-1], 2, var)
+
+# Zamieniamy na ramkę danych do ggplot
+df_var <- data.frame(
+  cecha = names(wariancje),
+  wariancja = wariancje
+)
+
+
+
+# Rysujemy wykres słupkowy wariancji
+ggplot(df_var, aes(x = reorder(cecha, -wariancja), y = wariancja, fill = cecha)) +
+  geom_col(show.legend = FALSE) +
+  labs(title = "Wariancja poszczególnych cech",
+       x = "Cecha",
+       y = "Wariancja") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+Widać bardzo istotne różnice w zmienności poszczególnych grup, wariancja cechy V13 stanowi główny element wykresu. Jeżeli przyjrzymy się im dokłądniej, to okaże się, że wariancja V13 jest większa $10^4$ raz od drugiej co do wielkosci wariancji **(Zmiennej V5)**
+
+```{r tabela}
+
+# Wyświetlamy wariancje w tabeli (opcjonalnie)
+kable(df_var)
+
+```
+
+Konieczność standaryzacji w niektórych algorytmach wynika z tego, że cechy danych moją różne zakresy wartości. Bez standaryzacji cechy o większych skalach mogą zdominować obliczenia, co prowadzi do nieoptymalnych wyników
+
+### Cechy o najlepszej zdolności dyskryminacyjnej
+
+```{r dodanie kolumny}
+
+dane$losowa_kolumna <- runif(nrow(dane), min = 0, max = 1)
+
+```
+
+Teraz obliczamy wartość dyskryminacyjne testem anova.
+
+```{r wykres}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(rlang)
+
+
+
+library(knitr)
+
+# Obliczenie wartości p dla każdej cechy
+wyniki_anova <- sapply(dane[,-15][, -which(colnames(dane) == "class")], function(x) {
+  summary(aov(x ~ dane$class))[[1]][["Pr(>F)"]][1]
+})
+
+# Sortujemy i zachowujemy notację wykładniczą
+wyniki_anova_sorted <- sort(unlist(wyniki_anova))
+wyniki_anova_formatted <- formatC(wyniki_anova_sorted, format = "e", digits = 3)
+
+# Tworzymy ramkę danych do wyświetlenia
+tabela <- data.frame(Cecha = names(wyniki_anova_sorted), `p-wartość` = wyniki_anova_formatted)
+
+# Wyświetlamy jako kable
+kable(tabela, caption = "Wartości p z testu ANOVA dla każdej cechy")
+
+
+
+```
+Na podstawie testu Anova, widać że zmienna **V7 ma najlepszą zdolność dyskryminacyjną.**
