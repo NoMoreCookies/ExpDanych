@@ -1,0 +1,94 @@
+---
+title: "Sprawozdanie 4"
+author: "Kacper Szmigielski, 282255 i Mateusz Wizner, 277508"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    fig_caption: true
+    fig_width: 5
+    fig_height: 4
+    toc_depth: 3
+    number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+header-includes:
+- \usepackage[OT4]{polski}
+- \usepackage[utf8]{inputenc}
+- \usepackage{graphicx}
+- \usepackage{float}
+- \usepackage{xcolor}
+- \definecolor{myblue}{HTML}{D0E9F9}
+- \definecolor{myyellow}{HTML}{FFFACD}
+subtitle: Eksploracja danych
+fontsize: 12pt
+---
+
+
+```{r setup, include=FALSE}
+#USTAWIENIA DO PROJEKTU 
+### echo = FALSE (Nie wypisuje kodu przy egzekucji programu)
+### message = FALSE (Nie wyświetla jakiś powiadomień)
+### warning = Flase (Nie wyświetla błędów jak się pojawią)
+#---------------------------------------------------------
+knitr::opts_chunk$set(echo = FALSE,message = FALSE, warning = FALSE )
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "", fig.align = "center")
+#---------------------------------------------------------
+```
+
+```{r biblioteki}
+# POTRZEBNE BIBLIOTEKI
+#---------------------------------------------------------
+library(mlbench)
+library(rattle)
+library(knitr)
+#---------------------------------------------------------
+```
+
+```{r kolory}
+# Pastelowe kolory (HEX)
+#---------------------------------------------------------
+pblue    <- "#AEC6CF"
+pgreen   <- "#BFD8B8"
+ppurple  <- "#CBAACB"
+porange  <- "#FFD8B1"
+pyellow  <- "#FFFACD"
+ppink    <- "#FBB1BD"
+pgray    <- "#D3D3D3"  # warm gray
+pmint    <- "#C1E1C1"  # cool mint
+#---------------------------------------------------------
+
+```
+
+\newpage
+
+# Zadanie 1
+
+## a) **Wybór i zapoznanie się z danymi**
+
+```{r wine}
+data("wine")
+dane <- wine 
+```
+
+**Opis** zmiennych w zbiorze danych **Wine**
+
+```{r Opis_danych_wine}
+tabela_danych <- data.frame(
+  Kolumna = c("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13"),
+  Nazwa_zmiennej = c("Alcohol", "Malic acid", "Ash", "Alcalinity of ash", "Magnesium", 
+                      "Total phenols", "Flavanoids", "Nonflavanoid phenols", "Proanthocyanins", 
+                      "Color intensity", "Hue", "OD280/OD315 of diluted wines", "Proline"),
+  Opis = c("Zawartość alkoholu (%)", "Zawartość kwasu jabłkowego (g/l)", "Zawartość popiołu (g/l)", 
+           "Zasadowość popiołu (g/l)", "Zawartość magnezu (mg/l)", "Zawartość fenoli ogółem (g/l)", 
+           "Zawartość flawonoidów (g/l)", "Zawartość fenoli nienależących do flawonoidów (g/l)", 
+           "Zawartość proantocyjaninów (g/l)", "Intensywność koloru (od 0 do 13)", "Odcień barwy", 
+           "Absorbancja przy długości fali 280 nm do 315 nm (rozcieńczone wino)", "Zawartość proliny (mg/l)")
+)
+
+kable(tabela_danych, col.names = c("Kolumna", "Nazwa zmiennej", "Opis"))
+```
+
+
