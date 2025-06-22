@@ -44,6 +44,13 @@ knitr::opts_chunk$set(fig.pos = "H", out.extra = "", fig.align = "center")
 library(mlbench)
 library(rattle)
 library(knitr)
+library(MASS)
+library(cluster)
+library(factoextra)
+library(ggplot2)
+library(patchwork)
+library(dendextend)
+library(gtools)
 #---------------------------------------------------------
 ```
 
@@ -91,4 +98,204 @@ tabela_danych <- data.frame(
 kable(tabela_danych, col.names = c("Kolumna", "Nazwa zmiennej", "Opis"))
 ```
 
+# zadanie 2
 
+## a) Wybór i przygotowanie danych 
+
+Do porównywania metod grupujących i hierarchicznych wybieramy dane Glass
+
+Tutaj przykładowe pierwsze 5 wierszy i 5 kolumn z danych Glass
+
+```{r wybórDanych,echo = TRUE}
+#DANE
+#-----------------------------
+data("Glass")
+dane <- Glass
+head(dane[1:5,1:5])
+#-----------------------------
+
+```
+
+Dane mają 214 wierszy oraz 9 kolumn, więc nie jest potrzebne losowanie 200 wierszy z 208, nie zmniejszy to w znaczący sposób zapotrzebowania pamięciowego programu.
+Mamy 6 klas odpowiadających rodzajom użytego szkła
+
+Następnie usuwamy zmienną grupującą
+
+```{r usuwanieZmGrupującej,echo = TRUE}
+#USUWANIE KOLUMNY Z ETYKIETAMI
+#-----------------------------
+Y <- dane[,10]
+X <- dane[,-10]
+#-----------------------------
+
+```
+
+Teraz trzeba rozstrzygnąć czy konieczne jest zastosowanie standaryzacji przed wyznaczeniem macierzy odległości/odmienności
+
+```{r CzyStandaryzować}
+
+#ODCHYLENIA STANDARDOWE (CZY POTRZEBA STANDARZYACJI)
+#-----------------------------
+sds <- sapply(X, sd)
+barplot(sds,
+        main = "Odchylenia standardowe zmiennych",
+        ylab = "SD",
+        las = 2,         # obraca etykiety osi X
+        col = "steelblue")
+#-----------------------------
+
+```
+
+Analiza odchyleń standardowych poszczególnych zmiennych wskazuje na pewne różnice w ich wartościach, jednakże wszystkie odchylenia mieszczą się w stosunkowo zbliżonym zakresie, lecz widoczne są zauważalne różnice, np.: pomiędzy Fe,Al czy Ba oraz Ca i Mg.
+Więc lepiej jest wykonać standaryzację
+
+```{r standaryzacja}
+
+X <-scale(X)
+
+```
+
+
+## b) Grupowanie i wizualizacja
+
+Przeprowadzamy grupowanie za pomocą metody PAM
+
+```{r PAM}
+
+
+X_scaled <- X
+
+# Model PAM z k = 6
+pam_model <- pam(X_scaled, k = 6, metric = "euclidean")
+
+# PCA na standaryzowanych danych
+pca <- prcomp(X_scaled, center = TRUE, scale. = TRUE)
+pca_df <- as.data.frame(pca$x[, 1:2])
+
+# Dodanie informacji o klastrach i klasach rzeczywistych
+pca_df$Klaster <- factor(pam_model$clustering)
+pca_df$Klasa <- factor(Y)
+
+# Wykres PCA z kolorami wg klastrów i kształtami wg rzeczywistych klas
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Klaster, shape = Klasa)) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(title = "PAM na danych Glass: Kolory = Klaster, Kształty = Klasa",
+       x = "PC1", y = "PC2") +
+  theme_minimal() +
+  scale_color_manual(values = RColorBrewer::brewer.pal(6, "Set1")) +  # 6 kolorów
+  theme(legend.position = "right")
+
+# Wykres silhouette
+fviz_silhouette(pam_model, palette = RColorBrewer::brewer.pal(6, "Set1")) +
+  labs(title = "Wykres silhouette dla metody PAM na danych Glass")
+
+```
+
+Z analizy wykresu wynika, że uzyskane skupienia charakteryzują się umiarkowaną separacją,(najbardziej odseparowany klaster 5) co wskazuje na częściowe nakładanie się klastrów. Pomimo tego, klastry wykazują dobrą zwartość, co oznacza, że obiekty w obrębie poszczególnych skupień są do siebie stosunkowo podobne. Dodatkowo, skupienia cechują się małą, obiekty różnych kolorów mieszają się w skupiskach.
+
+```{r Zgodnosci}
+# Tabela zgodności klastrów PAM i klas rzeczywistych
+conf_matrix <- table(Klaster = pam_model$clustering, Klasa = Y)
+
+# Wyświetlenie tabeli w formie ładnej tabeli HTML lub markdown
+kable(conf_matrix, caption = "Tabela zgodności: klastry PAM vs klasy rzeczywiste")
+
+# Obliczenie procentu zgodnych przypisań (sumujemy max z każdego wiersza)
+correct_assignments <- sum(apply(conf_matrix, 1, max))
+accuracy <- correct_assignments / nrow(pca_df)
+
+# Obliczenie Adjusted Rand Index
+ari <- adjustedRandIndex(pam_model$clustering, Y)
+
+# Wyświetlenie wyników
+cat("Dokładność przypisania (accuracy):", round(accuracy * 100, 2), "%\n")
+cat("Adjusted Rand Index (ARI):", round(ari, 3), "\n")
+```
+Niestety zgodnośc w wyniku takiego przypisania wynosi jedynie 54%, jest to zgodność na bardzo słabym poziomie, więc nie jest dobrym pomysłem, używanei tego typu sposobu grupwoanai do przedstawionych danych
+
+Podział hierarchiczny
+
+```{r podzial_hierarchiczny}
+library(cluster)
+library(dendextend)
+library(factoextra)
+library(ggplot2)
+library(mclust)   # do ARI
+library(mlbench)  # dla zbioru Glass
+library(knitr)    # do ładnych tabel
+
+# Dane
+data(Glass)
+X <- Glass[, -10]
+Y <- Glass$Type
+
+# Standaryzacja
+dane_stand <- scale(X)
+
+# Macierz odległości
+d <- dist(dane_stand)
+
+# AGNES - różne metody łączenia
+agnes_avg <- agnes(d, diss = TRUE, method = "average")
+agnes_single <- agnes(d, diss = TRUE, method = "single")
+agnes_complete <- agnes(d, diss = TRUE, method = "complete")
+
+k <- 6
+
+# Cięcie dendrogramu
+cl_avg <- cutree(as.hclust(agnes_avg), k = k)
+cl_single <- cutree(as.hclust(agnes_single), k = k)
+cl_complete <- cutree(as.hclust(agnes_complete), k = k)
+
+# Funkcja oceny klasteryzacji
+evaluate_clustering <- function(cluster_labels, true_labels) {
+  conf_matrix <- table(Klaster = cluster_labels, Klasa = true_labels)
+  
+  correct_assignments <- sum(apply(conf_matrix, 1, max))
+  accuracy <- correct_assignments / length(true_labels)
+  
+  ari <- adjustedRandIndex(cluster_labels, true_labels)
+  
+  cat("Dokładność przypisania (accuracy):", round(accuracy * 100, 2), "%\n")
+}
+
+# Ocena wyników
+cat("Average linkage:\n")
+evaluate_clustering(cl_avg, Y)
+
+cat("Single linkage:\n")
+evaluate_clustering(cl_single, Y)
+
+cat("Complete linkage:\n")
+evaluate_clustering(cl_complete, Y)
+
+# Wykresy kołowe dendrogramów z podziałem na 6 klastrów
+
+fviz_dend(agnes_avg, type = "circular", k = k, cex = 0.5, palette = "jco",
+          main = "Kołowy dendrogram - AGNES average linkage")
+
+fviz_dend(agnes_single, type = "circular", k = k, cex = 0.5, palette = "jco",
+          main = "Kołowy dendrogram - AGNES single linkage")
+
+fviz_dend(agnes_complete, type = "circular", k = k, cex = 0.5, palette = "jco",
+          main = "Kołowy dendrogram - AGNES complete linkage")
+
+
+#------------------------------------------------------------
+```
+
+W metodzie single linkage efekt „łańcucha” powstaje na skutek łączenia klastrów na podstawie minimalnej odległości między punktami, co sprawia, że nawet pojedynczy odstający punkt może połączyć całe skupisko, tworząc długie, rozciągnięte struktury przypominające łańcuch.
+
+W przypadku average linkage efekt ten wynika z dużego rozproszenia danych — obecność punktów odstających znacząco podnosi średnią odległość między klastrami, co prowadzi do powstawania mniej zwartych, rozciągniętych grup.
+
+Metoda complete linkage z założenia powinna tworzyć zwarte i wyraźnie oddzielone klastry, ponieważ odległość między klastrami definiowana jest jako maksymalna odległość między dowolnymi parami punktów. Jednak obserwacja efektu łańcuchowego nawet w tej metodzie wskazuje na obecność silnych anomalii lub znacznie rozrzuconych punktów w zbiorze danych, które powodują, że maksymalne odległości są na tyle duże, iż struktura klastrów rozciąga się w formę łańcuchów. Mimo to, w metodzie complete linkage efekt ten jest najmniej nasilony, co potwierdza jej większą odporność na wpływ odstających obserwacji.
+
+Co powoduje zgodności na dość niskich poziomach, tak jak moglibyśmy to przewidyać  :
+
+Dla average linakge 38.32%
+Dla Singel linkage  37.38%
+Dla Complete linakge 41.12%
+
+
+
+## c) Ocena jakości grupowania. Wybór optymalnej liczby skupień i porównanie metod.
