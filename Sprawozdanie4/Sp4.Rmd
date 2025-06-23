@@ -51,6 +51,8 @@ library(patchwork)
 library(dendextend)
 library(gtools)
 library(mclust)
+library(dplyr)
+library(e1071)
 #---------------------------------------------------------
 ```
 
@@ -115,7 +117,6 @@ Wartości cech w zbiorze różnią się skalą – np. zawartość sodu (Na) czy
 #-----------------------------
 data("Glass")
 dane <- Glass
-head(dane[1:5,1:5])
 #-----------------------------
 
 ```
@@ -125,20 +126,23 @@ head(dane[1:5,1:5])
 #-----------------------------
 Y <- dane[,10]
 X <- dane[,-10]
+Y <- as.numeric(Y)
 #-----------------------------
 
 ```
 
-```{r CzyStandaryzować}
+```{r CzyStandaryzować_barplot}
 
 #ODCHYLENIA STANDARDOWE (CZY POTRZEBA STANDARZYACJI)
 #-----------------------------
-sds <- sapply(X, sd)
-barplt <- barplot(sds,
-        main = "Odchylenia standardowe zmiennych",
-        ylab = "SD",
-        las = 2,         # obraca etykiety osi X
-        col = "steelblue")
+#sds <- sapply(X, sd)
+#
+#barplt <- barplot(sds,
+#        main = "Odchylenia standardowe zmiennych",
+#        ylab = "SD",
+#        las = 2,         # obraca etykiety osi X
+#        col = "steelblue")
+
 #-----------------------------
 
 ```
@@ -157,12 +161,13 @@ X <-scale(X)
 ```{r dissimilarity_matrix}
 #WYZNACZENIE MACIERZY NIEPODOBIEŃSTW
 #------------------------------
-X_scaled <- daisy(X_scaled)
+X_scaled <- daisy(X)
 X_scaled <- as.matrix(X_scaled)
 #------------------------------
 ```
 
 ```{r PAM}
+
 #WYZNACZENIE PAM
 #------------------------------------------------------
 # Model PAM z k = 6
@@ -182,12 +187,13 @@ ggplot(pca_df, aes(x = PC1, y = PC2, color = Klaster, shape = Klasa)) +
   labs(title = "PAM na danych Glass: Kolory = Klaster, Kształty = Klasa",
        x = "PC1", y = "PC2") +
   theme_minimal() +
-  scale_color_manual(values = RColorBrewer::brewer.pal(7, "Set1")) +  # 6 kolorów
+  scale_color_manual(values = RColorBrewer::brewer.pal(6, "Set1")) +  # 6 kolorów
   theme(legend.position = "right")
 
 # Wykres silhouette
-fviz_silhouette(pam_model, palette = RColorBrewer::brewer.pal(7, "Set1")) +
-  labs(title = "Wykres silhouette dla metody PAM na danych Glass")
+#fviz_silhouette(pam_model, palette = RColorBrewer::brewer.pal(7, "Set1")) +
+#  labs(title = "Wykres silhouette dla metody PAM na danych Glass")
+
 #------------------------------------------------------
 
 ```
@@ -196,31 +202,31 @@ Na podstawie analizy wykresu można stwierdzić, że uzyskane skupienia wykazuj�
 
 Pomimo częściowego pokrywania się skupień, wykazują one **dobrą zwartość** – obiekty należące do tego samego klastra są do siebie **stosunkowo podobne**, co świadczy o spójności wewnętrznej grup.
 
-Z drugiej strony, zaobserwowano **niską jednorodność klas pod względem etykiet rzeczywistych** – obiekty należące do różnych klas (oznaczone różnymi kolorami) **mieszają się wewnątrz tych samych skupień**. Szczególnie wyraźne jest to w przypadku **klas brązowej i pomarańczowej** oraz **zielonej i niebieskiej**, które często współwystępują w tych samych obszarach przestrzeni klastrów.
+Z drugiej strony, zaobserwowano **niską jednorodność klas pod względem etykiet rzeczywistych** – obiekty należące do różnych klas (oznaczone różnymi kolorami) **mieszają się wewnątrz tych samych skupień**. Szczególnie wyraźne jest to w przypadku **niebieskiej, zielonej i czerwonej**.
 
 ```{r Zgodnosci}
-# Tabela zgodności
-tabela_zgodnosci <- table(Klaster = pam_model$clustering, Klasa = Y)
+# Utwórz tabelę zgodności
+tab <- table(pam_model$clustering, Y)
 
-# Maksimum z każdej kolumny – najliczniejsza klasa w danym klastrze
-najwiecej_na_klaster <- apply(tabela_zgodnosci, 1, max)
+# Dopasuj klastry do klas
+dopisanie <- matchClasses(tab, method = "exact")
 
-# Obliczenie sumy poprawnych przypisań
-poprawne <- sum(najwiecej_na_klaster)
+# Zamień numery klastrów na przypisane klasy
+# UWAGA: weź levels klastrów z tabeli, bo mogą być np. 1, 2, 4, 5 (brak 3!)
+klastry <- as.integer(rownames(tab))
+przypisane_klasy <- dopisanie[as.character(pam_model$clustering)]
 
-# Całkowita liczba obserwacji
-n <- sum(tabela_zgodnosci)
+# Oblicz dokładność
+dokladnosc <- mean(przypisane_klasy == Y) * 100
 
-# Procent poprawnych przypisań
-dokladnosc <- poprawne / n * 100
-
-# Wyświetlenie wyniku
+# Wynik
 cat("Dokładność przypisania klastrów do klas:", round(dokladnosc, 2), "%\n")
+
 
 
 ```
 
-W wyniku analizy zgodności przypisań klastrów do klas rzeczywistych, obliczono tzw. **wskaźnik zgodności (purity)**. Niestety, uzyskana wartość wyniosła jedynie **51,4%**, co należy uznać za **niski poziom dopasowania**.
+W wyniku analizy zgodności przypisań klastrów do klas rzeczywistych, obliczono tzw. **wskaźnik zgodności (purity)**. Niestety, uzyskana wartość wyniosła jedynie **42.06%**, co należy uznać za **niski poziom dopasowania**.
 
 Taki wynik wskazuje, że **grupowanie metodą PAM** nie odzwierciedla w sposób satysfakcjonujący rzeczywistej struktury klas w danych. **Zastosowanie tego rodzaju podejścia klasteryzacyjnego** do zbioru *Glass* **nie jest w tym przypadku uzasadnione**, ponieważ prowadzi do znacznego nakładania się klas i nie pozwala na ich skuteczne rozróżnienie.
 
@@ -253,23 +259,17 @@ fviz_dend(agnes_complete, type = "circular", k = k, cex = 0.5, palette = "jco",
 
 W przypadku metody **single linkage** zaobserwowano wystąpienie tzw. **efektu łańcuchowego** (*chaining effect*). Zjawisko to polega na tym, że kolejne obserwacje są stopniowo dołączane do jednego dużego skupienia na podstawie minimalnych odległości między pojedynczymi punktami, co prowadzi do **tworzenia wydłużonych, sztucznie połączonych struktur**, zamiast wyraźnych, zwartych klastrów.
 
-Przyczyną wystąpienia tego efektu w analizowanych danych jest **duży rozrzut obserwacji** oraz **obecność wartości odstających**. Te same czynniki wpłynęły również negatywnie (leczw o wiele mniejszym stopniu) na wyniki uzyskane za pomocą metody **complete linkage**, w której efekt łańcuchowy również jest widoczny, choć w nieco łagodniejszej formie.
+Przyczyną wystąpienia tego efektu w analizowanych danych jest **duży rozrzut obserwacji** oraz **obecność wartości odstających**. Te same czynniki wpłynęły również negatywnie (leczw o wiele mniejszym stopniu) na wyniki uzyskane za pomocą metody **average linkage**, w której efekt łańcuchowy również jest widoczny, choć w nieco łagodniejszej formie.
 
-W przypadku metody **average linkage**, zjawisko łańcuchowe **również występuje**, jednak jego **intensywność jest znacząco mniejsza**. Klastery są **bardziej zwarte i lepiej odseparowane**, co przekłada się na **większą równowagę w podziale danych** oraz **lepszą zgodność z rzeczywistym podziałem klas**.
+W przypadku metody **complete linkage**, zjawisko łańcuchowe **również występuje**, jednak jego **intensywność jest znacząco mniejsza**. Klastery są **bardziej zwarte i lepiej odseparowane**, co przekłada się na **większą równowagę w podziale danych** oraz **lepszą zgodność z rzeczywistym podziałem klas**.
 
 ## c) Ocena jakości grupowania. Wybór optymalnej liczby skupień i porównanie metod.
 
 ### Wskaźniki wewnętrzne
 
-**W celu dokładniejszego porównania działania poszczególnych algorytmów, ocena została przeprowadzona na oryginalnych (niestandaryzowanych) danych.** Pozwoliło to zachować rzeczywiste różnice w skali poszczególnych zmiennych, co może mieć istotny wpływ na sposób formowania klastrów przez różne metody grupowania.
+**W celu dokładniejszego porównania działania poszczególnych algorytmów, ocena została przeprowadzona na oryginalnych (niestandaryzowanych) danych.**
 
 ```{r znalezienie najlepszego K}
-library(cluster)
-library(ggplot2)
-library(dplyr)
-
-# Zakładamy, że dane Glass są przygotowane jako X_scaled (bez kolumny klasy, standaryzowane)
-df_glass_ready <- Glass[,-10]  
 
 # Zakres liczby klastrów
 K.range <- 2:6
@@ -282,16 +282,16 @@ results_glass <- data.frame()
 
 for (k in K.range) {
   # PAM
-  pam.model <- pam(df_glass_ready, k)
+  pam.model <- pam(X_scaled, k)
   sil.pam <- mean(silhouette(pam.model)[, 3])
   results_glass <- rbind(results_glass,
                          data.frame(K = k, Method = "pam", Silhouette = sil.pam))
   
   # AGNES z trzema metodami
   for (method in agnes.methods) {
-    agnes.model <- agnes(df_glass_ready, method = method)
+    agnes.model <- agnes(X_scaled, method = method)
     clust <- cutree(as.hclust(agnes.model), k = k)
-    sil.agnes <- mean(silhouette(clust, dist(df_glass_ready))[, 3])
+    sil.agnes <- mean(silhouette(clust, dist(X_scaled))[, 3])
     method.label <- paste("agnes", method, sep = "_")
     
     results_glass <- rbind(results_glass,
@@ -306,7 +306,7 @@ best_glass <- results_glass[which.max(results_glass$Silhouette), ]
 ggplot(results_glass, aes(x = K, y = Silhouette, color = Method)) +
   geom_line(size = 1.2) +
   geom_point(size = 3) +
-  geom_point(data = best_glass, aes(x = K, y = Silhouette), color = "black", size = 4, shape = 8)  +
+  geom_point(data = best_glass, aes(x = K, y = Silhouette), color = "black", size = 3, shape = 4,stroke = 2)  +
   scale_x_continuous(breaks = K.range) +
   labs(
     title = "Średni indeks silhouette: Porównanie metod PAM i AGNES (Glass)",
@@ -326,18 +326,9 @@ Funkcja `matchClasses()` (z pakietu **e1071**) zakłada, że liczba klastrów w 
 Dlatego pomimo uzyskania najlepszego współczynnika sillhouse dla 2 klastróq, wskaźniki zewnętrzne będziemy porównywać dla 7 klastrów
 
 ```{r}
-library(e1071)
-library(cluster)
 true_labels <- Glass[,10]
 true_labels <- as.numeric(true_labels)
-if (any(true_labels == 0)) {
-  true_labels_matched <- true_labels + 1  
-} else {
-  true_labels_matched <- true_labels
-}
 
-
-true_labels_matched[true_labels_matched > 4] <- true_labels_matched[true_labels_matched >4] - 1 
 
 true_labels_matched <- as.numeric(as.factor(true_labels))
 
@@ -345,7 +336,6 @@ labels_avg <- cutree(agnes_avg, k = 6)
 labels_single <- cutree(agnes_single, k = 6)
 labels_complete <- cutree(agnes_complete, k = 6)
 labels_pam <- pam_model$clustering
-
 
 matched_avg <- matchClasses(table(true_labels_matched, labels_avg), method = "exact")
 matched_single <- matchClasses(table(true_labels_matched, labels_single), method = "exact")
@@ -378,28 +368,23 @@ results <- data.frame(
 Na podstawie przeprowadzonych analiz, takich jak **współczynnik silhouette** oraz **dokładność dopasowania**, ustalono, że optymalna liczba skupień wynosi **K=2**. Aby lepiej zrozumieć charakterystykę poszczególnych skupień, przeprowadzono porównanie **średnich wartości cech** oraz analizę ich rozkładów za pomocą **wykresów pudełkowych** dla wybranych zmiennych.
 
 ```{r}
-library(dplyr)
-library(cluster)
 
-# Przykład: glass to Twoja ramka danych, bierzemy tylko kolumny numeryczne (jeśli tam są też inne)
-# Załóżmy, że glass ma cechy w kolumnach 1:9 (dostosuj do swojego zbioru)
-glass_features <- Glass[, 1:9]
+
 
 # Klasteryzacja aglomeracyjna z metodą complete linkage
-agnes_complete <- agnes(glass_features, method = "complete")
+agnes_complete <- agnes(X_scaled, method = "complete")
 
 # Wycinamy 2 klastry (zgodnie z Twoim wcześniejszym założeniem K=2)
 clusters <- cutree(agnes_complete, k = 2)
 
 # Dodajemy etykiety klastrów do danych
-glass_with_clusters <- data.frame(glass_features, Cluster = as.factor(clusters))
+glass_with_clusters <- data.frame(Glass[,-10], Cluster = as.factor(clusters))
 
 # Obliczamy średnie wartości cech w każdym klastrze
 cluster_means <- glass_with_clusters %>%
   group_by(Cluster) %>%
   summarise(across(everything(), ~ round(mean(.x, na.rm = TRUE), 2)))
 
-print(cluster_means)
 
 ```
 
@@ -408,28 +393,7 @@ kable(cluster_means, caption = "Średnie wartości cech w skupieniach", label = 
 ```
 
 ```{r}
-library(dplyr)
-library(cluster)
-library(ggplot2)
 
-# Załóżmy, że glass to Twoja ramka danych, bierzemy kolumny 1:9
-glass_features <- Glass[, 1:9]
-
-# Klasteryzacja metodą complete
-agnes_complete <- agnes(glass_features, method = "complete")
-
-# Wycinamy 2 klastry
-clusters <- cutree(agnes_complete, k = 2)
-
-# Dodajemy klastry do danych
-glass_with_clusters <- data.frame(glass_features, Cluster = as.factor(clusters))
-
-# Obliczamy średnie wartości cech w klastrach
-cluster_means <- glass_with_clusters %>%
-  group_by(Cluster) %>%
-  summarise(across(everything(), ~ round(mean(.x, na.rm = TRUE), 2)))
-
-print(cluster_means)
 
 # Definicja funkcji do rysowania boxplotów (Twoja funkcja)
 plot_cluster_boxplots <- function(data, cluster_col, features) {
@@ -459,7 +423,6 @@ plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = f
 
 ```{r}
 # Pobierz nazwę pierwszej cechy (kolumny)
-# Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[2]
 
 # Rysuj wykres pudełkowy dla tej cechy
@@ -476,7 +439,7 @@ plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = f
 
 ```
 
-```{# Pobierz nazwę pierwszej cechy (kolumny)}
+```{r Pobierz nazwę pierwszej cechy (kolumny)}
 first_feature <- colnames(Glass)[4]
 
 # Rysuj wykres pudełkowy dla tej cechy
@@ -529,17 +492,19 @@ first_feature <- colnames(Glass)[9]
 plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
 ```
-Jak przedstawiono w tabeli (dane bez standaryzacji, aby były bardziej zrozumiałe w realistycznym kontekście), największe różnice średnich wartości cech między klastrami obserwujemy dla zmiennych: glucose, pressure, triceps, insulin oraz mass — przy czym w klastrze drugim wartości te są wyraźnie wyższe. Warto jednak zauważyć, że średnia jest wrażliwa na wartości odstające, dlatego uzupełniająco przeanalizowano również wykresy pudełkowe przedstawione na wykresach \ref{fig:box_plots_clusters1}, \ref{fig:box_plots_clusters2}, \ref{fig:box_plots_clusters3}, \ref{fig:box_plots_clusters4}, \ref{fig:box_plots_clusters5}.
+Jak przedstawiono w tabeli (na danych bez standaryzacji, aby zachować ich interpretowalność w realistycznym kontekście), największe różnice średnich wartości cech pomiędzy klastrami zaobserwowano dla zmiennych Ba (bar) oraz Mg (magnez). W szczególności, w klastrze 1 wartości obu tych cech są zauważalnie wyższe, przy czym dla zmiennej Mg występują również istotne wartości odstające.
 
-W szczególności, mediana zmiennej glucose w klastrze 2 jest znacznie wyższa niż w klastrze 1, co prowadzi do niemal idealnej separacji między tymi grupami. Również dla zmiennej insulin różnice między klastrami są bardzo wyraźne. W przypadku cech takich jak mass, triceps oraz pressure rozkłady są bardziej zbliżone, jednak różnice nadal są zauważalne.
+Co ciekawe, mediana zmiennej Ba w klastrze 2 jest znacznie wyższa niż w klastrze 1, co prowadzi do niemal idealnej separacji między tymi dwiema grupami w wymiarze tej zmiennej. Taka konfiguracja sugeruje, że Ba i Mg stanowią kluczowe czynniki różnicujące struktury klastrowe w badanym zbiorze danych.
 
-Taki układ jest zgodny z oczekiwaniami — glukoza i insulina należą do najważniejszych parametrów różnicujących osoby zdrowe i chore na cukrzycę, co znajduje odzwierciedlenie zarówno w analizie statystycznej, jak i wizualnej.
+Tego rodzaju rozkład jest zgodny z wcześniejszymi założeniami – w kontekście klasyfikacji typu szkła, zawartość baru i magnezu należy do najistotniejszych parametrów różnicujących obserwacje, co znajduje potwierdzenie zarówno w analizie statystycznej, jak i wizualnej.
 
-Warto jednak sprawdzić także, które obiekty są medoidami (reprezentantami skupień) w przypadku metody PAM i co je wyróżnia.
+Warto jednak również przeanalizować, które obserwacje pełnią rolę medoidów (tj. reprezentantów skupień) w przypadku metody PAM (Partitioning Around Medoids) oraz jakie cechy je charakteryzują na tle pozostałych obiektów. Pozwoli to lepiej zrozumieć wewnętrzną strukturę klastrów, a także identyfikować typowe profile obserwacji w ramach poszczególnych grup.
+
+
 
 ```{r MELTOIDY}
 
-pam_result <- pam(Glass[,-10], k = 2)  
+pam_result <- pam(X_scaled, k = 2)  
 
 medoid_indices <- pam_result$id.med
 
@@ -547,10 +512,6 @@ medoids <- Glass[,-10][medoid_indices, ]
 kable(medoids, caption = "Analiza meoidów dla metody PAM", label = "tab:medoids")
 ```
 
-Analiza medoidów wyznaczonych metodą PAM (tabela \ref{tab:medoids}) dla zbioru PimaIndiansDiabetes2 wykazała znaczące różnice w charakterystykach obu skupień. Medoid pierwszego skupienia (ID 96) cechuje się wysokimi wartościami zmiennych glucose (144) i insulin (228) przy jednoczesnej podwyższonej wartości mass (33.9). Medoid drugiego skupienia (ID 652) posiada zbliżoną wartość mass (33.8), ale istotnie niższe wartości glucose (117) i insulin (106).
+Medoid pierwszego skupienia (rekord nr 36) charakteryzuje się wyraźnie podwyższonymi stężeniami magnezu i potasu, przy jednoczesnym obniżeniu poziomów baru i glinu. Natomiast medoid drugiego skupienia wykazuje odwrotną tendencję – wartości magnezu i potasu są niższe, natomiast stężenia baru i glinu wyższe, przy zachowaniu porównywalnych poziomów pozostałych pierwiastków.
 
-Interesująca obserwacja dotyczy podobieństwa wartości mass przy jednoczesnych znaczących różnicach w pozostałych zmiennych. Wskazuje to, że sama analiza wskaźnika masy ciała nie pozwala na pełną charakterystykę różnic między skupieniami. Kluczowe dla rozróżnienia grup okazują się zmienne glucose i insulin, które wykazują istotnie różne wartości w obu medoidach.
-
-Warto również odnotować różnicę w wartości age między medoidami (40 vs 27), co może sugerować zależność między wiekiem a wartościami innych analizowanych zmiennych. Ta obserwacja wymagałaby jednak dalszej weryfikacji na pełnym zbiorze danych.
-
-Analiza medoidów potwierdza skuteczność metody PAM w identyfikacji wyraźnie różniących się grup obserwacji w zbiorze PimaIndiansDiabetes2.
+Warto podkreślić, że średnie stężenie żelaza (Fe) w obu medoidach wynosi 0. Wskazuje to, że pierwiastek ten najprawdopodobniej występuje jedynie w śladowych ilościach. Nieliczne wyższe wartości można uznać za obserwacje odstające lub wynikające z przypadkowego zanieczyszczenia próbek.
