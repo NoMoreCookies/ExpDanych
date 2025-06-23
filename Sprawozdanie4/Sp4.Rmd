@@ -53,6 +53,10 @@ library(gtools)
 library(mclust)
 library(dplyr)
 library(e1071)
+library(ipred)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
 #---------------------------------------------------------
 ```
 
@@ -68,7 +72,10 @@ ppink    <- "#FBB1BD"
 pgray    <- "#D3D3D3"  # warm gray
 pmint    <- "#C1E1C1"  # cool mint
 #---------------------------------------------------------
+```
 
+```{r seed}
+set.seed(123)
 ```
 
 \newpage
@@ -100,6 +107,200 @@ tabela_danych <- data.frame(
 kable(tabela_danych, col.names = c("Kolumna", "Nazwa zmiennej", "Opis"))
 ```
 
+
+```{r rozklad_klas}
+prop <- prop.table(table(dane$Type))
+barplot(prop, col = 1:9, ylim = c(0, 0.4), yaxt = "n", main = "Dane Wine - rozkład klas")
+axis(2, at = seq(0, 0.4, 0.05), labels = paste0(seq(0, 0.4, 0.05)*100, "%"))
+grid()
+```
+
+
+
+```{r dane_2D}
+cechy <- dane[, -1]
+wine.pca <- prcomp(cechy, center=TRUE, scale.=TRUE)
+#summary(wine.pca)
+plot(wine.pca$x[,1:2], col = dane$Type, main = "Dane Wine - PCA", pch = 15, cex = 0.7)
+legend("topright", col = 1:3, legend = levels(dane$Type), pch = 15, bg = "azure2")
+```
+```{r zdolonosc_dyskryminacji}
+library(DataExplorer)
+plot_boxplot(wine, by="Type")
+```
+
+
+```{r drzewo_kasyfikacyjne}
+tree <- rpart(Type~., data=wine) #parametry domyślne
+rpart.plot(tree, main="Drzewo klasyfikacyjne - dane Wine", cex=.5)
+```
+```{r bagging}
+# Uwaga:
+# wybieramy parametry (minsplit i cp), dla których otrzymujemy drzewa o złożonej strukturze
+btree <- bagging(Type~., data=wine, nbagg=25, minsplit=1, cp=0)
+btree
+
+# Jak liczba replikacji B (parametr nbagg) wpływa na dokładność modelu?
+B.vector <- c(1, 5, 10, 20, 30, 40, 50, 100)
+bagging.error.rates <- sapply(B.vector, function(b)  {print(paste0('B=',b)); errorest(Type~., data=wine, model=bagging, nbagg=b, estimator="632plus", est.para=control.errorest(nboot = 20))$error})
+plot(B.vector, bagging.error.rates, xlab="B", main="Bagging: error rate vs. B", type="b")
+grid()
+```
+
+```{r randomowy_las}
+# liczba cech
+p <-  ncol(wine) - 1
+
+# różne parametry  (ntree - liczba drzew, mtry - liczba wybieranych losowo cech)
+rf.1 <- randomForest(Type~., data=wine, ntree=1, mtry=p, importance=TRUE)
+rf.1 
+
+rf.2 <- randomForest(Type~., data=wine, ntree=100, mtry=sqrt(p), importance=TRUE)
+rf.2
+
+# prognozowane klasy
+pred.labels <- predict(rf.2, newdata=wine, type="class")
+real.labels <- wine$Type
+(confusion.matrix <- table(pred.labels, real.labels)) # dla zbioru uczącego
+
+# prognozowane p-stwa a posteriori
+pred.probs <- predict(rf.2, newdata=wine, type="prob")
+
+# macierz pomyłek (confusion matrix)  na bazie OOB (Out-Of-Bag), tzn. obserwacji, 
+# które nie były wybierane w danej replikacji
+rf.2$confusion
+
+# Wykres błędu klasyfikacji
+plot(rf.2)
+
+# Ranking ważności cech
+varImpPlot(rf.2,main = "Variable Importance Plot")
+
+```
+
+```{r porównanie_dokładności}
+mypredict.rpart <- function(object, newdata)  predict(object, newdata=newdata, type="class")
+
+(error.tree         <- (errorest(Type~., data=wine, model=rpart, predict=mypredict.rpart,
+                                 estimator="632plus", est.para=control.errorest(nboot = 20))))
+(error.bagging      <- (errorest(Type~., data=wine, model=bagging,
+                                 estimator="632plus", est.para=control.errorest(nboot = 20))))
+(error.randomForest <- (errorest(Type~., data=wine, model=randomForest,
+                                 estimator="632plus", est.para=control.errorest(nboot = 20))))
+
+# Względna redukcja błędu klasyfikacji (w %)
+(error.tree$error - error.bagging$error)/error.tree$error*100        # bagging vs. single tree
+(error.tree$error - error.randomForest$error)/error.tree$error*100   # random forest vs. single tree
+
+```
+
+## b)
+
+```{r dane2}
+dane2 <- na.omit(wine)
+
+n <- nrow(dane2)
+learn.ind    <- sample(1:n, 2/3*n)
+training.set <- dane2[learn.ind,]
+test.set     <- dane2[-learn.ind,]
+```
+
+
+```{r jądra_liniowe}
+# UWAGA: na potrzeby ilustracji modele budujemy tylko dla dwóch
+# wybranych zmiennych: glucose i age!!!
+
+svm.linear.C0.1 <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="linear", cost=.1)
+summary(svm.linear.C0.1)
+plot(svm.linear.C0.1, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+
+svm.linear.C1 <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="linear", cost=1)
+summary(svm.linear.C1)
+plot(svm.linear.C1, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+
+svm.linear.C10 <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="linear", cost=10)
+summary(svm.linear.C10)
+plot(svm.linear.C10, data=dane, Flavanoids~Phenols, svSymbol=16, grid=100)
+
+# konstrukcja prognoz i ocena ich dokładności
+real.labels <- test.set$Type
+n.test <- length(real.labels)
+
+pred.svm.lin <- predict(svm.linear.C1, newdata=test.set)
+(acc.svm.lin   <- sum(diag(table(pred.svm.lin, real.labels)))/n.test)
+
+```
+
+
+```{r porównanie_funkcji_jadrowych}
+svm.poly2  <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="polynomial", degree = 2)
+svm.poly4  <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="polynomial", degree = 4)
+svm.radial <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="radial")
+svm.radial.gamma0.1 <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="radial", gamma=0.1)
+svm.radial.gamma1 <- svm(Type~Flavanoids+Phenols, data=training.set, kernel="radial", gamma=1)
+
+# Obszary decyzyjne dla różnych f-cji jądrowych
+plot(svm.poly2, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+legend("top",legend="poly degree 2", bg="azure2")
+plot(svm.poly4, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+legend("top",legend="poly degree 4", bg="azure2")
+plot(svm.radial, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+legend("top",legend="radial", bg="azure2")
+plot(svm.radial.gamma0.1, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+legend("top",legend="RBF, gamma=0.1", bg="azure2")
+plot(svm.radial.gamma1, data=training.set, Flavanoids~Phenols, svSymbol=16, grid=100)
+legend("top",legend="RBF, gamma=1", bg="azure2")
+
+# prognozy i porównanie dokładności
+pred.svm.poly2  <- predict(svm.poly2, newdata=test.set)
+pred.svm.poly4  <- predict(svm.poly4, newdata=test.set)
+pred.svm.radial <- predict(svm.radial, newdata=test.set)
+
+(acc.svm.lin    <- sum(diag(table(pred.svm.lin, real.labels)))/n.test)
+(acc.svm.poly2  <- sum(diag(table(pred.svm.poly2, real.labels)))/n.test)
+(acc.svm.poly4  <- sum(diag(table(pred.svm.poly4, real.labels)))/n.test)
+(acc.svm.radial <- sum(diag(table(pred.svm.radial, real.labels)))/n.test)
+
+```
+
+```{r optymalizacja_parametrów}
+# Jądro liniowe (optymalizujemy parametr C)
+C.range <- 2^((-4):4)
+
+linear.tune <- tune(svm, train.x=training.set[,c("Flavanoids", "Phenols")],
+                    train.y=training.set[,"Type"],
+                    kernel="linear", ranges=list(cost=C.range))
+linear.tune
+plot(linear.tune)
+
+# Jądro gaussowskie (optymalizujemy C i gamma)
+gamma.range <- 2^((-8):4)
+radial.tune <- tune(svm, train.x=training.set[,c("Flavanoids", "Phenols")],
+                    train.y=training.set[,"Type"],
+                    kernel="radial",
+                    ranges=list(cost=C.range, gamma=gamma.range))
+
+print(radial.tune)
+plot(radial.tune, transform.x=log, transform.y=log )
+plot(radial.tune, transform.x=log, transform.y=log, color.palette = topo.colors)
+plot(radial.tune, type="perspective")
+
+
+# Dopasowujemy końcowy model dla optymalnych parametrów
+
+C.best <- radial.tune$best.parameters[["cost"]]
+gamma.best <- radial.tune$best.parameters[["gamma"]]
+
+svm.radial.tuned <- svm(Type~Flavanoids+Phenols,
+                        data=training.set, kernel="radial",
+                        cost=C.best, gamma=gamma.best)
+summary(svm.radial.tuned)
+
+# Prognozowanie na bazie optymalnego modelu
+
+pred.svm.radial.tuned <- predict(svm.radial.tuned, newdata=test.set)
+(acc.svm.radial <- sum(diag(table(pred.svm.radial.tuned, real.labels)))/n.test)
+```
 # zadanie 2
 
 ## a) Wybór i przygotowanie danych
