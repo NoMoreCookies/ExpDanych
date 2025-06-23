@@ -53,6 +53,7 @@ library(gtools)
 library(mclust)
 library(dplyr)
 library(e1071)
+library(patchwork)
 #---------------------------------------------------------
 ```
 
@@ -244,15 +245,19 @@ k <- 6
 
 # Wykresy kołowe dendrogramów z podziałem na 6 klastrów
 
-fviz_dend(agnes_avg, type = "circular", k = k, cex = 0.5, palette = "jco",
-          main = "Kołowy dendrogram - AGNES average linkage")
+plt1 <-fviz_dend(agnes_avg, type = "circular", k = k, cex = 0.5, palette = "jco",show_labels = FALSE)+
+          ggtitle("average linkage")+
+          theme_void()
 
-fviz_dend(agnes_single, type = "circular", k = k, cex = 0.5, palette = "jco",
-          main = "Kołowy dendrogram - AGNES single linkage")
+plt2 <- fviz_dend(agnes_single, type = "circular", k = k, cex = 0.5, palette = "jco",show_labels = FALSE)+
+          ggtitle("single linkage")+
+          theme_void()
 
-fviz_dend(agnes_complete, type = "circular", k = k, cex = 0.5, palette = "jco",
-          main = "Kołowy dendrogram - AGNES complete linkage")
+plt3 <- fviz_dend(agnes_complete, type = "circular", k = k, cex = 0.5, palette = "jco",show_labels = FALSE)+
+          ggtitle("complete linkage")+
+          theme_void()
 
+plt1+plt2+plt3
 
 #------------------------------------------------------------
 ```
@@ -319,7 +324,7 @@ ggplot(results_glass, aes(x = K, y = Silhouette, color = Method)) +
 
 **Pomimo że zbiór danych Glass zawiera aż 6 rzeczywistych klas, najwyższa średnia wartość współczynnika silhouette została uzyskana dla podziału na 2 klastry.** Wskazuje to, że dane te posiadają wyraźniejszą, dwugrupową strukturę wewnętrzną, niezależną od etykiet klas przypisanych z góry. **Współczynnik silhouette** mierzy spójność wewnętrzną klastrów oraz ich separację względem siebie, dlatego może preferować mniejszą liczbę skupień, jeśli podział taki lepiej odzwierciedla naturalne różnice między obserwacjami.
 
-### Wskaźniki zewnętrzne 
+### Wskaźniki zewnętrzne
 
 Funkcja `matchClasses()` (z pakietu **e1071**) zakłada, że liczba klastrów w obu porównywanych partycjach (czyli przewidywanych i rzeczywistych etykietach) **jest taka sama.**
 
@@ -365,6 +370,8 @@ results <- data.frame(
   Accuracy = c(accuracy_avg, accuracy_single, accuracy_complete, accuracy_pam))
 ```
 
+## d) Interpretacja wyników grupowania – charakterystyki skupień
+
 Na podstawie przeprowadzonych analiz, takich jak **współczynnik silhouette** oraz **dokładność dopasowania**, ustalono, że optymalna liczba skupień wynosi **K=2**. Aby lepiej zrozumieć charakterystykę poszczególnych skupień, przeprowadzono porównanie **średnich wartości cech** oraz analizę ich rozkładów za pomocą **wykresów pudełkowych** dla wybranych zmiennych.
 
 ```{r}
@@ -400,12 +407,12 @@ plot_cluster_boxplots <- function(data, cluster_col, features) {
   for (feature in features) {
     p <- ggplot(data, aes(x = .data[[cluster_col]], y = .data[[feature]], fill = .data[[cluster_col]])) +
       geom_boxplot() +
-      labs(title = paste("Rozkład", feature, "w skupieniach"),
-           x = "Skupienie", y = feature) +
+      labs(title = paste(feature),
+           x = NULL, y = NULL) +
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5))
     
-    print(p)
+    return (p)
   }
 }
 
@@ -413,94 +420,100 @@ plot_cluster_boxplots <- function(data, cluster_col, features) {
 ```
 
 ```{r}
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[1]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt1 <- plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
+
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[2]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt2 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
+
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[3]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt3 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r Pobierz nazwę pierwszej cechy (kolumny)}
+
 first_feature <- colnames(Glass)[4]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt4 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
 
-```
 
-```{r}
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[5]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt5 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
+
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[6]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt6 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
+
+
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[7]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt7 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[8]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt8 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
-```
 
-```{r}
 # Pobierz nazwę pierwszej cechy (kolumny)
 first_feature <- colnames(Glass)[9]
 
 # Rysuj wykres pudełkowy dla tej cechy
-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
+plt9 <-plot_cluster_boxplots(glass_with_clusters, cluster_col = "Cluster", features = first_feature)
 
 ```
-Jak przedstawiono w tabeli (na danych bez standaryzacji, aby zachować ich interpretowalność w realistycznym kontekście), największe różnice średnich wartości cech pomiędzy klastrami zaobserwowano dla zmiennych Ba (bar) oraz Mg (magnez). W szczególności, w klastrze 1 wartości obu tych cech są zauważalnie wyższe, przy czym dla zmiennej Mg występują również istotne wartości odstające.
 
-Co ciekawe, mediana zmiennej Ba w klastrze 2 jest znacznie wyższa niż w klastrze 1, co prowadzi do niemal idealnej separacji między tymi dwiema grupami w wymiarze tej zmiennej. Taka konfiguracja sugeruje, że Ba i Mg stanowią kluczowe czynniki różnicujące struktury klastrowe w badanym zbiorze danych.
+```{r}
+final_plot <- (plt1 | plt2 | plt3) /
+              (plt4 | plt5 | plt6) /
+              (plt7 | plt8 | plt9) +
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "right")
 
-Tego rodzaju rozkład jest zgodny z wcześniejszymi założeniami – w kontekście klasyfikacji typu szkła, zawartość baru i magnezu należy do najistotniejszych parametrów różnicujących obserwacje, co znajduje potwierdzenie zarówno w analizie statystycznej, jak i wizualnej.
+final_plot
+```
 
-Warto jednak również przeanalizować, które obserwacje pełnią rolę medoidów (tj. reprezentantów skupień) w przypadku metody PAM (Partitioning Around Medoids) oraz jakie cechy je charakteryzują na tle pozostałych obiektów. Pozwoli to lepiej zrozumieć wewnętrzną strukturę klastrów, a także identyfikować typowe profile obserwacji w ramach poszczególnych grup.
+Jak pokazują **boxploty** oraz **tabela średnich wartości** (na danych bez standaryzacji, dla zachowania ich interpretowalności), **największe różnice między klastrami** dotyczą zmiennych **Ba (bar)** oraz **Mg (magnez)**. W szczególności w **klastrze 1** wartości obu tych cech są wyraźnie wyższe, przy czym dla **Mg** obserwuje się również istotne **wartości odstające**.
 
+Co ciekawe, **mediana Ba** w **klastrze 2** przewyższa tę z klastra 1, co prowadzi do **prawie idealnej separacji grup** w wymiarze tej zmiennej. Sugeruje to, że **Ba i Mg są kluczowymi czynnikami różnicującymi strukturę klastrów**.
 
+Zbliżone różnice obserwujemy również dla zmiennych **K**, **Ri** i **Al**, gdzie **klaster 2** cechuje się wyższymi wartościami średnimi.
+
+Taki rozkład jest spójny z oczekiwaniami – w kontekście klasyfikacji typu szkła, **zawartość baru i magnezu** to jedne z najistotniejszych parametrów różnicujących próbki, co potwierdzają zarówno analizy statystyczne, jak i wizualne.
+
+Dodatkowo warto przyjrzeć się **medoidom** wyłonionym metodą **PAM (Partitioning Around Medoids)**, by zrozumieć, które obserwacje najlepiej reprezentują klastry oraz jakie cechy je wyróżniają na tle pozostałych. Pozwoli to lepiej uchwycić **typowe profile obserwacji** w każdej z grup.
 
 ```{r MELTOIDY}
 
